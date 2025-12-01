@@ -35,13 +35,21 @@
 Møtet med brukeren – rent, moderne og inviterende.
 ![Landingsside](public/app-hero.png)
 
+<details>
+<summary><strong>Klikk for å se Story Engine app</strong></summary>
+
 ### Startside app
 Etter landingssiden – moderne og stilrent panel.
 ![Startside app](public/story-engine.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se genereringen i sanntid</strong></summary>
 
 ### Generation Progress
 Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende oppdateringer.
 ![Generation Progress](public/generation-progress.jpg)
+</details>
 
 ---
 
