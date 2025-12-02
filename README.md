@@ -47,6 +47,9 @@ Etter landingssiden – moderne og stilrent panel.
 <summary><strong>Klikk for å se genereringen i sanntid</strong></summary>
 
 ### Generation Progress
+Noen trinn før genereringen, her foregår researchingen.
+![Generation Progress](public/researching.png)
+
 Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende oppdateringer.
 ![Generation Progress](public/generation-progress.jpg)
 </details>
