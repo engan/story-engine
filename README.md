@@ -91,91 +91,6 @@ flowchart LR
     style CORE fill:#ede9fe,stroke:#7c3aed
     style OUTPUT fill:#dcfce7,stroke:#16a34a
 ```
-
-<details>
-<summary><strong>Klikk for å se Sekvensdiagram (Interaksjon)</strong></summary>
-
-### Sekvensdiagram (Interaksjon)
-
-Hvordan frontend kommuniserer med AI-modellene og håndterer asynkrone strømmer.
-
-```mermaid
-%%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'primaryColor': '#6366f1',
-    'primaryTextColor': '#ffffff',
-    'primaryBorderColor': '#4f46e5',
-    'secondaryColor': '#10b981',
-    'tertiaryColor': '#f0f9ff',
-    'lineColor': '#6366f1',
-    'noteTextColor': '#1e293b',
-    'noteBkgColor': '#fef3c7',
-    'noteBorderColor': '#f59e0b',
-    'actorTextColor': '#1e293b',
-    'actorBkg': '#e0e7ff',
-    'actorBorder': '#6366f1',
-    'activationBkgColor': '#c7d2fe',
-    'activationBorderColor': '#4f46e5',
-    'sequenceNumberColor': '#ffffff'
-  },
-  'sequence': {
-    'mirrorActors': false,
-    'messageAlign': 'center',
-    'width': 180,
-    'useMaxWidth': true
-  }
-}}%%
-
-sequenceDiagram
-    autonumber
-    
-    box rgba(99, 102, 241, 0.1) 🎯 BRUKERGRENSESNITT
-        participant User as 👤 Bruker
-        participant FE as 🖥️ Frontend
-    end
-    
-    box rgba(16, 185, 129, 0.1) 🧠 AI-MOTOR
-        participant AI as ⚡ Gemini API
-    end
-    
-    box rgba(245, 158, 11, 0.1) ⚙️ PROSESSERING
-        participant San as 🛡️ Sanitizer
-        participant DL as 📦 Download
-    end
-
-    Note over User,DL: 🚀 FASE 1: Innholdsgenerering
-    
-    User->>+FE: 📝 Input: Idé eller fil
-    FE->>+AI: 🔗 Prompt + kontekst
-    
-    AI-->>-FE: ✨ Stream (Markdown)
-    
-    loop ⚡ Sanntids-rendering
-        FE->>San: Valider chunk
-        San-->>FE: ✅ Renset output
-        FE-->>User: 🖼️ Live oppdatering
-    end
-    
-    Note over User,DL: 📥 FASE 2: Eksport & Levering
-    
-    User->>FE: 🎯 Velg eksportformat
-    
-    alt 📄 Dokument (PDF/DOCX)
-        FE->>+DL: Generer dokument
-        DL->>DL: MD → Native format
-        DL-->>-User: ⬇️ Last ned fil
-    else 🎬 Media (Audio/Video)
-        FE->>+DL: Generer media
-        DL->>+AI: TTS / Bildegenerering
-        AI-->>-DL: 🎨 Assets
-        DL-->>-User: ⬇️ Last ned ZIP
-    end
-    
-    Note over User,DL: ✅ Komplett arbeidsflyt
-```
-</details>
-
 <details>
 <summary><strong>Klikk for å se Dataflyt (Input → Eksport)</strong></summary>
 
@@ -314,7 +229,90 @@ graph TD
     class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM exportNode
     class PlanningLogic,SearchDecision,IllustrationDecision,AudioDecision decisionNode
 ```
+</details>
 
+<details>
+<summary><strong>Klikk for å se Sekvensdiagram (Interaksjon)</strong></summary>
+
+### Sekvensdiagram (Interaksjon)
+
+Hvordan frontend kommuniserer med AI-modellene og håndterer asynkrone strømmer.
+
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6366f1',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#4f46e5',
+    'secondaryColor': '#10b981',
+    'tertiaryColor': '#f0f9ff',
+    'lineColor': '#6366f1',
+    'noteTextColor': '#1e293b',
+    'noteBkgColor': '#fef3c7',
+    'noteBorderColor': '#f59e0b',
+    'actorTextColor': '#1e293b',
+    'actorBkg': '#e0e7ff',
+    'actorBorder': '#6366f1',
+    'activationBkgColor': '#c7d2fe',
+    'activationBorderColor': '#4f46e5',
+    'sequenceNumberColor': '#ffffff'
+  },
+  'sequence': {
+    'mirrorActors': false,
+    'messageAlign': 'center',
+    'width': 180,
+    'useMaxWidth': true
+  }
+}}%%
+
+sequenceDiagram
+    autonumber
+    
+    box rgba(99, 102, 241, 0.1) 🎯 BRUKERGRENSESNITT
+        participant User as 👤 Bruker
+        participant FE as 🖥️ Frontend
+    end
+    
+    box rgba(16, 185, 129, 0.1) 🧠 AI-MOTOR
+        participant AI as ⚡ Gemini API
+    end
+    
+    box rgba(245, 158, 11, 0.1) ⚙️ PROSESSERING
+        participant San as 🛡️ Sanitizer
+        participant DL as 📦 Download
+    end
+
+    Note over User,DL: 🚀 FASE 1: Innholdsgenerering
+    
+    User->>+FE: 📝 Input: Idé eller fil
+    FE->>+AI: 🔗 Prompt + kontekst
+    
+    AI-->>-FE: ✨ Stream (Markdown)
+    
+    loop ⚡ Sanntids-rendering
+        FE->>San: Valider chunk
+        San-->>FE: ✅ Renset output
+        FE-->>User: 🖼️ Live oppdatering
+    end
+    
+    Note over User,DL: 📥 FASE 2: Eksport & Levering
+    
+    User->>FE: 🎯 Velg eksportformat
+    
+    alt 📄 Dokument (PDF/DOCX)
+        FE->>+DL: Generer dokument
+        DL->>DL: MD → Native format
+        DL-->>-User: ⬇️ Last ned fil
+    else 🎬 Media (Audio/Video)
+        FE->>+DL: Generer media
+        DL->>+AI: TTS / Bildegenerering
+        AI-->>-DL: 🎨 Assets
+        DL-->>-User: ⬇️ Last ned ZIP
+    end
+    
+    Note over User,DL: ✅ Komplett arbeidsflyt
+```
 </details>
 
 ---
@@ -422,6 +420,11 @@ Vi bygger fremtidens publiseringsverktøy. Her er hva som kommer:
 *   📱 **PWA-støtte**: Full offline-støtte for journalister i felt (etter avtale).
 
 ---
+
+<details>
+  <summary>📊</summary>
+  <img src="https://komarev.com/ghpvc/?username=engan&label=V&color=0e75b6&style=flat" alt="Besøksstatistikk" />
+</details>
 
 <div align="center">
   <p>Utviklet med ❤️ i Norge</p>
