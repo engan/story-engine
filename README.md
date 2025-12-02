@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Gemini 3 Pro](https://img.shields.io/badge/Gemini_3_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
-![Made in Norway](https://img.shields.io/badge/Made_in_Norway-EF2B2D?style=for-the-badge&logo=flag-icon&logoColor=white)
+![Made in Norway](https://img.shields.io/badge/Made_in_Norway-A63A3A?style=for-the-badge&logo=flag-icon&logoColor=white)
 
 ![Story Engine Infographic](public/infographic.png)
 
