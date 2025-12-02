@@ -58,6 +58,40 @@ Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende o
 
 ## 🏗️ Teknisk Arkitektur
 
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {
+  'primaryColor': '#3b82f6',
+  'primaryTextColor': '#fff',
+  'lineColor': '#6366f1',
+  'tertiaryColor': '#f1f5f9'
+}}}%%
+
+flowchart LR
+    subgraph INPUT["📥 INPUT"]
+        A[💡 Idé] 
+        B[📄 Fil]
+    end
+    
+    subgraph CORE["⚡ AI CORE"]
+        C[🧠 Gemini API]
+        D[🛡️ Sanitizer]
+    end
+    
+    subgraph OUTPUT["📤 OUTPUT"]
+        E[📝 PDF]
+        F[📘 DOCX]
+        G[🎙️ Audio]
+        H[🎬 Video]
+    end
+    
+    INPUT --> CORE
+    CORE --> OUTPUT
+    
+    style INPUT fill:#e0f2fe,stroke:#0284c7
+    style CORE fill:#ede9fe,stroke:#7c3aed
+    style OUTPUT fill:#dcfce7,stroke:#16a34a
+```
+
 <details>
 <summary><strong>Klikk for å se Sekvensdiagram (Interaksjon)</strong></summary>
 
@@ -66,37 +100,79 @@ Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende o
 Hvordan frontend kommuniserer med AI-modellene og håndterer asynkrone strømmer.
 
 ```mermaid
-%%{init: {'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial'}}}%%
-sequenceDiagram
-    participant User as 👤 Bruker
-    participant FE as 🖥️ Frontend (App)
-    participant AI as 🧠 Gemini API
-    participant San as 🧼 Sanitizer
-    participant DL as 💾 DownloadService
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6366f1',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#4f46e5',
+    'secondaryColor': '#10b981',
+    'tertiaryColor': '#f0f9ff',
+    'lineColor': '#6366f1',
+    'noteTextColor': '#1e293b',
+    'noteBkgColor': '#fef3c7',
+    'noteBorderColor': '#f59e0b',
+    'actorTextColor': '#1e293b',
+    'actorBkg': '#e0e7ff',
+    'actorBorder': '#6366f1',
+    'activationBkgColor': '#c7d2fe',
+    'activationBorderColor': '#4f46e5',
+    'sequenceNumberColor': '#ffffff'
+  },
+  'sequence': {
+    'mirrorActors': false,
+    'messageAlign': 'center',
+    'width': 180,
+    'useMaxWidth': true
+  }
+}}%%
 
-    User->>FE: Skriver idé / Laster opp fil
-    FE->>AI: Sender prompt + kontekst
-    activate AI
-    AI-->>FE: Streamer chunks (Markdown)
-    deactivate AI
+sequenceDiagram
+    autonumber
     
-    loop Live Processing
-        FE->>San: Validerer innhold
-        San-->>FE: Returnerer renset HTML/MD
-        FE-->>User: Oppdaterer visning
+    box rgba(99, 102, 241, 0.1) 🎯 BRUKERGRENSESNITT
+        participant User as 👤 Bruker
+        participant FE as 🖥️ Frontend
     end
     
-    User->>FE: Klikker "Last ned" (Velger format)
-    alt PDF/DOCX
-        FE->>DL: Trigger dokument-generering
-        DL->>DL: Parser Markdown til Native Format
-        DL-->>User: Laster ned fil
-    else Audio/Video
-        FE->>DL: Trigger medie-generering
-        DL->>AI: Be om TTS / Bildegenerering
-        AI-->>DL: Returnerer assets
-        DL-->>User: Laster ned ZIP/Media
+    box rgba(16, 185, 129, 0.1) 🧠 AI-MOTOR
+        participant AI as ⚡ Gemini API
     end
+    
+    box rgba(245, 158, 11, 0.1) ⚙️ PROSESSERING
+        participant San as 🛡️ Sanitizer
+        participant DL as 📦 Download
+    end
+
+    Note over User,DL: 🚀 FASE 1: Innholdsgenerering
+    
+    User->>+FE: 📝 Input: Idé eller fil
+    FE->>+AI: 🔗 Prompt + kontekst
+    
+    AI-->>-FE: ✨ Stream (Markdown)
+    
+    loop ⚡ Sanntids-rendering
+        FE->>San: Valider chunk
+        San-->>FE: ✅ Renset output
+        FE-->>User: 🖼️ Live oppdatering
+    end
+    
+    Note over User,DL: 📥 FASE 2: Eksport & Levering
+    
+    User->>FE: 🎯 Velg eksportformat
+    
+    alt 📄 Dokument (PDF/DOCX)
+        FE->>+DL: Generer dokument
+        DL->>DL: MD → Native format
+        DL-->>-User: ⬇️ Last ned fil
+    else 🎬 Media (Audio/Video)
+        FE->>+DL: Generer media
+        DL->>+AI: TTS / Bildegenerering
+        AI-->>-DL: 🎨 Assets
+        DL-->>-User: ⬇️ Last ned ZIP
+    end
+    
+    Note over User,DL: ✅ Komplett arbeidsflyt
 ```
 </details>
 
