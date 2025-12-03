@@ -266,6 +266,7 @@ graph TD
     class RawMD,Fix1,Fix2,Fix3,CleanMD sanitizerNode
     class Screen viewNode
 ```
+![Oversikt](public/flowchart-tra.png)
 </details>
 
 <details>
