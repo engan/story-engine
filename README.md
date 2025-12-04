@@ -339,42 +339,91 @@ sequenceDiagram
     
     box rgba(16, 185, 129, 0.1) 🧠 AI-MOTOR
         participant AI as ⚡ Gemini API
+        participant Search as 🔍 Google Search
+        participant Imagen as 🎨 Imagen
     end
     
     box rgba(245, 158, 11, 0.1) ⚙️ PROSESSERING
         participant San as 🛡️ Sanitizer
+        participant Parse as 📑 Parser
         participant DL as 📦 Download
     end
 
-    Note over User,DL: 🚀 FASE 1: Innholdsgenerering
+    Note over User,DL: 🎯 FASE 1: Input & AI-Anbefalinger
     
-    User->>+FE: 📝 Input: Idé eller fil
-    FE->>+AI: 🔗 Prompt + kontekst
+    User->>+FE: 📝 Input: Idé, fil eller URL
+    FE->>+AI: 🤖 Analyser innhold
+    AI-->>-FE: 💡 Core Idea + Anbefalinger
+    FE-->>User: ✨ Foreslått kategori/sjanger/søk
+
+    Note over User,DL: 📐 FASE 2: Planlegging & Research
     
-    AI-->>-FE: ✨ Stream (Markdown)
+    User->>FE: ✅ Godkjenn innstillinger
+    FE->>+AI: 📋 Generer plan
     
-    loop ⚡ Sanntids-rendering
-        FE->>San: Valider chunk
-        San-->>FE: ✅ Renset output
-        FE-->>User: 🖼️ Live oppdatering
+    alt 🔍 Google Search aktivert
+        AI->>+Search: Søk etter fakta
+        Search-->>-AI: 📰 Grounded data + kilder
     end
     
-    Note over User,DL: 📥 FASE 2: Eksport & Levering
+    AI-->>-FE: 📖 NovelPlan (JSON)
+    FE->>+Imagen: 🖼️ Generer cover
+    Imagen-->>-FE: 🎨 Base64 bilde
+
+    Note over User,DL: ✍️ FASE 3: Innholdsgenerering
     
-    User->>FE: 🎯 Velg eksportformat
+    FE->>+AI: 📚 Generer kapitler (batch)
     
-    alt 📄 Dokument (PDF/DOCX)
-        FE->>+DL: Generer dokument
-        DL->>DL: MD → Native format
-        DL-->>-User: ⬇️ Last ned fil
-    else 🎬 Media (Audio/Video)
-        FE->>+DL: Generer media
-        DL->>+AI: TTS / Bildegenerering
-        AI-->>-DL: 🎨 Assets
-        DL-->>-User: ⬇️ Last ned ZIP
+    loop 📖 Per kapittel (streaming)
+        AI-->>FE: ✨ Markdown chunk
+        FE->>San: 🧼 Valider + rens
+        San-->>FE: ✅ Ren output
+        FE-->>User: 🖼️ Live oppdatering (gul tekst)
     end
     
-    Note over User,DL: ✅ Komplett arbeidsflyt
+    AI-->>-FE: ✅ Alle kapitler ferdig
+    
+    opt 🎁 Add-ons aktivert
+        loop 📖 Per kapittel
+            opt 🖼️ Illustrasjoner
+                FE->>+Imagen: Generer kapittel-bilde
+                Imagen-->>-FE: 🎨 Base64 bilde
+            end
+            opt 🎙️ Audio
+                FE->>+AI: TTS narrasjon
+                AI-->>-FE: 🔊 Base64 audio
+            end
+        end
+    end
+    
+    FE-->>User: 📺 Komplett visning (hvit tekst)
+
+    Note over User,DL: 📥 FASE 4: Eksport & Levering
+    
+    User->>FE: 📁 Velg eksportformat
+    FE->>Parse: 📑 MD → Strukturerte blokker
+    Parse-->>FE: 📦 Headers, lister, tabeller, mermaid
+    
+    alt 📄 Dokument (TXT)
+        FE->>+DL: YAML + Markdown
+        DL-->>-User: ⬇️ .txt fil
+    else 📕 Dokument (PDF)
+        FE->>+DL: Blokker → jsPDF
+        DL->>DL: 🎨 Bold/italic + Mermaid PNG
+        DL-->>-User: ⬇️ .pdf fil
+    else 📘 Dokument (DOCX)
+        FE->>+DL: Blokker → docx
+        DL->>DL: 📝 Numbered lists + styling
+        DL-->>-User: ⬇️ .docx fil
+    else 🎵 Audio (MP3)
+        FE->>+DL: Audio chunks → lamejs
+        DL-->>-User: ⬇️ .zip (MP3 per kapittel)
+    else 🎬 Video (WebM)
+        FE->>+DL: Audio + bilder → WebCodecs
+        DL-->>-User: ⬇️ .zip (WebM per kapittel)
+    end
+    
+    Note over User,DL: 📊 Kostnadssporing oppdateres kontinuerlig
 ```
 </details>
 
