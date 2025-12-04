@@ -68,35 +68,38 @@ Dette diagrammet viser hvordan data beveger seg fra brukerens input, gjennom vå
 ```mermaid
 graph TD
     %% ═══════════════════════════════════════════
-    %% 📱 NOVEL GENERATOR - KOMPLETT DATAFLYT
+    %% 📱 STORY ENGINE - KOMPLETT DATAFLYT
+    %% Oppdatert: Desember 2025
     %% ═══════════════════════════════════════════
 
     %% ─── FASE -1: LANDING PAGE ───
     Entry((("🚀 App Start")))
-    Entry --> LandingPage["🏠 Landing Page<br/><i>LandingPage.tsx</i><br/>Marketing innhold"]
+    Entry --> LandingPage["🏠 Landing Page<br/><i>LandingPage.tsx</i>"]
     LandingPage -->|"Kom i gang"| UserStart((("👤 Bruker")))
 
     %% ─── FASE 0: INPUT KILDER ───
     subgraph InputSources ["📥 INPUT KILDER"]
         direction TB
         IdeaInput["📝 Core Idea<br/><i>Tekstfelt</i>"]
-        FileInput["📁 Fil Upload<br/><i>Audio/Video/Image/<br/>PDF/DOCX/ZIP</i>"]
+        FileInput["📁 Fil Upload<br/><i>Audio/Video/Image/<br/>PDF/DOCX/ZIP/Code</i>"]
         URLInput["🌐 URL Analyse<br/><i>Nettside</i>"]
-        PlanFile["📄 .txt Plan<br/><i>Tidligere lagret</i>"]
+        PlanFile["📄 .txt Plan<br/><i>Tidligere eksport</i>"]
     end
 
     UserStart -->|"Velger kilde"| InputSources
 
-    %% ─── FASE 1: ANALYSE & PARSING ───
+    %% ─── FASE 1: ANALYSE & AI-ANBEFALINGER ───
     subgraph Analysis ["🔍 ANALYSE & PARSING"]
         direction TB
         FileAnalyzer["⚙️ Fil Analysering<br/><i>geminiService</i>"]
         PromptService1["📋 Prompt Service<br/><i>getAnalyze*Prompt()</i>"]
         URLAnalyzer["🔗 URL Scraping<br/><i>externalApiService</i>"]
         FileParser["📑 Plan Parser<br/><i>fileParser - YAML+MD</i>"]
+        AIRecommend["🤖 AI Anbefalinger<br/><i>Kategori/Sjanger/Søk</i>"]
     end
 
-    IdeaInput -->|"Direkte tekst"| UI["🎨 GenerationView<br/><i>Hovedgrensesnitt</i>"]
+    IdeaInput -->|"Direkte tekst"| AIRecommend
+    AIRecommend -->|"Foreslår innstillinger"| UI["🎨 IntroView<br/><i>Konfigurasjon</i>"]
     
     FileInput -->|"analyzeReferenceFile()"| FileAnalyzer
     FileAnalyzer -->|"getAnalyze*Prompt()"| PromptService1
@@ -106,7 +109,7 @@ graph TD
     URLAnalyzer -->|"Henter innhold"| GeminiAPI1
     
     GeminiAPI1 -->|"Returnerer analyse"| CoreIdea["💡 Core Idea<br/><i>Populert</i>"]
-    CoreIdea --> UI
+    CoreIdea --> AIRecommend
     
     PlanFile -->|"parseNovelPlanFromFile()"| FileParser
     FileParser -->|"Ferdig plan"| PlanReady["📋 NovelPlan<br/><i>Klar til bruk</i>"]
@@ -115,7 +118,7 @@ graph TD
     subgraph Planning ["📐 PLANLEGGING"]
         direction TB
         PlanGenerator["📝 Plan Generator<br/><i>generateNovelPlan()</i>"]
-        PromptService2["📋 Prompt Service<br/><i>getNovelPlanPrompt()</i>"]
+        PromptService2["📋 Prompt Service<br/><i>getNovelPlanPrompt()</i><br/><i>+ Sub-options</i>"]
     end
 
     UI -->|"handleStartPlanning()"| PlanningLogic{"🤔 Har vi<br/>en plan?"}
@@ -126,36 +129,43 @@ graph TD
     PromptService2 -->|"Strukturert prompt"| GeminiAPI2["🤖 Gemini API<br/><i>2.5-pro</i>"]
 
     GeminiAPI2 --> SearchDecision{"🔎 Google<br/>Search?"}
-    SearchDecision -->|"Ja"| SearchAPI["🌍 Google Search<br/><i>Grounding</i>"]
+    SearchDecision -->|"Ja"| SearchAPI["🌍 Google Search<br/><i>Grounding + Citations</i>"]
     SearchAPI -->|"Grounded data"| GeminiAPI2
     SearchDecision -->|"Nei"| NoSearch["📄 Standard<br/>generering"]
     NoSearch --> PlanReady
-    GeminiAPI2 -->|"JSON Plan"| PlanReady
+    GeminiAPI2 -->|"JSON Plan + metadata"| PlanReady
 
     %% ─── FASE 3: COVER IMAGE ───
-    PlanReady -->|"generateImage()"| ImageGen["🎨 Imagen 4.0<br/><i>Cover generering</i>"]
+    subgraph CoverGen ["🖼️ COVER GENERERING"]
+        direction LR
+        ImageGen["🎨 Imagen 4.0<br/><i>Ultra/Standard/Fast</i>"]
+        ModelPricing["💰 modelPricing<br/><i>Kostnadssporing</i>"]
+    end
+    
+    PlanReady -->|"generateImage()"| ImageGen
+    ImageGen -->|"incrementImageCount()"| ModelPricing
     ImageGen -->|"Base64 bilde"| PlanWithCover["📖 NovelPlan<br/><i>+ coverImageUrl</i>"]
 
     %% ─── FASE 4: INNHOLDSGENERERING ───
     subgraph ContentGen ["✍️ INNHOLDSGENERERING"]
         direction TB
         ChapterGen["📚 Kapittel Generator<br/><i>generateChapterBatch()</i>"]
-        PromptService3["📋 Prompt Service<br/><i>getBaseChapterPrompt()</i>"]
+        PromptService3["📋 Prompt Service<br/><i>getBaseChapterPrompt()</i><br/><i>+ markdownRules</i>"]
         StreamHandler["📡 Stream Handler<br/><i>geminiService</i>"]
     end
 
     PlanWithCover -->|"Batch av kapitler"| ChapterGen
     ChapterGen -->|"getBaseChapterPrompt()"| PromptService3
-    PromptService3 -->|"Detaljert prompt"| GeminiAPI3["🤖 Gemini API<br/><i>2.5-pro Streaming</i>"]
+    PromptService3 -->|"Strukturert prompt"| GeminiAPI3["🤖 Gemini API<br/><i>2.5-pro Streaming</i>"]
     GeminiAPI3 -->|"Streamer Markdown"| StreamHandler
 
     %% ─── FASE 5: VASKEMASKINEN ───
     subgraph Sanitizer ["🧼 VASKEMASKINEN"]
         direction LR
         RawMD["📄 Rå MD"]
-        Fix1["🔧 Fix Tags<br/><i>Regex</i>"]
-        Fix2["✅ Mermaid<br/><i>Validering</i>"]
-        Fix3["📝 MD Format<br/><i>Spacing/Tables</i>"]
+        Fix1["🔧 ContentSanitizer<br/><i>Tags/Headers</i>"]
+        Fix2["✅ mermaidRules<br/><i>Diagram-validering</i>"]
+        Fix3["📝 Spacing<br/><i>Tabeller/Lister</i>"]
         CleanMD["✨ Ren MD"]
         RawMD --> Fix1 --> Fix2 --> Fix3 --> CleanMD
     end
@@ -165,13 +175,13 @@ graph TD
     %% ─── FASE 6: ADD-ONS ───
     subgraph AddOns ["🎁 ADD-ONS"]
         direction TB
-        AddOnProcessor["⚡ Add-On Processor"]
+        AddOnProcessor["⚡ processChapterAddOns()"]
         ChapterImageGen["🖼️ Imagen 4.0<br/><i>Illustrasjoner</i>"]
-        NarrationGen["🎙️ Gemini TTS<br/><i>Narrasjon</i>"]
+        NarrationGen["🎙️ Gemini TTS<br/><i>Flash/Pro</i>"]
         RadioPlayGen["📻 Radio Play<br/><i>Multi-voice</i>"]
     end
 
-    CleanMD -->|"processAddOnsForChapters()"| AddOnProcessor
+    CleanMD -->|"Kapittel ferdig"| AddOnProcessor
 
     AddOnProcessor --> IllustrationDecision{"🖼️ Bilder?"}
     IllustrationDecision -->|"Ja"| ChapterImageGen
@@ -185,35 +195,48 @@ graph TD
     NarrationGen -->|"Base64 audio"| FinalChapter
     RadioPlayGen -->|"Audio + script"| FinalChapter
 
-    %% ─── FASE 7: STATE ───
-    FinalChapter -->|"setGeneratedNovel()"| AppState[("💾 Global State<br/><i>React State</i>")]
+    %% ─── FASE 7: STATE & KOSTNADSSPORING ───
+    subgraph StateTracking ["💾 STATE & SPORING"]
+        direction LR
+        AppState[("App State<br/><i>React</i>")]
+        UsageMetrics["📊 UsageMetrics<br/><i>Tokens/Images/Audio</i>"]
+    end
+    
+    FinalChapter -->|"setGeneratedNovel()"| AppState
+    ModelPricing --> UsageMetrics
+    AppState --> UsageMetrics
 
     %% ─── FASE 8: RENDERING ───
     AppState -->|"Sender data"| Viewer["🖥️ ContentRenderer<br/><i>react-markdown + Mermaid</i>"]
-    Viewer -->|"Rendrer innhold"| Screen["📺 Live Visning<br/><i>Dark theme</i>"]
+    Viewer -->|"Rendrer innhold"| Screen["📺 GenerationView<br/><i>Live + Yellow text</i>"]
 
     %% ─── FASE 9: EKSPORT ───
     UserEnd((("👤 Bruker")))
     UserEnd -.->|"Ser dokument"| Screen
-    UserEnd -->|"Last Ned"| DownloadBtn["⬇️ DownloadModal"]
+    UserEnd -->|"Last Ned"| DownloadBtn["⬇️ DownloadModal<br/><i>Format + Progress</i>"]
 
     DownloadBtn --> FormatChoice{"📁 Format?"}
 
     subgraph ExportService ["📤 EKSPORT SERVICE"]
         direction TB
         DLService["🔧 downloadService"]
+        ContentParse["📑 ContentParser<br/><i>MD → Blokker</i>"]
+        DocStyles["🎨 documentStyles<br/><i>PDF/DOCX stiler</i>"]
         FullMD["📄 Full Markdown<br/><i>YAML + Innhold</i>"]
+        DLService --> ContentParse
+        DLService --> DocStyles
         DLService --> FullMD
     end
 
     AppState -->|"NovelPlan + Chapters"| DLService
+    UsageMetrics -->|"Produksjonsrapport"| DLService
 
     subgraph ExportFormats ["💾 EKSPORT FORMATER"]
         direction TB
-        ExportTXT["📄 .txt<br/><i>handleDownloadTxt()</i>"]
-        GeneratePDF["📕 PDF Generator<br/><i>jsPDF + ContentParser</i>"]
-        ExportPDF["📕 .pdf<br/><i>A4 print-vennlig</i>"]
-        GenerateDOCX["📘 DOCX Generator<br/><i>docx library</i>"]
+        ExportTXT["📄 .txt<br/><i>YAML + Markdown</i>"]
+        GeneratePDF["📕 PDF Generator<br/><i>jsPDF + Bold/Italic</i>"]
+        ExportPDF["📕 .pdf<br/><i>A4 + Mermaid PNG</i>"]
+        GenerateDOCX["📘 DOCX Generator<br/><i>docx + Numbered lists</i>"]
         ExportDOCX["📘 .docx<br/><i>Native Word</i>"]
         GenerateMP3["🎵 Audio Processor<br/><i>lamejs + JSZip</i>"]
         ExportMP3["🎵 .zip<br/><i>MP3 24kHz mono</i>"]
@@ -225,11 +248,11 @@ graph TD
     FullMD --> ExportTXT
 
     FormatChoice -->|"PDF"| GeneratePDF
-    FullMD --> GeneratePDF
+    ContentParse --> GeneratePDF
     GeneratePDF --> ExportPDF
 
     FormatChoice -->|"DOCX"| GenerateDOCX
-    FullMD --> GenerateDOCX
+    ContentParse --> GenerateDOCX
     GenerateDOCX --> ExportDOCX
 
     FormatChoice -->|"MP3"| GenerateMP3
@@ -254,17 +277,19 @@ graph TD
     classDef decisionNode fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#c2410c
     classDef sanitizerNode fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#075985
     classDef viewNode fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px,color:#5b21b6
+    classDef metricsNode fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#854d0e
 
     class Entry,UserStart,UserEnd userNode
     class LandingPage landingNode
     class GeminiAPI1,GeminiAPI2,GeminiAPI3,SearchAPI,ImageGen,ChapterImageGen,NarrationGen,RadioPlayGen apiNode
-    class UI,ChapterGen,StreamHandler,Viewer,AddOnProcessor processNode
-    class PromptService1,PromptService2,PromptService3,DLService,FileAnalyzer,URLAnalyzer,FileParser serviceNode
+    class UI,ChapterGen,StreamHandler,Viewer,AddOnProcessor,AIRecommend processNode
+    class PromptService1,PromptService2,PromptService3,DLService,FileAnalyzer,URLAnalyzer,FileParser,ContentParse,DocStyles serviceNode
     class AppState,PlanReady,CoreIdea,FinalChapter,PlanWithCover,ChapterWithImage,PlanGenerator,NoSearch stateNode
     class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,FullMD,DownloadBtn exportNode
     class PlanningLogic,SearchDecision,IllustrationDecision,AudioDecision,FormatChoice decisionNode
     class RawMD,Fix1,Fix2,Fix3,CleanMD sanitizerNode
     class Screen viewNode
+    class ModelPricing,UsageMetrics metricsNode
 ```
 ![Oversikt](public/flowchart-tr.png)
 </details>
@@ -372,46 +397,62 @@ Her er en oversikt over kjernesystemene.
 │   │   └── LandingPage.tsx        # Salgsplakaten (Entry point)
 │   ├── ui/                      # Gjenbrukbare komponenter
 │   │   ├── ContentRenderer.tsx    # "TV-skjermen" - Live Markdown/Mermaid motor
-│   │   ├── Mermaid.tsx            # Spesialisert diagram-visning
+│   │   ├── DownloadModal.tsx      # Eksport-grensesnitt med fremdriftsindikator
+│   │   ├── ErrorBoundary.tsx      # Feilhåndtering for React-komponenter
+│   │   ├── LoadingView.tsx        # Lasteindikator og avbrytelsesmulighet
 │   │   ├── LogViewer.tsx          # Terminal-visning av AI-prosessen
-│   │   └── DownloadModal.tsx      # Eksport-grensesnitt
+│   │   ├── Mermaid.tsx            # Spesialisert diagram-visning
+│   │   ├── PlanningStepper.tsx    # Trinnvis planleggingsvisning
+│   │   └── SettingsModal.tsx      # Brukerinnstillinger
 │   └── views/                   # Applikasjonens hovedtilstander
-│       ├── IntroView.tsx          # Input og analyse av filer
-│       ├── GenerationView.tsx     # Streaming og skriving (Hovedvisning)
-│       └── CompleteView.tsx       # Ferdig resultat
+│       ├── IntroView.tsx          # Input, filanalyse og AI-anbefalinger
+│       ├── CastingView.tsx        # Karakteroversikt for skjønnlitteratur
+│       ├── GenerationView.tsx     # Live streaming av innhold
+│       └── CompleteView.tsx       # Ferdig resultat med forhåndsvisning
 │
 ├── services/                  # LOGIKKLAGET (Backend-logic)
-│   ├── geminiService.ts         # API-orkestrering mot Google Gemini
-│   ├── prompts.ts               # "Hjernen" - Systeminstrukser og personaer
+│   ├── geminiService.ts         # API-orkestrering mot Google Gemini (plan, kapitler, lyd, bilde)
+│   ├── prompts.ts               # "Hjernen" - Systeminstrukser, personaer og sub-options
 │   ├── ContentSanitizer.ts      # "Vaskemaskinen" - Sanering av AI-output
-│   ├── ContentParser.ts         # Strukturerer råtekst til objekter
-│   ├── downloadService.ts       # Native generering av PDF, DOCX og MP3
-│   ├── externalApiService.ts    # Koblinger mot tredjeparts kilder
+│   ├── ContentParser.ts         # Markdown → strukturerte blokker (headers, lister, tabeller, mermaid)
+│   ├── downloadService.ts       # Native generering av PDF, DOCX, MP3 og WebM
+│   ├── documentStyles.ts        # Sentraliserte stil-definisjoner for PDF/DOCX
+│   ├── modelPricing.ts          # Prising og modellkonfigurasjon for Imagen/Gemini
+│   ├── externalApiService.ts    # Koblinger mot tredjepartskilder (URL-analyse)
 │   ├── mermaidRules.ts          # Streng logikk for diagram-syntaks
-│   └── markdownRules.ts         # Regler for dokumentformatering
+│   ├── markdownRules.ts         # Regler for dokumentformatering
+│   └── professionalVisualization.ts  # Avanserte visualiseringsprompts
 │
 ├── utils/                     # HJELPEFUNKSJONER
-│   ├── audio.ts                 # Lydbehandling
-│   ├── fileParser.ts            # Analyse av opplastede filer (PDF/Zip/Code)
-│   └── dom.ts                   # DOM-manipulasjon
+│   ├── audio.ts                 # PCM til MP3 konvertering (lamejs)
+│   ├── fileParser.ts            # Analyse av opplastede filer (PDF/Zip/Code/YAML)
+│   └── dom.ts                   # DOM-manipulasjon for Mermaid-rendering
 │
 ├── public/                    # STATISKE RESSURSER
-│   ├── infographic.png          # Systemoversikt
-│   ├── app-hero.png             # Landingsside
-│   ├── gen-progress.jpg         # Generation Progress
+│   ├── infographic.png          # Systemoversikt / fallback-bilde
+│   ├── flowchart.png            # Dataflyt-diagram
+│   ├── app-hero.png             # Landingsside hero
 │   └── story-engine.png         # Startside app
 │
-├── App.tsx                      # Applikasjonens kjerne og ruting
+├── App.tsx                      # Global state, view-ruting og kostnadssporing
+├── types.ts                     # TypeScript-typer og interfaces
+├── genres.ts                    # Genre-definisjoner (155 kombinasjoner)
+├── genreOptions.ts              # Sub-options per kategori/genre
+├── languages.ts                 # Språkstøtte
+├── constants.ts                 # Globale konstanter
 ├── index.html                   # Entry point
-└── [Konfigurasjon]              # vite.config.ts, tailwind.config.js, tsconfig.json
+└── [Konfigurasjon]              # vite.config.ts, tailwind.config.js, tsconfig.json, postcss.config.js
 ```
 
 ### Nøkkelkomponenter forklart
 
-* `services/prompts.ts`: Dette er systemets hjerne. Her defineres alle AI-personligheter, fra den kreative forfatteren til den kritiske faktasjekkeren.
-* `services/ContentSanitizer.ts`: Vår proprietære "vaskemaskin". Denne sikrer at all kode og markdown som genereres av AI-en er syntaktisk korrekt før den treffer brukergrensesnittet.
-* `components/ui/ContentRenderer.tsx`: En avansert visningsmotor som renderer tekst, kode og diagrammer i sanntid mens AI-en skriver.
-* `services/downloadService.ts`: En "Native Document Generator" som bygger ekte Word- og PDF-filer binært, i stedet for å bare ta skjermbilde av nettsiden.
+* `services/prompts.ts`: Systemets hjerne. Definerer AI-personligheter, sub-options (research-dybde, faktasjekk, artikkelvinkel), og strukturerte instruksjoner.
+* `services/ContentSanitizer.ts`: "Vaskemaskinen" som renser AI-output: fjerner ugyldige tegn, korrigerer header-spacing, og validerer Mermaid-syntaks.
+* `services/ContentParser.ts`: Konverterer Markdown til strukturerte blokker (header, paragraph, list, table, mermaid, code) for konsistent eksport.
+* `components/ui/ContentRenderer.tsx`: Sanntidsmotor som bruker react-markdown + remark-gfm for live rendering med støtte for tabeller, kode og Mermaid.
+* `services/downloadService.ts`: Native dokumentgenerator med jsPDF (PDF), docx (DOCX), lamejs (MP3) og WebCodecs (WebM).
+* `services/documentStyles.ts`: Sentralisert stilkonfigurasjon for konsistent formatering på tvers av PDF og DOCX.
+* `services/modelPricing.ts`: Administrerer Imagen-modeller (Ultra/Standard/Fast) og beregner produksjonskostnader.
 
 </details>
 
