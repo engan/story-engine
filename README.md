@@ -242,6 +242,8 @@ graph TD
         ExportMP3["🎵 .zip<br/><i>MP3 24kHz mono</i>"]
         GenerateWebM["🎬 Video Processor<br/><i>WebCodecs + VP9</i>"]
         ExportWebM["🎬 .zip<br/><i>WebM per kapittel</i>"]
+        GenerateAssets["📦 Asset Bundler<br/><i>JSZip + PNG</i>"]
+        ExportAssets["📦 .zip<br/><i>Bilder/Diagrammer</i>"]
     end
 
     FormatChoice -->|"TXT"| ExportTXT
@@ -262,6 +264,10 @@ graph TD
     FormatChoice -->|"WebM"| GenerateWebM
     AppState -->|"audio + image"| GenerateWebM
     GenerateWebM --> ExportWebM
+
+    FormatChoice -->|"Assets"| GenerateAssets
+    AppState -->|"images + Content"| GenerateAssets
+    GenerateAssets --> ExportAssets
 
     %% ═══════════════════════════════════════════
     %% 🎨 STYLING CLASSES (GitHub Compatible)
@@ -285,7 +291,7 @@ graph TD
     class UI,ChapterGen,StreamHandler,Viewer,AddOnProcessor,AIRecommend processNode
     class PromptService1,PromptService2,PromptService3,DLService,FileAnalyzer,URLAnalyzer,FileParser,ContentParse,DocStyles serviceNode
     class AppState,PlanReady,CoreIdea,FinalChapter,PlanWithCover,ChapterWithImage,PlanGenerator,NoSearch stateNode
-    class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,FullMD,DownloadBtn exportNode
+    class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,ExportAssets,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,GenerateAssets,FullMD,DownloadBtn exportNode
     class PlanningLogic,SearchDecision,IllustrationDecision,AudioDecision,FormatChoice decisionNode
     class RawMD,Fix1,Fix2,Fix3,CleanMD sanitizerNode
     class Screen viewNode
@@ -421,6 +427,10 @@ sequenceDiagram
     else 🎬 Video (WebM)
         FE->>+DL: Audio + bilder → WebCodecs
         DL-->>-User: ⬇️ .zip (WebM per kapittel)
+    else 📦 Images & Diagrams (ZIP)
+        FE->>+DL: Samle bilder + diagrammer
+        DL->>DL: 📚 Render Mermaid PNGs
+        DL-->>-User: ⬇️ .zip (Bilder/Diagrammer)
     end
     
     Note over User,DL: 📊 Kostnadssporing oppdateres kontinuerlig
@@ -446,7 +456,7 @@ Her er en oversikt over kjernesystemene.
 │   │   └── LandingPage.tsx        # Salgsplakaten (Entry point)
 │   ├── ui/                      # Gjenbrukbare komponenter
 │   │   ├── ContentRenderer.tsx    # "TV-skjermen" - Live Markdown/Mermaid motor
-│   │   ├── DownloadModal.tsx      # Eksport-grensesnitt med fremdriftsindikator
+│   │   ├── DownloadModal.tsx      # Eksport-grensesnitt med Assets-valg
 │   │   ├── ErrorBoundary.tsx      # Feilhåndtering for React-komponenter
 │   │   ├── LoadingView.tsx        # Lasteindikator og avbrytelsesmulighet
 │   │   ├── LogViewer.tsx          # Terminal-visning av AI-prosessen
@@ -457,24 +467,24 @@ Her er en oversikt over kjernesystemene.
 │       ├── IntroView.tsx          # Input, filanalyse og AI-anbefalinger
 │       ├── CastingView.tsx        # Karakteroversikt for skjønnlitteratur
 │       ├── GenerationView.tsx     # Live streaming av innhold
-│       └── CompleteView.tsx       # Ferdig resultat med forhåndsvisning
+│       └── CompleteView.tsx       # Ferdig resultat med "Regenerate"-flyt forbedringer
 │
 ├── services/                  # LOGIKKLAGET (Backend-logic)
 │   ├── geminiService.ts         # API-orkestrering mot Google Gemini (plan, kapitler, lyd, bilde)
-│   ├── prompts.ts               # "Hjernen" - Systeminstrukser, personaer og sub-options
+│   ├── prompts.ts               # "Hjernen" - Systeminstrukser, personligheter og sub-options
 │   ├── ContentSanitizer.ts      # "Vaskemaskinen" - Sanering av AI-output
 │   ├── ContentParser.ts         # Markdown → strukturerte blokker (headers, lister, tabeller, mermaid)
-│   ├── downloadService.ts       # Native generering av PDF, DOCX, MP3 og WebM
-│   ├── documentStyles.ts        # Sentraliserte stil-definisjoner for PDF/DOCX
+│   ├── downloadService.ts       # Native generering av PDF, DOCX, MP3, WebM og Assets ZIP
+│   ├── documentStyles.ts        # Sentraliserte stil-definisjoner for PDF/DOCX/Video
 │   ├── modelPricing.ts          # Prising og modellkonfigurasjon for Imagen/Gemini
 │   ├── externalApiService.ts    # Koblinger mot tredjepartskilder (URL-analyse)
-│   ├── mermaidRules.ts          # Streng logikk for diagram-syntaks
+│   ├── mermaidRules.ts          # Streng logikk for diagram-syntaks (Gantt-vakt)
 │   ├── markdownRules.ts         # Regler for dokumentformatering
 │   └── professionalVisualization.ts  # Avanserte visualiseringsprompts
 │
 ├── utils/                     # HJELPEFUNKSJONER
 │   ├── audio.ts                 # PCM til MP3 konvertering (lamejs)
-│   ├── fileParser.ts            # Analyse av opplastede filer (PDF/Zip/Code/YAML)
+│   ├── fileParser.ts            # Analyse av opplastede filer og norsk header-støtte
 │   └── dom.ts                   # DOM-manipulasjon for Mermaid-rendering
 │
 ├── public/                    # STATISKE RESSURSER
@@ -499,7 +509,7 @@ Her er en oversikt over kjernesystemene.
 * `services/ContentSanitizer.ts`: "Vaskemaskinen" som renser AI-output: fjerner ugyldige tegn, korrigerer header-spacing, og validerer Mermaid-syntaks.
 * `services/ContentParser.ts`: Konverterer Markdown til strukturerte blokker (header, paragraph, list, table, mermaid, code) for konsistent eksport.
 * `components/ui/ContentRenderer.tsx`: Sanntidsmotor som bruker react-markdown + remark-gfm for live rendering med støtte for tabeller, kode og Mermaid.
-* `services/downloadService.ts`: Native dokumentgenerator med jsPDF (PDF), docx (DOCX), lamejs (MP3) og WebCodecs (WebM).
+* `services/downloadService.ts`: Native dokumentgenerator med jsPDF (PDF), docx (DOCX), lamejs (MP3), WebCodecs (WebM) og JSZip (Assets).
 * `services/documentStyles.ts`: Sentralisert stilkonfigurasjon for konsistent formatering på tvers av PDF og DOCX.
 * `services/modelPricing.ts`: Administrerer Imagen-modeller (Ultra/Standard/Fast) og beregner produksjonskostnader.
 
