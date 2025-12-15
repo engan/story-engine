@@ -265,7 +265,7 @@ graph TD
     AppState -->|"audio + image"| GenerateWebM
     GenerateWebM --> ExportWebM
 
-    FormatChoice -->|"Assets"| GenerateAssets
+    FormatChoice -->|"PNG"| GenerateAssets
     AppState -->|"images + Content"| GenerateAssets
     GenerateAssets --> ExportAssets
 
