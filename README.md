@@ -17,14 +17,15 @@
 
 *   ✨ **AI-anbefalte innstillinger**: Få forslag til kategori, sjanger/format (155 kombinasjoner), søk og kreativitet – automatisk tilpasset din idé.
 *   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. AI-en forstår innholdet og skriver "Core Idea" for deg.
+*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med mørkt tema, innholdsfortegnelse, og integrert lyd/bilde-avspilling. (Erstatter statisk asset-eksport).
+*   🎬 **Smart Video-produksjon**: Genererer videoer (.webm) per kapittel med synkronisert lyd og tekst. Bruker "Smart Split"-teknologi for å sikre perfekt typografi (overskrifter vs. brødtekst).
 *   🛠️ **AI-verktøykasse for spesialoppgaver**: Utfør avanserte oppgaver med ett klikk – konverter lydfiler til undertekster (.srt), generer en komplett README.md fra et .zip-arkiv, eller trekk ut et profesjonelt sammendrag fra et langt dokument.
-*   🌐 **Full språk-kontroll**: Velg mellom auto-deteksjon eller spesifiser nøyaktig hvilket språk historien skal skrives på – helt uavhengig av språket i kildematerialet.
-*   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å lage nye formater som lyd eller video med den originale teksten eller skrevet på et annet språk.
+*   🌍 **Full språk-kontroll**: Velg mellom auto-deteksjon eller spesifiser nøyaktig hvilket språk historien skal skrives på. Inkluderer nå oversettelse av eksisterende prosjekter.
+*   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å lage nye formater som lyd, video eller nettside med den originale teksten.
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 *   🎙️ **Velg din stemmekvalitet**: Bytt mellom to kraftige TTS-modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv) eller Pro (maksimal kvalitet).
 *   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
-*   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning.
-*   🔒 **Personvern først**: Lokal prosessering og anonymisering av sensitive data før de sendes til AI-modellene.
+*   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning. "Self-healing" Mermaid-diagrammer som fikser syntaksfeil automatisk.
 *   📄 **Native Dokumentgenerering**: Skaper ekte PDF, DOCX og MP3-filer direkte i nettleseren uten eksterne konverteringstjenester.
 
 ---
@@ -91,11 +92,11 @@ graph TD
     %% ─── FASE 1: ANALYSE & AI-ANBEFALINGER ───
     subgraph Analysis ["🔍 ANALYSE & PARSING"]
         direction TB
-        FileAnalyzer["⚙️ Fil Analysering<br/><i>geminiService</i>"]
+        FileAnalyzer["⚙️ Fil Analysering<br/><i>fileExtract.ts</i>"]
         PromptService1["📋 Prompt Service<br/><i>getAnalyze*Prompt()</i>"]
         URLAnalyzer["🔗 URL Scraping<br/><i>externalApiService</i>"]
-        FileParser["📑 Plan Parser<br/><i>fileParser - YAML+MD</i>"]
-        AIRecommend["🤖 AI Anbefalinger<br/><i>Kategori/Sjanger/Søk</i>"]
+        FileParser["📑 Plan Parser<br/><i>fileParser.ts</i>"]
+        AIRecommend["🤖 AI Anbefalinger<br/><i>getRecommendedSettings()</i>"]
     end
 
     IdeaInput -->|"Direkte tekst"| AIRecommend
@@ -151,7 +152,7 @@ graph TD
         direction TB
         ChapterGen["📚 Kapittel Generator<br/><i>generateChapterBatch()</i>"]
         PromptService3["📋 Prompt Service<br/><i>getBaseChapterPrompt()</i><br/><i>+ markdownRules</i>"]
-        StreamHandler["📡 Stream Handler<br/><i>geminiService</i>"]
+        StreamHandler["📡 Stream Handler<br/><i>chapters.ts</i>"]
     end
 
     PlanWithCover -->|"Batch av kapitler"| ChapterGen
@@ -164,7 +165,7 @@ graph TD
         direction LR
         RawMD["📄 Rå MD"]
         Fix1["🔧 ContentSanitizer<br/><i>Tags/Headers</i>"]
-        Fix2["✅ mermaidRules<br/><i>Diagram-validering</i>"]
+        Fix2["✅ mermaidFixer<br/><i>Diagram-validering</i>"]
         Fix3["📝 Spacing<br/><i>Tabeller/Lister</i>"]
         CleanMD["✨ Ren MD"]
         RawMD --> Fix1 --> Fix2 --> Fix3 --> CleanMD
@@ -175,10 +176,10 @@ graph TD
     %% ─── FASE 6: ADD-ONS ───
     subgraph AddOns ["🎁 ADD-ONS"]
         direction TB
-        AddOnProcessor["⚡ processChapterAddOns()"]
+        AddOnProcessor["⚡ processChapterAddOns()<br/><i>chapters.ts</i>"]
         ChapterImageGen["🖼️ Imagen 4.0<br/><i>Illustrasjoner</i>"]
-        NarrationGen["🎙️ Gemini TTS<br/><i>Flash/Pro</i>"]
-        RadioPlayGen["📻 Radio Play<br/><i>Multi-voice</i>"]
+        NarrationGen["🎙️ Gemini TTS<br/><i>tts.ts</i>"]
+        SmartChunking["✂️ Smart Chunking<br/><i>Bevarer linjeskift</i>"]
     end
 
     CleanMD -->|"Kapittel ferdig"| AddOnProcessor
@@ -189,11 +190,10 @@ graph TD
     IllustrationDecision -->|"Nei"| ChapterWithImage
 
     ChapterWithImage --> AudioDecision{"🔊 Audio?"}
-    AudioDecision -->|"Narrasjon"| NarrationGen
-    AudioDecision -->|"Radio Play"| RadioPlayGen
+    AudioDecision -->|"Narrasjon"| SmartChunking
+    SmartChunking -->|"Tekstbiter med \\n"| NarrationGen
     AudioDecision -->|"Nei"| FinalChapter["📖 GeneratedChapter<br/><i>Ferdig</i>"]
     NarrationGen -->|"Base64 audio"| FinalChapter
-    RadioPlayGen -->|"Audio + script"| FinalChapter
 
     %% ─── FASE 7: STATE & KOSTNADSSPORING ───
     subgraph StateTracking ["💾 STATE & SPORING"]
@@ -221,10 +221,10 @@ graph TD
         direction TB
         DLService["🔧 downloadService"]
         ContentParse["📑 ContentParser<br/><i>MD → Blokker</i>"]
-        DocStyles["🎨 documentStyles<br/><i>PDF/DOCX stiler</i>"]
+        ExportModules["📦 Export Modules<br/><i>docx/pdf/video/website</i>"]
         FullMD["📄 Full Markdown<br/><i>YAML + Innhold</i>"]
         DLService --> ContentParse
-        DLService --> DocStyles
+        DLService --> ExportModules
         DLService --> FullMD
     end
 
@@ -238,12 +238,12 @@ graph TD
         ExportPDF["📕 .pdf<br/><i>A4 + Mermaid PNG</i>"]
         GenerateDOCX["📘 DOCX Generator<br/><i>docx + Numbered lists</i>"]
         ExportDOCX["📘 .docx<br/><i>Native Word</i>"]
-        GenerateMP3["🎵 Audio Processor<br/><i>lamejs + JSZip</i>"]
-        ExportMP3["🎵 .zip<br/><i>MP3 24kHz mono</i>"]
-        GenerateWebM["🎬 Video Processor<br/><i>WebCodecs + VP9</i>"]
+        GenerateMP3["🎵 Audio Processor<br/><i>WAV Header</i>"]
+        ExportMP3["🎵 .zip<br/><i>WAV per kapittel</i>"]
+        GenerateWebM["🎬 Video Processor<br/><i>Canvas + Smart Split</i>"]
         ExportWebM["🎬 .zip<br/><i>WebM per kapittel</i>"]
-        GenerateAssets["📦 Asset Bundler<br/><i>JSZip + PNG</i>"]
-        ExportAssets["📦 .zip<br/><i>Bilder/Diagrammer</i>"]
+        GenerateWebsite["🌐 Web Generator<br/><i>HTML/CSS/JS Bundle</i>"]
+        ExportWebsite["🌐 .zip<br/><i>Interaktiv side</i>"]
     end
 
     FormatChoice -->|"TXT"| ExportTXT
@@ -265,9 +265,9 @@ graph TD
     AppState -->|"audio + image"| GenerateWebM
     GenerateWebM --> ExportWebM
 
-    FormatChoice -->|"PNG"| GenerateAssets
-    AppState -->|"images + Content"| GenerateAssets
-    GenerateAssets --> ExportAssets
+    FormatChoice -->|"Nettside"| GenerateWebsite
+    AppState -->|"Plan + Chapters"| GenerateWebsite
+    GenerateWebsite --> ExportWebsite
 
     %% ═══════════════════════════════════════════
     %% 🎨 STYLING CLASSES (GitHub Compatible)
@@ -287,11 +287,11 @@ graph TD
 
     class Entry,UserStart,UserEnd userNode
     class LandingPage landingNode
-    class GeminiAPI1,GeminiAPI2,GeminiAPI3,SearchAPI,ImageGen,ChapterImageGen,NarrationGen,RadioPlayGen apiNode
-    class UI,ChapterGen,StreamHandler,Viewer,AddOnProcessor,AIRecommend processNode
-    class PromptService1,PromptService2,PromptService3,DLService,FileAnalyzer,URLAnalyzer,FileParser,ContentParse,DocStyles serviceNode
+    class GeminiAPI1,GeminiAPI2,GeminiAPI3,SearchAPI,ImageGen,ChapterImageGen,NarrationGen apiNode
+    class UI,ChapterGen,StreamHandler,Viewer,AddOnProcessor,AIRecommend,SmartChunking processNode
+    class PromptService1,PromptService2,PromptService3,DLService,FileAnalyzer,URLAnalyzer,FileParser,ContentParse,DocStyles,ExportModules serviceNode
     class AppState,PlanReady,CoreIdea,FinalChapter,PlanWithCover,ChapterWithImage,PlanGenerator,NoSearch stateNode
-    class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,ExportAssets,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,GenerateAssets,FullMD,DownloadBtn exportNode
+    class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,ExportWebsite,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,GenerateWebsite,FullMD,DownloadBtn exportNode
     class PlanningLogic,SearchDecision,IllustrationDecision,AudioDecision,FormatChoice decisionNode
     class RawMD,Fix1,Fix2,Fix3,CleanMD sanitizerNode
     class Screen viewNode
@@ -427,10 +427,10 @@ sequenceDiagram
     else 🎬 Video (WebM)
         FE->>+DL: Audio + bilder → WebCodecs
         DL-->>-User: ⬇️ .zip (WebM per kapittel)
-    else 📦 Images & Diagrams (ZIP)
-        FE->>+DL: Samle bilder + diagrammer
+    else 🌐 Nettside (ZIP)
+        FE->>+DL: Samle HTML/CSS/JS + Assets
         DL->>DL: 📚 Render Mermaid PNGs
-        DL-->>-User: ⬇️ .zip (Bilder/Diagrammer)
+        DL-->>-User: ⬇️ .zip (Interaktiv side)
     end
     
     Note over User,DL: 📊 Kostnadssporing oppdateres kontinuerlig
@@ -444,74 +444,99 @@ sequenceDiagram
 <details>
 <summary><strong>Klikk for filstruktur</strong></summary>
 
-Her er en oversikt over de viktigste modulene i prosjektet. Vi følger en streng "Separation of Concerns"-filosofi.
-
-Prosjektet følger en flat og modulær arkitektur optimalisert for rask utvikling med Vite. 
-Her er en oversikt over kjernesystemene.
+Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdbarhet og skalerbarhet. Vi bruker nå en tydelig domenestruktur under services.
 
 ```text
 .
-├── components/                # VISNINGSLAGET (Frontend)
-│   ├── landing/                 # Førsteinntrykk
-│   │   └── LandingPage.tsx        # Salgsplakaten (Entry point)
-│   ├── ui/                      # Gjenbrukbare komponenter
-│   │   ├── ContentRenderer.tsx    # "TV-skjermen" - Live Markdown/Mermaid motor
-│   │   ├── DownloadModal.tsx      # Eksport-grensesnitt med Assets-valg
-│   │   ├── ErrorBoundary.tsx      # Feilhåndtering for React-komponenter
-│   │   ├── LoadingView.tsx        # Lasteindikator og avbrytelsesmulighet
-│   │   ├── LogViewer.tsx          # Terminal-visning av AI-prosessen
-│   │   ├── Mermaid.tsx            # Spesialisert diagram-visning
-│   │   ├── PlanningStepper.tsx    # Trinnvis planleggingsvisning
-│   │   └── SettingsModal.tsx      # Brukerinnstillinger
-│   └── views/                   # Applikasjonens hovedtilstander
-│       ├── IntroView.tsx          # Input, filanalyse og AI-anbefalinger
-│       ├── CastingView.tsx        # Karakteroversikt for skjønnlitteratur
-│       ├── GenerationView.tsx     # Live streaming av innhold
-│       └── CompleteView.tsx       # Ferdig resultat med "Regenerate"-flyt forbedringer
-│
-├── services/                  # LOGIKKLAGET (Backend-logic)
-│   ├── geminiService.ts         # API-orkestrering mot Google Gemini (plan, kapitler, lyd, bilde)
-│   ├── prompts.ts               # "Hjernen" - Systeminstrukser, personligheter og sub-options
-│   ├── ContentSanitizer.ts      # "Vaskemaskinen" - Sanering av AI-output
-│   ├── ContentParser.ts         # Markdown → strukturerte blokker (headers, lister, tabeller, mermaid)
-│   ├── downloadService.ts       # Native generering av PDF, DOCX, MP3, WebM og Assets ZIP
-│   ├── documentStyles.ts        # Sentraliserte stil-definisjoner for PDF/DOCX/Video
-│   ├── modelPricing.ts          # Prising og modellkonfigurasjon for Imagen/Gemini
-│   ├── externalApiService.ts    # Koblinger mot tredjepartskilder (URL-analyse)
-│   ├── mermaidRules.ts          # Streng logikk for diagram-syntaks (Gantt-vakt)
-│   ├── markdownRules.ts         # Regler for dokumentformatering
-│   └── professionalVisualization.ts  # Avanserte visualiseringsprompts
-│
-├── utils/                     # HJELPEFUNKSJONER
-│   ├── audio.ts                 # PCM til MP3 konvertering (lamejs)
-│   ├── fileParser.ts            # Analyse av opplastede filer og norsk header-støtte
-│   └── dom.ts                   # DOM-manipulasjon for Mermaid-rendering
-│
-├── public/                    # STATISKE RESSURSER
-│   ├── infographic.png          # Systemoversikt / fallback-bilde
-│   ├── flowchart.png            # Dataflyt-diagram
-│   ├── app-hero.png             # Landingsside hero
-│   └── story-engine.png         # Startside app
-│
 ├── App.tsx                      # Global state, view-ruting og kostnadssporing
-├── types.ts                     # TypeScript-typer og interfaces
-├── genres.ts                    # Genre-definisjoner (155 kombinasjoner)
-├── genreOptions.ts              # Sub-options per kategori/genre
-├── languages.ts                 # Språkstøtte
-├── constants.ts                 # Globale konstanter
-├── index.html                   # Entry point
-└── [Konfigurasjon]              # vite.config.ts, tailwind.config.js, tsconfig.json, postcss.config.js
+├── README.md                    # Dokumentasjon
+├── constants.ts                 # Globale konstanter (stemmer, stiler)
+├── types.ts                     # TypeScript definisjoner for hele applikasjonen
+├── genres.ts                    # Definisjoner av hovedsjangre og kategorier
+├── genreOptions.ts              # Kontekstuelle sub-options (faktasjekk, lengde, etc.)
+├── languages.ts                 # Støttede språk for I/O
+├── components/
+│   ├── landing/                 # Landingsside komponenter
+│   │   └── LandingPage.tsx      # Hovedinngang / Hero-seksjon
+│   ├── ui/                      # Gjenbrukbare UI-komponenter
+│   │   ├── ContentRenderer.tsx  # Markdown/Mermaid renderer (ReactMarkdown)
+│   │   ├── DownloadModal.tsx    # Modal for valg av eksportformat
+│   │   ├── ErrorBoundary.tsx    # Feilhåndtering
+│   │   ├── LoadingView.tsx      # Animerte laste-steg (Analyzing -> Finalizing)
+│   │   ├── LogViewer.tsx        # Debug-konsoll i UI
+│   │   ├── Mermaid.tsx          # Wrapper for Mermaid-diagrammer
+│   │   ├── PlanningStepper.tsx  # Visuell fremdriftsindikator
+│   │   └── SettingsModal.tsx    # Avanserte innstillinger (Logger, Terskelverdier)
+│   └── views/                   # Hovedvisninger (States)
+│       ├── IntroView.tsx        # Input, filanalyse, drag-n-drop
+│       ├── CastingView.tsx      # Karakteroversikt og stemmevalg
+│       ├── GenerationView.tsx   # Live streaming av innhold
+│       └── CompleteView.tsx     # Ferdig resultat, avspilling og regenerering
+├── services/                    # FORRETNINGSLOGIKK (MODULÆR)
+│   ├── ContentParser.ts         # AST-parser som konverterer MD til blokker
+│   ├── ContentSanitizer.ts      # "Vaskemaskinen" (Regex-rensing, header-fiks)
+│   ├── documentStyles.ts        # Fasade for styles/index.ts
+│   ├── downloadService.ts       # Fasade for export/index.ts
+│   ├── externalApiService.ts    # URL-analyse (stub for server-side)
+│   ├── formatConstants.ts       # Konstanter for overskriftsformater
+│   ├── geminiService.ts         # Fasade for ai/index.ts
+│   ├── modelPricing.ts          # Prismodeller for Gemini/Imagen
+│   ├── prompts.ts               # Fasade for prompts/index.ts
+│   ├── ai/                      # AI-integrasjon (Google GenAI)
+│   │   ├── audioHelpers.ts      # PCM/Base64 hjelpere
+│   │   ├── chapters.ts          # Generering av kapitler (tekst + add-ons)
+│   │   ├── client.ts            # GoogleGenAI klient-init
+│   │   ├── config.ts            # Konfigurasjon (tokens, sikkerhet)
+│   │   ├── fileExtract.ts       # Filanalyse (DOCX, PDF, Code, Images)
+│   │   ├── imagen.ts            # Bildegenerering (Imagen & Gemini)
+│   │   ├── index.ts             # Eksportør
+│   │   ├── json.ts              # Robust JSON-parsing
+│   │   ├── plan.ts              # Planlegging og oversettelse
+│   │   ├── retry.ts             # Feilhåndtering og retry-logikk
+│   │   ├── schemas.ts           # Zod/JSON schemas for AI output
+│   │   └── tts.ts               # Tekst-til-tale logikk
+│   ├── export/                  # Eksport-moduler
+│   │   ├── docx.ts              # DOCX-generering
+│   │   ├── index.ts             # Eksportør
+│   │   ├── markdown.ts          # Markdown-generering
+│   │   ├── mp3.ts               # Lyd-sammenstilling (WAV/MP3)
+│   │   ├── pdf.ts               # PDF-generering med avansert formatering
+│   │   ├── utils.ts             # Delte eksport-hjelpere (Mermaid render)
+│   │   ├── video.ts             # Videorendring (WebM) med "Smart Split"
+│   │   └── website.ts           # Interaktiv nettside-pakking (ZIP)
+│   ├── format/                  # Tekstformatering
+│   │   └── sectionHeaders.ts    # Håndtering av kapitteloverskrifter og språk
+│   ├── prompts/                 # AI-instrukser (Prompts)
+│   │   └── fragments/           # Gjenbrukbare prompt-deler (Regler)
+│   │       ├── markdownRules.ts # Regler for MD-struktur
+│   │       ├── mermaidRules.ts  # Regler for Mermaid v11 syntaks
+│   │       └── professionalVisualization.ts # Konsulent-stil guider
+│   ├── sanitize/                # Rens og validering
+│   │   └── mermaidFixer.ts      # Self-healing Mermaid logikk
+│   └── styles/                  # Stildefinisjoner
+│       ├── config.ts            # Globale stilvariabler
+│       ├── docx.ts              # DOCX-spesifikke stiler
+│       ├── helpers.ts           # Hjelpefunksjoner for farger/størrelser
+│       ├── index.ts             # Eksportør
+│       ├── pdf.ts               # PDF-spesifikke stiler
+│       ├── types.ts             # Type-definisjoner for stiler
+│       └── units.ts             # Enhetskonvertering (mm, px, pt)
+└── utils/                       # Generelle hjelpefunksjoner
+    ├── audio.ts                 # PCM/WAV-hjelpere (lavnivå)
+    ├── dom.ts                   # DOM-manipulasjon
+    └── fileParser.ts            # Parsing av opplastede filer (.txt gjenoppretting)
 ```
 
 ### Nøkkelkomponenter forklart
 
-* `services/prompts.ts`: Systemets hjerne. Definerer AI-personligheter, sub-options (research-dybde, faktasjekk, artikkelvinkel), og strukturerte instruksjoner.
-* `services/ContentSanitizer.ts`: "Vaskemaskinen" som renser AI-output: fjerner ugyldige tegn, korrigerer header-spacing, og validerer Mermaid-syntaks.
-* `services/ContentParser.ts`: Konverterer Markdown til strukturerte blokker (header, paragraph, list, table, mermaid, code) for konsistent eksport.
-* `components/ui/ContentRenderer.tsx`: Sanntidsmotor som bruker react-markdown + remark-gfm for live rendering med støtte for tabeller, kode og Mermaid.
-* `services/downloadService.ts`: Native dokumentgenerator med jsPDF (PDF), docx (DOCX), lamejs (MP3), WebCodecs (WebM) og JSZip (Assets).
-* `services/documentStyles.ts`: Sentralisert stilkonfigurasjon for konsistent formatering på tvers av PDF og DOCX.
+* `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker nå "Smart Chunking" for å bevare linjeskift i TTS-tekst, noe som er kritisk for korrekt videorendring og synkronisering.
+* `services/export/video.ts`: Ny videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt, slik at tekst ikke "krasjer" i videoen.
+* `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt, med dark mode og responsivt design.
+* `services/sanitize/mermaidFixer.ts`: En intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer (f.eks. ugyldige piler eller sitater) og ber AI-en om å fikse dem automatisk før visning.
+* `services/export/pdf.ts`: Avansert PDF-motor som støtter fet skrift, kursiv, og automatisk skalering av bilder og diagrammer for perfekt A4-utskrift.
+* `services/fileExtract.ts`: Håndterer opplasting av komplekse filtyper. Kan pakke ut tekst fra DOCX, PPTX, PDF, og til og med analysere zip-filer av kildekode for å lage dokumentasjon.
 * `services/modelPricing.ts`: Administrerer Imagen-modeller (Ultra/Standard/Fast) og beregner produksjonskostnader.
+* `services/ai/index.ts`: Sentralisert AI-bibliotek for konsistent AI-instrukser.
 
 </details>
 
