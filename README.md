@@ -573,6 +573,20 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 
 ---
 
+## 📝 Endringslogg
+
+Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
+
+### Siste endringer (arbeidsgren / story-engine-dev)
+- 🎬 Video: forbedret typografi og parsing av Markdown for video (bedre splitting av tekstblokker, bedre håndtering av sitat/kode, samt tabeller rendres visuelt uten å bli lest opp).
+- 🌐 Nettside-eksport: oppgradert til mer interaktiv nettsidepakke (mørkt tema, innholdsfortegnelse og integrert avspilling).
+- 📄 DOCX: mindre forbedringer i eksport/parsing for mer konsistent dokumentresultat.
+- 🖥️ UI: justeringer i rendering/visning for mer stabil og forutsigbar presentasjon av innhold.
+
+> Tips: Bruk GitHub Releases for “release notes”, og hold `CHANGELOG.md` som den tekniske kilden.
+
+---
+
 ## 🗺️ Veikart
 
 Vi bygger fremtidens publiseringsverktøy. Her er hva som kommer:
@@ -581,6 +595,16 @@ Vi bygger fremtidens publiseringsverktøy. Her er hva som kommer:
 *   🗣️ **Multi-LLM Konsensus-debatt**: La flere AI-modeller diskutere en sak før konklusjon trekkes.
 *   🗞️ **Pilotprosjekt med lokalavis**: Test av "Breaking News"-agent (f.eks journalist, etter avtale).
 *   📱 **PWA-støtte**: Full offline-støtte for journalister i felt (etter avtale).
+
+---
+
+## 🎵 Bonus: The Story Engine Anthem
+
+Fordi en multimodal AI-plattform fortjener sitt eget lydspor. Tekst og melodi er generert for å fange essensen av overgangen fra idé til ferdig produkt.
+
+> *"Story Engine / Turning one small flame to a wildfire..."*
+
+[▶️ **Hør sangen her (Suno)**](https://suno.com/s/bYmMmpVi77OgbCm2)
 
 ---
 
