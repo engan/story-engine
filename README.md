@@ -70,7 +70,7 @@ Dette diagrammet viser hvordan data beveger seg fra brukerens input, gjennom vå
 graph TD
     %% ═══════════════════════════════════════════
     %% 📱 STORY ENGINE - KOMPLETT DATAFLYT
-    %% Oppdatert: Desember 2025
+    %% Oppdatert: Januar 2026
     %% ═══════════════════════════════════════════
 
     %% ─── FASE -1: LANDING PAGE ───
@@ -94,7 +94,7 @@ graph TD
         direction TB
         FileAnalyzer["⚙️ Fil Analysering<br/><i>fileExtract.ts</i>"]
         PromptService1["📋 Prompt Service<br/><i>getAnalyze*Prompt()</i>"]
-        URLAnalyzer["🔗 URL Scraping<br/><i>externalApiService</i>"]
+        URLAnalyzer["🔗 URL Scraping<br/><i>api.ts</i>"]
         FileParser["📑 Plan Parser<br/><i>fileParser.ts</i>"]
         AIRecommend["🤖 AI Anbefalinger<br/><i>getRecommendedSettings()</i>"]
     end
@@ -477,7 +477,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── ContentSanitizer.ts      # "Vaskemaskinen" (Regex-rensing, header-fiks)
 │   ├── documentStyles.ts        # Fasade for styles/index.ts
 │   ├── downloadService.ts       # Fasade for export/index.ts
-│   ├── externalApiService.ts    # URL-analyse (stub for server-side)
+│   ├── api.ts                   # URL-analyse og ekstern API-kommunikasjon
 │   ├── formatConstants.ts       # Konstanter for overskriftsformater
 │   ├── geminiService.ts         # Fasade for ai/index.ts
 │   ├── modelPricing.ts          # Prismodeller for Gemini/Imagen
@@ -578,12 +578,14 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
 
 ### Siste endringer (arbeidsgren / story-engine-dev)
-- 🎬 Video: forbedret typografi og parsing av Markdown for video (bedre splitting av tekstblokker, bedre håndtering av sitat/kode, samt tabeller rendres visuelt uten å bli lest opp).
-- 🌐 Nettside-eksport: oppgradert til mer interaktiv nettsidepakke (mørkt tema, innholdsfortegnelse og integrert avspilling).
-- 📄 DOCX: mindre forbedringer i eksport/parsing for mer konsistent dokumentresultat.
-- 🖥️ UI: justeringer i rendering/visning for mer stabil og forutsigbar presentasjon av innhold.
+- 🎬 **Video**: Mermaid-diagrammer viser nå "Diagram er utelatt i video"-melding. Listelementer beholder **bold**/*italic* formatering. Unummererte lister bruker bullet-punkt (•). Inline math ($...$) konverteres til kursiv. Fleksibel tabelldeteksjon.
+- 📄 **PDF/DOCX**: Inline math støttes som kursiv tekst. PDF-kodeblokker har emoji-til-tekst konvertering (jsPDF-begrensning). Forbedret word-wrap i kodeblokker.
+- 🎙️ **TTS**: Stemmenavn (Charon:, etc.) fjernes kun når de står som speaker-label på linjestarten – bevarer legitim bruk i tekst.
+- 🔗 **Lenker**: Konsistent lenkegjengivelse i video (cyan/understrek), PDF (blå/klikkbar), og DOCX (hyperlenker). Filtrerer ut "junk" grounding-lenker.
+- 🖥️ **UI**: Fikset tekstoverflyt i Generation Progress-kort.
+- 🛠️ **Refaktorering**: `externalApiService.ts` → `api.ts`.
 
-> Tips: Bruk GitHub Releases for “release notes”, og hold `CHANGELOG.md` som den tekniske kilden.
+> Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
 ---
 
@@ -615,5 +617,5 @@ Fordi en multimodal AI-plattform fortjener sitt eget lydspor. Tekst og melodi er
 
 <div align="center">
   <p>Utviklet med ❤️ i Norge</p>
-  <p>© 2025 Story Engine</p>
+  <p>© 2025-2026 Story Engine</p>
 </div>
