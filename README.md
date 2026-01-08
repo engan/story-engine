@@ -30,6 +30,45 @@
 
 ---
 
+## 🗺️ Visuell Gjennomgang
+
+> 💡 **Klikk på bildene for å laste ned og se videoene**
+
+<table>
+  <tr>
+    <td>
+      <strong>Seksjon 1: Velkommen til Story Engine</strong><br/>
+      <a href="public/chapter-1.webm">
+        <img src="public/poster-1.png" width="420" alt="Seksjon 1"/>
+      </a><br/>
+      Introduksjon til Story Engine og dets muligheter.
+    </td>
+    <td>
+      <strong>Seksjon 2: Slik fungerer det</strong><br/>
+      <a href="public/chapter-2.webm">
+        <img src="public/poster-2.png" width="420" alt="Seksjon 2"/>
+      </a><br/>
+      Steg-for-steg gjennomgang av arbeidsflyten.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <strong>Seksjon 3: Nøkkelfunksjoner</strong><br/>
+      <a href="public/chapter-3.webm">
+        <img src="public/poster-3.png" width="420" alt="Seksjon 3"/>
+      </a><br/>
+      Deep dive i avanserte funksjoner.
+    </td>
+    <td>
+      <strong>Seksjon 4: Teknologi og Sikkerhet</strong><br/>
+      <a href="public/chapter-4.webm">
+        <img src="public/poster-4.png" width="420" alt="Seksjon 4"/>
+      </a><br/>
+      Teknisk arkitektur og sikkerhetsprinsipper.
+    </td>
+  </tr>
+</table>
+
 ## 🖥️ Visuell Omvisning
 
 ### Landingsside
