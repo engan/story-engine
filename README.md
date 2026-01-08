@@ -36,11 +36,11 @@
 Opplev en komplett generert leveranse direkte i nettleseren. Klikk på bildet under for å utforske den interaktive nettsiden som Story Engine produserer automatisk:
 
 <p align="center">
-  <a href="https://neoweb.no/se/index.html">
-    <img src="https://neoweb.no/se/infographic.png" width="900" alt="Interaktiv Rapport Demo"/>
+  <a href="https://neoweb.no/se-walkthrough/index.html">
+    <img src="https://neoweb.no/se-walkthrough/infographic.png" width="900" alt="Interaktiv Rapport Demo"/>
   </a>
   <br/>
-  <a href="https://neoweb.no/se/index.html"><strong>Åpne Interaktiv Demo ➔</strong></a>
+  <a href="https://neoweb.no/se-walkthrough/index.html"><strong>Åpne Interaktiv Demo ➔</strong></a>
 </p>
 
 ---
