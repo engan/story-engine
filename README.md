@@ -30,8 +30,22 @@
 
 ---
 
-## 🗺️ Visuell Gjennomgang
+## 🚀 Se Story Engine i aksjon
 
+### 🌐 Live Interaktiv Rapport
+Opplev en komplett generert leveranse direkte i nettleseren. Klikk på bildet under for å utforske den interaktive nettsiden som Story Engine produserer automatisk:
+
+<p align="center">
+  <a href="https://neoweb.no/se/index.html">
+    <img src="https://neoweb.no/se/infographic.png" width="900" alt="Interaktiv Rapport Demo"/>
+  </a>
+  <br/>
+  <a href="https://neoweb.no/se/index.html"><strong>Åpne Interaktiv Demo ➔</strong></a>
+</p>
+
+---
+
+### 🗺️ Videogjennomgang
 > 💡 **Klikk på bildene for å se videoene direkte fra vår server**
 
 <table>
@@ -69,9 +83,7 @@
   </tr>
 </table>
 
-## 🖥️ Visuell Omvisning
-
-### Landingsside
+### 🖥️ Visuell Omvisning App
 Møtet med brukeren – rent, moderne og inviterende.
 ![Landingsside](public/app-hero.png)
 
