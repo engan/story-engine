@@ -18,6 +18,8 @@
 *   ✨ **AI-anbefalte innstillinger**: Få forslag til kategori, sjanger/format (155 kombinasjoner), søk og kreativitet – automatisk tilpasset din idé.
 *   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. AI-en forstår innholdet og skriver "Core Idea" for deg.
 *   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med mørkt tema, innholdsfortegnelse, og integrert lyd/bilde-avspilling. (Erstatter statisk asset-eksport).
+*   📊 **PowerPoint-eksport (Non-Fiction)**: AI-genererte presentasjoner med oppsummerte bullet points, kapittelillustrasjoner og Mermaid-diagrammer på dedikerte slides.
+*   📚 **EPUB E-bok**: Eksporter som universell e-bok med cover, kapittelnavigasjon og bilder – klar for Apple Books, Kobo, Kindle og andre e-lesere.
 *   🎬 **Smart Video-produksjon**: Genererer videoer (.webm) per kapittel med synkronisert lyd og tekst. Bruker "Smart Split"-teknologi for å sikre perfekt typografi (overskrifter vs. brødtekst).
 *   🛠️ **AI-verktøykasse for spesialoppgaver**: Utfør avanserte oppgaver med ett klikk – konverter lydfiler til undertekster (.srt), generer en komplett README.md fra et .zip-arkiv, eller trekk ut et profesjonelt sammendrag fra et langt dokument.
 *   🌍 **Full språk-kontroll**: Velg mellom auto-deteksjon eller spesifiser nøyaktig hvilket språk historien skal skrives på. Inkluderer nå oversettelse av eksisterende prosjekter.
@@ -290,11 +292,15 @@ graph TD
         GenerateDOCX["📘 DOCX Generator<br/><i>docx + Numbered lists</i>"]
         ExportDOCX["📘 .docx<br/><i>Native Word</i>"]
         GenerateMP3["🎵 Audio Processor<br/><i>WAV Header</i>"]
-        ExportMP3["🎵 .zip<br/><i>WAV per kapittel</i>"]
+        ExportMP3["🎵 .zip<br/><i>MP3 64kbps per kapittel</i>"]
         GenerateWebM["🎬 Video Processor<br/><i>Canvas + Smart Split</i>"]
         ExportWebM["🎬 .zip<br/><i>WebM per kapittel</i>"]
         GenerateWebsite["🌐 Web Generator<br/><i>HTML/CSS/JS Bundle</i>"]
         ExportWebsite["🌐 .zip<br/><i>Interaktiv side</i>"]
+        GeneratePPTX["📊 PPTX Generator<br/><i>AI Summarize + PptxGenJS</i>"]
+        ExportPPTX["📊 .pptx<br/><i>Non-Fiction presentasjon</i>"]
+        GenerateEPUB["📚 EPUB Generator<br/><i>XHTML + Cover</i>"]
+        ExportEPUB["📚 .epub<br/><i>Universell e-bok</i>"]
     end
 
     FormatChoice -->|"TXT"| ExportTXT
@@ -319,6 +325,14 @@ graph TD
     FormatChoice -->|"Nettside"| GenerateWebsite
     AppState -->|"Plan + Chapters"| GenerateWebsite
     GenerateWebsite --> ExportWebsite
+
+    FormatChoice -->|"PPTX"| GeneratePPTX
+    AppState -->|"Plan + AI Summary"| GeneratePPTX
+    GeneratePPTX --> ExportPPTX
+
+    FormatChoice -->|"EPUB"| GenerateEPUB
+    ContentParse --> GenerateEPUB
+    GenerateEPUB --> ExportEPUB
 
     %% ═══════════════════════════════════════════
     %% 🎨 STYLING CLASSES (GitHub Compatible)
@@ -473,7 +487,7 @@ sequenceDiagram
         DL->>DL: 📝 Numbered lists + styling
         DL-->>-User: ⬇️ .docx fil
     else 🎵 Audio (MP3)
-        FE->>+DL: Audio chunks → lamejs
+        FE->>+DL: Audio chunks → lamejs (64kbps)
         DL-->>-User: ⬇️ .zip (MP3 per kapittel)
     else 🎬 Video (WebM)
         FE->>+DL: Audio + bilder → WebCodecs
@@ -482,6 +496,14 @@ sequenceDiagram
         FE->>+DL: Samle HTML/CSS/JS + Assets
         DL->>DL: 📚 Render Mermaid PNGs
         DL-->>-User: ⬇️ .zip (Interaktiv side)
+    else 📊 PowerPoint (PPTX)
+        FE->>+DL: AI oppsummer → PptxGenJS
+        DL->>DL: 🎯 Slides + diagrammer
+        DL-->>-User: ⬇️ .pptx fil
+    else 📚 E-bok (EPUB)
+        FE->>+DL: Blokker → XHTML + Cover
+        DL->>DL: 📦 EPUB 3 pakking
+        DL-->>-User: ⬇️ .epub fil
     end
     
     Note over User,DL: 📊 Kostnadssporing oppdateres kontinuerlig
@@ -545,13 +567,16 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── plan.ts              # Planlegging og oversettelse
 │   │   ├── retry.ts             # Feilhåndtering og retry-logikk
 │   │   ├── schemas.ts           # Zod/JSON schemas for AI output
+│   │   ├── summarize.ts         # AI-oppsummering for PPTX bullet points
 │   │   └── tts.ts               # Tekst-til-tale logikk
 │   ├── export/                  # Eksport-moduler
 │   │   ├── docx.ts              # DOCX-generering
+│   │   ├── epub.ts              # EPUB 3 e-bok generering (XHTML + Cover)
 │   │   ├── index.ts             # Eksportør
 │   │   ├── markdown.ts          # Markdown-generering
-│   │   ├── mp3.ts               # Lyd-sammenstilling (WAV/MP3)
+│   │   ├── mp3.ts               # Lyd-sammenstilling (64kbps MP3)
 │   │   ├── pdf.ts               # PDF-generering med avansert formatering
+│   │   ├── pptx.ts              # PowerPoint-generering (Non-Fiction)
 │   │   ├── utils.ts             # Delte eksport-hjelpere (Mermaid render)
 │   │   ├── video.ts             # Videorendring (WebM) med "Smart Split"
 │   │   └── website.ts           # Interaktiv nettside-pakking (ZIP)

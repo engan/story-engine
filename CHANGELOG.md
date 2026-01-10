@@ -4,7 +4,46 @@ Alle vesentlige endringer i dette prosjektet dokumenteres her.
 
 Formatet er inspirert av *Keep a Changelog*, og prosjektet følger semantisk versjonering der det er praktisk.
 
-## [Unreleased] – Eksport- og render-overhaling + “Suggest Prompt”
+## [Unreleased] – EPUB Eksport + PowerPoint + Lydoptimalisering
+
+### Høydepunkter
+- Ny **EPUB E-bok eksport** med cover, kapittelnavigasjon og Mermaid-diagrammer.
+- Ny **PowerPoint-eksport** for non-fiction kategorier med AI-genererte bullet points.
+- **Optimalisert lydfiler**: MP3 bitrate redusert fra 128kbps til 64kbps for tale (halverer filstørrelse).
+
+### Added
+- **EPUB Eksport (`services/export/epub.ts`)**:
+  - Full EPUB 3-struktur (mimetype, container.xml, content.opf, nav.xhtml)
+  - Markdown → XHTML konvertering med inline formatting
+  - Cover og kapittelillustrasjoner embedded
+  - Mermaid-diagrammer rendret til PNG
+  - Ren CSS-styling for e-lesere
+  - Tilgjengelig for alle kategorier (fiction + non-fiction)
+- **PowerPoint Eksport (`services/export/pptx.ts`)**:
+  - AI-oppsummering av kapitler til 3-5 bullet points
+  - Tittelslide med cover og sammendrag
+  - Agenda-slide med alle kapitler
+  - Per-kapittel slides med tekst og illustrasjon
+  - Dedikerte diagram-slides med dynamisk skalering
+  - Kun synlig for non-fiction kategorier
+
+### Changed
+- **MP3 Eksport (`services/export/mp3.ts`)**:
+  - Bitrate redusert fra 128kbps til 64kbps for TTS-tale
+  - Halverer filstørrelse uten hørbar kvalitetsforringelse
+
+### Filer berørt
+- `services/export/epub.ts` (NEW)
+- `services/export/pptx.ts` (NEW)
+- `services/ai/summarize.ts` (NEW)
+- `services/export/mp3.ts` (bitrate endring)
+- `services/export/index.ts`
+- `components/ui/DownloadModal.tsx`
+- `landing/index.html`, `landing/style.css`
+
+---
+
+## [Previous] – Eksport- og render-overhaling + “Suggest Prompt”
 
 ### Høydepunkter
 - Ny **Suggest Prompt**-knapp som forbedrer/utvider *Core Idea* direkte i Story Engine (med Undo), for mer treffsikre genereringer.
