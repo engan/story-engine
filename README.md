@@ -15,20 +15,35 @@
 
 ## 🚀 Nøkkelfunksjoner
 
+*   ✍️ **Smart Prompt-utvidelse**: Usikker på hvordan du skal formulere deg? Ett klikk forvandler enkle stikkord til en rik, detaljert prosjektbeskrivelse optimalisert for at AI-en skal gi best mulig resultat.
+
 *   ✨ **AI-anbefalte innstillinger**: Få forslag til kategori, sjanger/format (155 kombinasjoner), søk og kreativitet – automatisk tilpasset din idé.
-*   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. AI-en forstår innholdet og skriver "Core Idea" for deg.
-*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med mørkt tema, innholdsfortegnelse, og integrert lyd/bilde-avspilling. (Erstatter statisk asset-eksport).
-*   📊 **PowerPoint-eksport (Non-Fiction)**: AI-genererte presentasjoner med oppsummerte bullet points, kapittelillustrasjoner og Mermaid-diagrammer på dedikerte slides.
-*   📚 **EPUB E-bok**: Eksporter som universell e-bok med cover, kapittelnavigasjon og bilder – klar for Apple Books, Kobo, Kindle og andre e-lesere.
-*   🎬 **Smart Video-produksjon**: Genererer videoer (.webm) per kapittel med synkronisert lyd og tekst. Bruker "Smart Split"-teknologi for å sikre perfekt typografi (overskrifter vs. brødtekst).
-*   🛠️ **AI-verktøykasse for spesialoppgaver**: Utfør avanserte oppgaver med ett klikk – konverter lydfiler til undertekster (.srt), generer en komplett README.md fra et .zip-arkiv, eller trekk ut et profesjonelt sammendrag fra et langt dokument.
-*   🌍 **Full språk-kontroll**: Velg mellom auto-deteksjon eller spesifiser nøyaktig hvilket språk historien skal skrives på. Inkluderer nå oversettelse av eksisterende prosjekter.
-*   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å lage nye formater som lyd, video eller nettside med den originale teksten.
-*   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
-*   🎙️ **Velg din stemmekvalitet**: Bytt mellom to kraftige TTS-modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv) eller Pro (maksimal kvalitet).
-*   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
-*   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning. "Self-healing" Mermaid-diagrammer som fikser syntaksfeil automatisk.
+
 *   📄 **Native Dokumentgenerering**: Skaper ekte PDF, DOCX og MP3-filer direkte i nettleseren uten eksterne konverteringstjenester.
+
+*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med mørkt tema, innholdsfortegnelse, og integrert lyd/bilde-avspilling.
+
+*   🎬 **Smart Video-produksjon**: Genererer videoer (.webm) per kapittel med synkronisert lyd og tekst. Bruker "Smart Split"-teknologi for å sikre perfekt typografi (overskrifter vs. brødtekst).
+
+*   📊 **PowerPoint-eksport (Non-Fiction)**: AI-genererte presentasjoner med oppsummerte bullet points, kapittelillustrasjoner og Mermaid-diagrammer på dedikerte slides.
+
+*   📚 **EPUB E-bok**: Eksporter som universell e-bok med cover, kapittelnavigasjon og bilder – klar for Apple Books, Kobo, Kindle og andre e-lesere.
+
+*   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. AI-en forstår innholdet og skriver "Core Idea" for deg.
+
+*   🛠️ **AI-verktøykasse for spesialoppgaver**: Utfør avanserte oppgaver med ett klikk – konverter lydfiler til undertekster (.srt), generer en komplett README.md fra et .zip-arkiv, eller trekk ut et profesjonelt sammendrag fra et langt dokument.
+
+*   🌍 **Full språk-kontroll**: Velg mellom auto-deteksjon eller spesifiser nøyaktig hvilket språk historien skal skrives på. Inkluderer nå oversettelse av eksisterende prosjekter.
+
+*   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å lage nye formater som lyd, video eller nettside med den originale teksten.
+
+*   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
+
+*   🎙️ **Velg din stemmekvalitet**: Bytt mellom to kraftige TTS-modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv) eller Pro (maksimal kvalitet).
+
+*   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
+
+*   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning. "Self-healing" Mermaid-diagrammer som fikser syntaksfeil automatisk.
 
 ---
 
@@ -539,6 +554,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── LogViewer.tsx        # Debug-konsoll i UI
 │   │   ├── Mermaid.tsx          # Wrapper for Mermaid-diagrammer
 │   │   ├── PlanningStepper.tsx  # Visuell fremdriftsindikator
+│   │   ├── ResearchSourcesBox.tsx # Visning av Google Search-kilder
 │   │   └── SettingsModal.tsx    # Avanserte innstillinger (Logger, Terskelverdier)
 │   └── views/                   # Hovedvisninger (States)
 │       ├── IntroView.tsx        # Input, filanalyse, drag-n-drop
@@ -587,6 +603,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │       ├── markdownRules.ts # Regler for MD-struktur
 │   │       ├── mermaidRules.ts  # Regler for Mermaid v11 syntaks
 │   │       └── professionalVisualization.ts # Konsulent-stil guider
+│   ├── i18n/                    # Internasjonalisering
+│   │   └── translations.ts      # Oversettelser (NO/EN) for UI og eksport
 │   ├── sanitize/                # Rens og validering
 │   │   └── mermaidFixer.ts      # Self-healing Mermaid logikk
 │   └── styles/                  # Stildefinisjoner
