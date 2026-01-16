@@ -35,11 +35,11 @@
 
 *   🌍 **Full språk-kontroll**: Velg mellom auto-deteksjon eller spesifiser nøyaktig hvilket språk historien skal skrives på. Inkluderer nå oversettelse av eksisterende prosjekter.
 
-*   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å lage nye formater som lyd, video eller nettside med den originale teksten.
+*   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å lage nye formater som lyd, video eller nettside med den originale teksten eller oversett til et annet språk.
 
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 
-*   🎙️ **Velg din stemmekvalitet**: Bytt mellom to kraftige TTS-modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv) eller Pro (maksimal kvalitet).
+*   🎙️ **Velg din stemmekvalitet**: Bytt mellom to kraftige Text-to-Speech modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv) eller Pro (maksimal kvalitet).
 
 *   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
 
@@ -102,7 +102,7 @@ Opplev en komplett generert leveranse direkte i nettleseren. Klikk på bildet un
 
 ### 🖥️ Visuell Omvisning App
 Møtet med brukeren – rent, moderne og inviterende.
-![Landingsside](public/app-hero.png)
+![Landingsside](public/app-hero-eng.png)
 
 <details>
 <summary><strong>Klikk for å se Story Engine app</strong></summary>
@@ -557,6 +557,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ResearchSourcesBox.tsx # Visning av Google Search-kilder
 │   │   └── SettingsModal.tsx    # Avanserte innstillinger (Logger, Terskelverdier)
 │   └── views/                   # Hovedvisninger (States)
+│       ├── LoginView.tsx        # Innlogging og autentisering
+│       ├── WaitlistView.tsx     # Venteliste og early access
 │       ├── IntroView.tsx        # Input, filanalyse, drag-n-drop
 │       ├── CastingView.tsx      # Karakteroversikt og stemmevalg
 │       ├── GenerationView.tsx   # Live streaming av innhold
@@ -571,6 +573,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── geminiService.ts         # Fasade for ai/index.ts
 │   ├── modelPricing.ts          # Prismodeller for Gemini/Imagen
 │   ├── prompts.ts               # Fasade for prompts/index.ts
+│   ├── supabaseApi.ts           # Klient for Supabase Edge Functions
+│   ├── supabaseClient.ts        # Supabase autentisering og oppsett
 │   ├── ai/                      # AI-integrasjon (Google GenAI)
 │   │   ├── audioHelpers.ts      # PCM/Base64 hjelpere
 │   │   ├── chapters.ts          # Generering av kapitler (tekst + add-ons)
@@ -584,7 +588,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── retry.ts             # Feilhåndtering og retry-logikk
 │   │   ├── schemas.ts           # Zod/JSON schemas for AI output
 │   │   ├── summarize.ts         # AI-oppsummering for PPTX bullet points
-│   │   └── tts.ts               # Tekst-til-tale logikk
+│   │   └── tts.ts               # Tekst-til-tale logikk (Gemini)
+│   ├── aiHybrid.ts              # Hybrid-løsning (Edge Functions + Client)
 │   ├── export/                  # Eksport-moduler
 │   │   ├── docx.ts              # DOCX-generering
 │   │   ├── epub.ts              # EPUB 3 e-bok generering (XHTML + Cover)
@@ -615,12 +620,24 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── pdf.ts               # PDF-spesifikke stiler
 │       ├── types.ts             # Type-definisjoner for stiler
 │       └── units.ts             # Enhetskonvertering (mm, px, pt)
+├── supabase/                    # SUPABASE EDGE FUNCTIONS (Backend)
+│   ├── functions/
+│   │   ├── _shared/             # Delt logikk (utils.ts)
+│   │   ├── ai-generate-section/ # Server-side generering (Streaming)
+│   │   ├── ai-image/            # Bildegenerering (Imagen 3)
+│   │   ├── ai-mermaid-fix/      # Mermaid-fiksing (AI)
+│   │   ├── ai-plan/             # Planleggings-agent
+│   │   ├── ai-suggest-prompt/   # Prompt-forbedring
+│   │   ├── ai-suggest-settings/ # Innstillings-anbefalinger
+│   │   ├── ai-summarize/        # Oppsummerings-agent
+│   │   └── ai-tts/              # Tekst-til-tale proxy
+│   └── config.toml              # Supabase konfigurasjon
 └── utils/                       # Generelle hjelpefunksjoner
     ├── audio.ts                 # PCM/WAV-hjelpere (lavnivå)
     ├── dom.ts                   # DOM-manipulasjon
     └── fileParser.ts            # Parsing av opplastede filer (.txt gjenoppretting)
-```
 
+```
 ### Nøkkelkomponenter forklart
 
 * `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker nå "Smart Chunking" for å bevare linjeskift i TTS-tekst, noe som er kritisk for korrekt videorendring og synkronisering.
