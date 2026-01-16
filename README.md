@@ -623,14 +623,17 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── supabase/                    # SUPABASE EDGE FUNCTIONS (Backend)
 │   ├── functions/
 │   │   ├── _shared/             # Delt logikk (utils.ts)
+│   │   ├── ai-analyze-file/     # Analyse av opplastede filer
 │   │   ├── ai-generate-section/ # Server-side generering (Streaming)
 │   │   ├── ai-image/            # Bildegenerering (Imagen 3)
 │   │   ├── ai-mermaid-fix/      # Mermaid-fiksing (AI)
 │   │   ├── ai-plan/             # Planleggings-agent
+│   │   ├── ai-script-convert/   # Konvertering til filmmanus
 │   │   ├── ai-suggest-prompt/   # Prompt-forbedring
 │   │   ├── ai-suggest-settings/ # Innstillings-anbefalinger
 │   │   ├── ai-summarize/        # Oppsummerings-agent
-│   │   └── ai-tts/              # Tekst-til-tale proxy
+│   │   ├── ai-tts/              # Tekst-til-tale proxy
+│   │   └── url-analyze/         # Analyse av nettsider (Scraping)
 │   └── config.toml              # Supabase konfigurasjon
 └── utils/                       # Generelle hjelpefunksjoner
     ├── audio.ts                 # PCM/WAV-hjelpere (lavnivå)
