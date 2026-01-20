@@ -538,12 +538,16 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 .
 ├── App.tsx                      # Global state, view-ruting og kostnadssporing
 ├── README.md                    # Dokumentasjon
+├── CHANGELOG.md                 # Endringslogg
+├── ROADMAP.md                   # Veikart og fremtidsplaner
 ├── constants.ts                 # Globale konstanter (stemmer, stiler)
 ├── types.ts                     # TypeScript definisjoner for hele applikasjonen
 ├── genres.ts                    # Definisjoner av hovedsjangre og kategorier
 ├── genreOptions.ts              # Kontekstuelle sub-options (faktasjekk, lengde, etc.)
 ├── languages.ts                 # Støttede språk for I/O
 ├── components/
+│   ├── Icons.tsx                # Ikoner (SVG)
+│   ├── ParserTest.tsx           # Test-komponent for parser
 │   ├── landing/                 # Landingsside komponenter
 │   │   └── LandingPage.tsx      # Hovedinngang / Hero-seksjon
 │   ├── ui/                      # Gjenbrukbare UI-komponenter
@@ -569,6 +573,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── documentStyles.ts        # Fasade for styles/index.ts
 │   ├── downloadService.ts       # Fasade for export/index.ts
 │   ├── api.ts                   # URL-analyse og ekstern API-kommunikasjon
+│   ├── auth.ts                  # Autentiseringslogikk
 │   ├── formatConstants.ts       # Konstanter for overskriftsformater
 │   ├── geminiService.ts         # Fasade for ai/index.ts
 │   ├── modelPricing.ts          # Prismodeller for Gemini/Imagen
@@ -603,13 +608,14 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   └── website.ts           # Interaktiv nettside-pakking (ZIP)
 │   ├── format/                  # Tekstformatering
 │   │   └── sectionHeaders.ts    # Håndtering av kapitteloverskrifter og språk
+│   ├── i18n/                    # Internasjonalisering
+│   │   └── translations.ts      # Oversettelser (NO/EN) for UI og eksport
 │   ├── prompts/                 # AI-instrukser (Prompts)
 │   │   └── fragments/           # Gjenbrukbare prompt-deler (Regler)
 │   │       ├── markdownRules.ts # Regler for MD-struktur
 │   │       ├── mermaidRules.ts  # Regler for Mermaid v11 syntaks
+│   │       ├── mermaidSyntaxV11.ts # Detaljerte Mermaid syntaksregler
 │   │       └── professionalVisualization.ts # Konsulent-stil guider
-│   ├── i18n/                    # Internasjonalisering
-│   │   └── translations.ts      # Oversettelser (NO/EN) for UI og eksport
 │   ├── sanitize/                # Rens og validering
 │   │   └── mermaidFixer.ts      # Self-healing Mermaid logikk
 │   └── styles/                  # Stildefinisjoner
@@ -620,37 +626,49 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── pdf.ts               # PDF-spesifikke stiler
 │       ├── types.ts             # Type-definisjoner for stiler
 │       └── units.ts             # Enhetskonvertering (mm, px, pt)
-├── supabase/                    # SUPABASE EDGE FUNCTIONS (Backend)
+├── supabase/                    # SUPABASE BACKEND (Edge Functions + DB)
+│   ├── config.toml              # Supabase lokal konfigurasjon
+│   ├── deno.json                # Deno konfigurasjon for Edge Functions
 │   ├── functions/
-│   │   ├── _shared/             # Delt logikk (utils.ts)
-│   │   ├── ai-analyze-file/     # Analyse av opplastede filer
-│   │   ├── ai-generate-section/ # Server-side generering (Streaming)
-│   │   ├── ai-image/            # Bildegenerering (Imagen 3)
-│   │   ├── ai-mermaid-fix/      # Mermaid-fiksing (AI)
-│   │   ├── ai-plan/             # Planleggings-agent
+│   │   ├── _shared/             # Delt logikk for alle Edge Functions
+│   │   │   ├── utils.ts         # Auth, allowlist, kvote-håndtering
+│   │   │   └── rateLimit.ts     # Upstash Redis rate limiting
+│   │   ├── ai-analyze-file/     # Analyse av opplastede filer (multimodal)
+│   │   ├── ai-generate-section/ # Server-side generering (SSE Streaming)
+│   │   ├── ai-image/            # Bildegenerering (Imagen 4.0)
+│   │   ├── ai-mermaid-fix/      # Mermaid-fiksing med AI
+│   │   ├── ai-plan/             # Planleggings-agent (Google Search)
 │   │   ├── ai-script-convert/   # Konvertering til filmmanus
 │   │   ├── ai-suggest-prompt/   # Prompt-forbedring
 │   │   ├── ai-suggest-settings/ # Innstillings-anbefalinger
 │   │   ├── ai-summarize/        # Oppsummerings-agent
-│   │   ├── ai-tts/              # Tekst-til-tale proxy
+│   │   ├── ai-tts/              # Tekst-til-tale (Gemini TTS)
 │   │   └── url-analyze/         # Analyse av nettsider (Scraping)
-│   └── config.toml              # Supabase konfigurasjon
+│   └── migrations/              # Database-migrasjoner
+│       └── 20260120_quota_system.sql  # Kvote-system tabeller og RPC
+├── scripts/                     # Verktøy og test-skript
+│   ├── debug_code_spacing.js
+│   ├── reproduce_failure.ts
+│   ├── test_backticks.js|ts
+│   ├── test_header_issue.ts
+│   ├── test_mermaid_repro.ts
+│   ├── test_nested_backticks.ts
+│   └── test_parser.ts
 └── utils/                       # Generelle hjelpefunksjoner
     ├── audio.ts                 # PCM/WAV-hjelpere (lavnivå)
     ├── dom.ts                   # DOM-manipulasjon
     └── fileParser.ts            # Parsing av opplastede filer (.txt gjenoppretting)
-
 ```
 ### Nøkkelkomponenter forklart
 
 * `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker nå "Smart Chunking" for å bevare linjeskift i TTS-tekst, noe som er kritisk for korrekt videorendring og synkronisering.
-* `services/export/video.ts`: Ny videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt, slik at tekst ikke "krasjer" i videoen.
-* `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt, med dark mode og responsivt design.
-* `services/sanitize/mermaidFixer.ts`: En intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer (f.eks. ugyldige piler eller sitater) og ber AI-en om å fikse dem automatisk før visning.
-* `services/export/pdf.ts`: Avansert PDF-motor som støtter fet skrift, kursiv, og automatisk skalering av bilder og diagrammer for perfekt A4-utskrift.
-* `services/fileExtract.ts`: Håndterer opplasting av komplekse filtyper. Kan pakke ut tekst fra DOCX, PPTX, PDF, og til og med analysere zip-filer av kildekode for å lage dokumentasjon.
-* `services/modelPricing.ts`: Administrerer Imagen-modeller (Ultra/Standard/Fast) og beregner produksjonskostnader.
-* `services/ai/index.ts`: Sentralisert AI-bibliotek for konsistent AI-instrukser.
+* `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
+* `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt.
+* `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
+* `supabase/functions/_shared/utils.ts`: Delt logikk for alle Edge Functions inkludert auth, allowlist, kvote-reservering og brukslogging.
+* `supabase/migrations/20260120_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
+
+
 
 </details>
 

@@ -4,12 +4,48 @@ Alle vesentlige endringer i dette prosjektet dokumenteres her.
 
 Formatet er inspirert av *Keep a Changelog*, og prosjektet følger semantisk versjonering der det er praktisk.
 
-## [Unreleased] – EPUB Eksport + PowerPoint + Lydoptimalisering
+## [Unreleased] – Fase 3: Kvoter & Misbruksvern
 
 ### Høydepunkter
-- Ny **EPUB E-bok eksport** med cover, kapittelnavigasjon og Mermaid-diagrammer.
-- Ny **PowerPoint-eksport** for non-fiction kategorier med AI-genererte bullet points.
-- **Optimalisert lydfiler**: MP3 bitrate redusert fra 128kbps til 64kbps for tale (halverer filstørrelse).
+- Nytt **kvote- og brukssporingssystem** med atomisk Postgres RPC for å forhindre race conditions.
+- **Rate limiting** via Upstash Redis for anti-spam beskyttelse (graceful fallback hvis ikke konfigurert).
+- **Felles utilities** i `_shared/utils.ts` for auth, allowlist, kvote-reservering og brukslogging.
+- Alle **9 Edge Functions** refaktorert med ny pipeline: Auth → Allowlist → RateLimit → Quota → AI → Finalize.
+
+### Added
+- **Database-migrasjon (`supabase/migrations/20260120_quota_system.sql`)**:
+  - `entitlements` tabell: Bruker-tier, limits (JSONB), features (JSONB)
+  - `usage_counters` tabell: Rollup for rask kvote-sjekk per bruker/dag
+  - `usage_events` tabell: Append-only audit log for alle AI-kall
+  - RLS policies: Users kan kun lese egne rader, service role kan skrive
+  - `quota_reserve()` RPC: Atomisk check-and-increment for kvotereservasjon
+  - `quota_finalize()` RPC: Logger bruk til audit log
+  - `get_user_entitlements()` RPC: Henter brukers tier og limits
+- **Shared Utilities (`supabase/functions/_shared/`)**:
+  - `utils.ts`: `reserveQuota()`, `finalizeUsage()`, `createServiceRoleClient()`, `checkRateLimit()` re-export
+  - `rateLimit.ts`: Upstash Redis sliding window rate limiting (10 req/60s per bruker)
+- **Edge Function Refaktorering**: Alle 9 funksjoner har nå full pipeline:
+  - `ai-suggest-settings`, `ai-plan`, `ai-generate-section` (streaming)
+  - `ai-image` (bruker `ai_images_per_day` kvote)
+  - `ai-tts` (bruker `ai_tts_chars_per_day` kvote)
+  - `ai-mermaid-fix`, `ai-summarize`, `ai-analyze-file`, `url-analyze`
+
+### Changed
+- **Edge Functions**: Byttet fra inline auth-kode til shared utilities.
+- **Kvotetyper**:
+  - `ai_requests_per_day`: 100 (default)
+  - `ai_images_per_day`: 20 (default)
+  - `ai_tts_chars_per_day`: 30000 (default)
+
+### Filer berørt
+- `supabase/migrations/20260120_quota_system.sql` (NEW)
+- `supabase/functions/_shared/utils.ts` (utvidet)
+- `supabase/functions/_shared/rateLimit.ts` (NEW)
+- Alle 9 Edge Functions under `supabase/functions/`
+
+---
+
+## [Previous] – EPUB Eksport + PowerPoint + Lydoptimalisering
 
 ### Added
 - **EPUB Eksport (`services/export/epub.ts`)**:
