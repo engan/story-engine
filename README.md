@@ -110,6 +110,10 @@ Møtet med brukeren – rent, moderne og inviterende.
 ### Startside app
 Etter landingssiden – moderne og stilrent panel.
 ![Startside app](public/story-engine.png)
+
+### Alternativt smal skjermbredde
+Startsiden tilpasses skjermbredden automatisk.
+![Startside app small](public/story-engine-small.png)
 </details>
 
 <details>
