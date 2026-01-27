@@ -112,7 +112,7 @@ Etter landingssiden – moderne og stilrent panel.
 ![Startside app](public/story-engine.png)
 
 ### Alternativt smal skjermbredde
-Startsiden tilpasses skjermbredden automatisk. 
+Skriv inn dine nye ideer umiddelbart på din telefon. 
 
 ![Alternativt smal skjermbredde](public/story-engine-small.png)
 </details>
