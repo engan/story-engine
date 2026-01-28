@@ -554,6 +554,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── languages.ts                 # Støttede språk for I/O
 ├── components/
 │   ├── Icons.tsx                # Ikoner (SVG)
+│   ├── MermaidDebugPage.tsx     # Debug side for Mermaid
 │   ├── ParserTest.tsx           # Test-komponent for parser
 │   ├── landing/                 # Landingsside komponenter
 │   │   └── LandingPage.tsx      # Hovedinngang / Hero-seksjon
@@ -572,6 +573,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── WaitlistView.tsx     # Venteliste og early access
 │       ├── IntroView.tsx        # Input, filanalyse, drag-n-drop
 │       ├── CastingView.tsx      # Karakteroversikt og stemmevalg
+│       ├── DashboardView.tsx    # Brukerdashboard og prosjektoversikt
 │       ├── GenerationView.tsx   # Live streaming av innhold
 │       └── CompleteView.tsx     # Ferdig resultat, avspilling og regenerering
 ├── services/                    # FORRETNINGSLOGIKK (MODULÆR)
@@ -650,17 +652,11 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-suggest-settings/ # Innstillings-anbefalinger
 │   │   ├── ai-summarize/        # Oppsummerings-agent
 │   │   ├── ai-tts/              # Tekst-til-tale (Gemini TTS)
+│   │   ├── ai-user-profile/     # Brukerprofil og preferanser
 │   │   └── url-analyze/         # Analyse av nettsider (Scraping)
 │   └── migrations/              # Database-migrasjoner
 │       └── 20260120_quota_system.sql  # Kvote-system tabeller og RPC
 ├── scripts/                     # Verktøy og test-skript
-│   ├── debug_code_spacing.js
-│   ├── reproduce_failure.ts
-│   ├── test_backticks.js|ts
-│   ├── test_header_issue.ts
-│   ├── test_mermaid_repro.ts
-│   ├── test_nested_backticks.ts
-│   └── test_parser.ts
 └── utils/                       # Generelle hjelpefunksjoner
     ├── audio.ts                 # PCM/WAV-hjelpere (lavnivå)
     ├── dom.ts                   # DOM-manipulasjon
@@ -674,8 +670,6 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
 * `supabase/functions/_shared/utils.ts`: Delt logikk for alle Edge Functions inkludert auth, allowlist, kvote-reservering og brukslogging.
 * `supabase/migrations/20260120_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
-
-
 
 </details>
 
@@ -709,7 +703,6 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     ```bash
     npm run dev
     ```
-
 ---
 
 ## 📝 Endringslogg
