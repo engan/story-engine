@@ -51,6 +51,11 @@
 
 ## 🚀 Se Story Engine i aksjon
 
+### 🧪 Prøv Appen (Beta)
+Du kan nå teste en fungerende versjon av Story Engine direkte i nettleseren:
+👉 **[https://story.neoweb.no](https://story.neoweb.no)**
+*(Dette er en midlertidig server for testing)*
+
 ### 🌐 Live Interaktiv Rapport
 Opplev en komplett generert leveranse direkte i nettleseren. Klikk på bildet under for å utforske den interaktive nettsiden som Story Engine produserer automatisk:
 
