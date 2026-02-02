@@ -21,7 +21,7 @@
 
 *   📄 **Native Dokumentgenerering**: Skaper ekte PDF, DOCX og MP3-filer direkte i nettleseren uten eksterne konverteringstjenester.
 
-*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med mørkt tema, innholdsfortegnelse, og integrert lyd/bilde-avspilling.
+*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med mørkt tema, innholdsfortegnelse, og integrert lyd/bilde-avspilling. Åpnes enkelt direkte i nettleseren.
 
 *   🎬 **Smart Video-produksjon**: Genererer videoer (.webm) per kapittel med synkronisert lyd og tekst. Bruker "Smart Split"-teknologi for å sikre perfekt typografi (overskrifter vs. brødtekst).
 
