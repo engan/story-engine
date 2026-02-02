@@ -729,8 +729,10 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 
 Vi bygger fremtidens publiseringsverktøy. Her er hva som kommer:
 
+*   🎬 **Vertical Video Export (9:16)**: TikTok/Reels/Shorts versjon av videoer (MP4) med sentrert crop og skjulte tabeller.
 *   📰 **Integrasjon mot Retriever/Mediearkivet**: For dypere faktasjekk mot norske kilder.
 *   🗣️ **Multi-LLM Konsensus-debatt**: La flere AI-modeller diskutere en sak før konklusjon trekkes.
+*   📻 **Advanced Audio (Radio Play)**: Lydeffekter og bakgrunnsmusikk mikset med fortellerstemmen.
 *   🗞️ **Pilotprosjekt med lokalavis**: Test av "Breaking News"-agent (f.eks journalist, etter avtale).
 *   📱 **PWA-støtte**: Full offline-støtte for journalister i felt (etter avtale).
 
