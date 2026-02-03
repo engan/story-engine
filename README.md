@@ -23,7 +23,7 @@
 
 *   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med mørkt tema, innholdsfortegnelse, og integrert lyd/bilde-avspilling. Åpnes enkelt direkte i nettleseren.
 
-*   🎬 **Smart Video-produksjon**: Genererer videoer per kapittel med synkronisert lyd og tekst. Velg mellom **MP4** (anbefalt, H.264/AAC) eller WebM (VP9/Opus). Bruker "Smart Split"-teknologi for å sikre perfekt typografi.
+*   🎬 **Smart Video-produksjon**: Genererer videoer per kapittel med synkronisert lyd og tekst. Eksporterer som **MP4** (H.264/AAC) i **16:9** eller **9:16** (vertikal) format. Bruker "Smart Split"-teknologi for å sikre perfekt typografi.
 
 *   📊 **PowerPoint-eksport (Non-Fiction)**: AI-genererte presentasjoner med oppsummerte bullet points, kapittelillustrasjoner og Mermaid-diagrammer på dedikerte slides.
 
@@ -319,8 +319,8 @@ graph TD
         ExportDOCX["📘 .docx<br/><i>Native Word</i>"]
         GenerateMP3["🎵 Audio Processor<br/><i>MP3/WAV valg</i>"]
         ExportMP3["🎵 .zip<br/><i>MP3 (64kbps) eller WAV</i>"]
-        GenerateWebM["🎬 Video Processor<br/><i>MP4 (default) / WebM</i>"]
-        ExportWebM["🎬 .zip<br/><i>MP4 H.264 (default) / WebM VP9</i>"]
+        GenerateWebM["🎬 Video Processor<br/><i>MP4 H.264/AAC</i>"]
+        ExportWebM["🎬 .zip<br/><i>MP4 (16:9 / 9:16)</i>"]
         GenerateWebsite["🌐 Web Generator<br/><i>HTML/CSS/JS Bundle</i>"]
         ExportWebsite["🌐 .zip<br/><i>Interaktiv side</i>"]
         GeneratePPTX["📊 PPTX Generator<br/><i>AI Summarize + PptxGenJS</i>"]
@@ -344,7 +344,7 @@ graph TD
     AppState -->|"audioContent"| GenerateMP3
     GenerateMP3 --> ExportMP3
 
-    FormatChoice -->|"WebM"| GenerateWebM
+    FormatChoice -->|"MP4 Video"| GenerateWebM
     AppState -->|"audio + image"| GenerateWebM
     GenerateWebM --> ExportWebM
 
@@ -515,9 +515,9 @@ sequenceDiagram
     else 🎵 Audio (MP3/WAV)
         FE->>+DL: Audio chunks → MP3 (64kbps) / WAV
         DL-->>-User: ⬇️ .zip (MP3 eller WAV per kapittel)
-    else 🎬 Video (MP4/WebM)
-        FE->>+DL: Audio + bilder → WebCodecs (H.264 / VP9)
-        DL-->>-User: ⬇️ .zip (MP4 default / WebM per kapittel)
+    else 🎬 Video (MP4)
+        FE->>+DL: Audio + bilder → WebCodecs (H.264/AAC)
+        DL-->>-User: ⬇️ .zip (MP4 per kapittel, 16:9 / 9:16)
     else 🌐 Nettside (ZIP)
         FE->>+DL: Samle HTML/CSS/JS + Assets
         DL->>DL: 📚 Render Mermaid PNGs
@@ -617,7 +617,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── pdf.ts               # PDF-generering med avansert formatering
 │   │   ├── pptx.ts              # PowerPoint-generering (Non-Fiction)
 │   │   ├── utils.ts             # Delte eksport-hjelpere (Mermaid render)
-│   │   ├── video.ts             # Videorendring (MP4 H.264 / WebM VP9) med "Smart Split"
+│   │   ├── video.ts             # Videorendring (MP4 H.264/AAC, 16:9 / 9:16) med "Smart Split"
 │   │   └── website.ts           # Interaktiv nettside-pakking (ZIP)
 │   ├── format/                  # Tekstformatering
 │   │   └── sectionHeaders.ts    # Håndtering av kapitteloverskrifter og språk
