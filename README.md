@@ -58,7 +58,7 @@ Story Engine kan nå testes på midlertidig server her:
 ### 🌐 Live Interaktiv Rapport
 Opplev en komplett generert leveranse direkte i nettleseren. Klikk på bildet under for å utforske den interaktive nettsiden som Story Engine produserer automatisk:
 
-<p align="center">
+<p>
   <a href="https://neoweb.no/se-walkthrough/index.html">
     <img src="https://neoweb.no/se-walkthrough/infographic.png" width="900" alt="Interaktiv Rapport Demo"/>
   </a>
@@ -108,6 +108,7 @@ Opplev en komplett generert leveranse direkte i nettleseren. Klikk på bildet un
 
 ### 🖥️ Visuell Omvisning App
 Møtet med brukeren – rent, moderne og inviterende.
+
 ![Landingsside](public/app-hero-eng.png)
 
 <details>
@@ -145,156 +146,167 @@ Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende o
 
 Dette diagrammet viser hvordan data beveger seg fra brukerens input, gjennom våre prosesseringssteg, og ut som ferdige formater.
 
+#### Del 1: Input → Generering
 ```mermaid
 graph TD
     %% ═══════════════════════════════════════════
-    %% 📱 STORY ENGINE - KOMPLETT DATAFLYT
-    %% Oppdatert: Januar 2026
+    %% 📱 STORY ENGINE - DEL 1 (INPUT → GENERERING)
+    %% Oppdatert: Februar 2026
     %% ═══════════════════════════════════════════
 
-    %% ─── FASE -1: LANDING PAGE ───
     Entry((("🚀 App Start")))
     Entry --> LandingPage["🏠 Landing Page<br/><i>LandingPage.tsx</i>"]
     LandingPage -->|"Kom i gang"| UserStart((("👤 Bruker")))
 
-    %% ─── FASE 0: INPUT KILDER ───
     subgraph InputSources ["📥 INPUT KILDER"]
         direction TB
-        IdeaInput["📝 Core Idea<br/><i>Tekstfelt</i>"]
-        FileInput["📁 Fil Upload<br/><i>Audio/Video/Image/<br/>PDF/DOCX/ZIP/Code</i>"]
-        URLInput["🌐 URL Analyse<br/><i>Nettside</i>"]
-        PlanFile["📄 .txt Plan<br/><i>Tidligere eksport</i>"]
+        IdeaInput["📝 Core Idea"]
+        FileInput["📁 Fil Upload"]
+        URLInput["🌐 URL Analyse"]
+        PlanFile["📄 .txt Plan"]
     end
+    UserStart --> InputSources
 
-    UserStart -->|"Velger kilde"| InputSources
-
-    %% ─── FASE 1: ANALYSE & AI-ANBEFALINGER ───
-    subgraph Analysis ["🔍 ANALYSE & PARSING"]
+    subgraph Analysis ["🔍 ANALYSE & ANBEFALINGER"]
         direction TB
-        FileAnalyzer["⚙️ Fil Analysering<br/><i>fileExtract.ts</i>"]
-        PromptService1["📋 Prompt Service<br/><i>getAnalyze*Prompt()</i>"]
-        URLAnalyzer["🔗 URL Scraping<br/><i>api.ts</i>"]
-        FileParser["📑 Plan Parser<br/><i>fileParser.ts</i>"]
-        AIRecommend["🤖 AI Anbefalinger<br/><i>getRecommendedSettings()</i>"]
+        FileAnalyzer["⚙️ fileExtract.ts"]
+        PromptService1["📋 getAnalyze*Prompt()"]
+        URLAnalyzer["🔗 api.ts"]
+        FileParser["📑 fileParser.ts"]
+        SuggestPrompt["✨ enhanceUserIdeaHybrid()"]
+        AIRecommend["🤖 getRecommendedSettingsHybrid()"]
+        EdgeSuggestPrompt["⚙️ ai-suggest-prompt"]
+        EdgeSuggestSettings["⚙️ ai-suggest-settings"]
+        EdgeAnalyzeFile["⚙️ ai-analyze-file"]
+        EdgeUrlAnalyze["⚙️ url-analyze"]
+        SharedPromptSuggest["🧩 shared/prompts<br/><i>suggest builders</i>"]
+        GeminiAnalyze["🤖 Gemini API<br/><i>2.5-flash/pro</i>"]
+        CoreIdea["💡 Core Idea"]
+        UI["🎨 IntroView"]
     end
 
-    IdeaInput -->|"Direkte tekst"| AIRecommend
-    AIRecommend -->|"Foreslår innstillinger"| UI["🎨 IntroView<br/><i>Konfigurasjon</i>"]
-    
-    FileInput -->|"analyzeReferenceFile()"| FileAnalyzer
-    FileAnalyzer -->|"getAnalyze*Prompt()"| PromptService1
-    PromptService1 -->|"Prompt basert på filtype"| GeminiAPI1["🤖 Gemini API<br/><i>2.5-flash/pro</i>"]
-    
-    URLInput -->|"analyzeUrl()"| URLAnalyzer
-    URLAnalyzer -->|"Henter innhold"| GeminiAPI1
-    
-    GeminiAPI1 -->|"Returnerer analyse"| CoreIdea["💡 Core Idea<br/><i>Populert</i>"]
+    IdeaInput --> AIRecommend
+    IdeaInput --> SuggestPrompt
+    SuggestPrompt --> EdgeSuggestPrompt --> SharedPromptSuggest --> GeminiAnalyze --> CoreIdea
     CoreIdea --> AIRecommend
-    
-    PlanFile -->|"parseNovelPlanFromFile()"| FileParser
-    FileParser -->|"Ferdig plan"| PlanReady["📋 NovelPlan<br/><i>Klar til bruk</i>"]
+    AIRecommend --> EdgeSuggestSettings --> SharedPromptSuggest
+    EdgeSuggestSettings --> GeminiAnalyze --> UI
 
-    %% ─── FASE 2: PLANLEGGING ───
+    FileInput --> FileAnalyzer --> PromptService1 --> EdgeAnalyzeFile --> GeminiAnalyze --> CoreIdea
+    URLInput --> URLAnalyzer --> EdgeUrlAnalyze --> GeminiAnalyze
+    PlanFile --> FileParser --> PlanReady["📋 NovelPlan<br/><i>fra fil</i>"]
+
     subgraph Planning ["📐 PLANLEGGING"]
         direction TB
-        PlanGenerator["📝 Plan Generator<br/><i>generateNovelPlan()</i>"]
-        PromptService2["📋 Prompt Service<br/><i>getNovelPlanPrompt()</i><br/><i>+ Sub-options</i>"]
+        PlanningLogic{"🤔 Har vi plan?"}
+        PlanGenerator["📝 generateNovelPlanHybrid()"]
+        PromptService2["📋 getNovelPlanPrompt()"]
+        SharedPromptPlan["🧩 shared/prompts<br/><i>planPrompt.ts</i>"]
+        EdgePlan["⚙️ ai-plan"]
+        GeminiPlan["🤖 Gemini API<br/><i>2.5-pro</i>"]
+        SearchDecision{"🔎 Google Search?"}
+        SearchAPI["🌍 Grounding + Citations"]
     end
 
-    UI -->|"handleStartPlanning()"| PlanningLogic{"🤔 Har vi<br/>en plan?"}
-    PlanningLogic -->|"Nei"| PlanGenerator
-    PlanningLogic -->|"Ja: Fra fil"| PlanReady
+    UI --> PlanningLogic
+    PlanningLogic -->|"Ja"| PlanReady
+    PlanningLogic -->|"Nei"| PlanGenerator --> PromptService2 --> SharedPromptPlan --> EdgePlan --> GeminiPlan
+    EdgePlan --> SearchDecision
+    SearchDecision -->|"Ja"| SearchAPI --> EdgePlan
+    SearchDecision -->|"Nei"| EdgePlan
+    EdgePlan -->|"JSON Plan + metadata"| PlanReady
 
-    PlanGenerator -->|"getNovelPlanPrompt()"| PromptService2
-    PromptService2 -->|"Strukturert prompt"| GeminiAPI2["🤖 Gemini API<br/><i>2.5-pro</i>"]
-
-    GeminiAPI2 --> SearchDecision{"🔎 Google<br/>Search?"}
-    SearchDecision -->|"Ja"| SearchAPI["🌍 Google Search<br/><i>Grounding + Citations</i>"]
-    SearchAPI -->|"Grounded data"| GeminiAPI2
-    SearchDecision -->|"Nei"| NoSearch["📄 Standard<br/>generering"]
-    NoSearch --> PlanReady
-    GeminiAPI2 -->|"JSON Plan + metadata"| PlanReady
-
-    %% ─── FASE 3: COVER IMAGE ───
-    subgraph CoverGen ["🖼️ COVER GENERERING"]
-        direction LR
-        ImageGen["🎨 Imagen 4.0<br/><i>Ultra/Standard/Fast</i>"]
-        ModelPricing["💰 modelPricing<br/><i>Kostnadssporing</i>"]
-    end
-    
-    PlanReady -->|"generateImage()"| ImageGen
-    ImageGen -->|"incrementImageCount()"| ModelPricing
-    ImageGen -->|"Base64 bilde"| PlanWithCover["📖 NovelPlan<br/><i>+ coverImageUrl</i>"]
-
-    %% ─── FASE 4: INNHOLDSGENERERING ───
-    subgraph ContentGen ["✍️ INNHOLDSGENERERING"]
+    subgraph ContentFlow ["✍️ GENERERING + SANITIZE + ADD-ONS"]
         direction TB
-        ChapterGen["📚 Kapittel Generator<br/><i>generateChapterBatch()</i>"]
-        PromptService3["📋 Prompt Service<br/><i>getBaseChapterPrompt()</i><br/><i>+ markdownRules</i>"]
-        StreamHandler["📡 Stream Handler<br/><i>chapters.ts</i>"]
-    end
-
-    PlanWithCover -->|"Batch av kapitler"| ChapterGen
-    ChapterGen -->|"getBaseChapterPrompt()"| PromptService3
-    PromptService3 -->|"Strukturert prompt"| GeminiAPI3["🤖 Gemini API<br/><i>2.5-pro Streaming</i>"]
-    GeminiAPI3 -->|"Streamer Markdown"| StreamHandler
-
-    %% ─── FASE 5: VASKEMASKINEN ───
-    subgraph Sanitizer ["🧼 VASKEMASKINEN"]
-        direction LR
+        EdgeImageCover["⚙️ ai-image (cover)"]
+        ImageGen["🎨 Imagen 4.0"]
+        PlanWithCover["📖 Plan + coverImageUrl"]
+        ChapterGen["📚 generateChapterBatch()"]
+        PromptService3["📋 getBaseChapterPrompt()"]
+        SharedPromptSection["🧩 shared/prompts<br/><i>sectionPrompt.ts</i>"]
+        EdgeSection["⚙️ ai-generate-section<br/><i>SSE</i>"]
+        GeminiSection["🤖 Gemini Streaming"]
+        StreamHandler["📡 chapters.ts"]
         RawMD["📄 Rå MD"]
-        Fix1["🔧 ContentSanitizer<br/><i>Tags/Headers</i>"]
-        Fix2["✅ mermaidFixer<br/><i>Diagram-validering</i>"]
-        Fix3["📝 Spacing<br/><i>Tabeller/Lister</i>"]
+        Fix1["🔧 ContentSanitizer"]
+        Fix2["✅ mermaidFixer"]
+        MermaidDecision{"📊 Mermaid gyldig?"}
+        EdgeMermaidFix["⚙️ ai-mermaid-fix"]
+        SharedPromptFix["🧩 mermaidFixPrompt.ts"]
+        GeminiFix["🤖 Mermaid fix"]
+        Fix3["📝 Spacing"]
         CleanMD["✨ Ren MD"]
-        RawMD --> Fix1 --> Fix2 --> Fix3 --> CleanMD
+        AddOnProcessor["⚡ processChapterAddOns()"]
+        EdgeImageChapter["⚙️ ai-image (chapter)"]
+        ChapterImageGen["🖼️ Kapitelbilder"]
+        SmartChunking["✂️ Smart Chunking"]
+        EdgeScript["⚙️ ai-script-convert"]
+        EdgeTTS["⚙️ ai-tts"]
+        FinalChapter["📖 GeneratedChapter"]
     end
 
-    StreamHandler --> RawMD
+    PlanReady --> EdgeImageCover --> ImageGen --> EdgeImageCover --> PlanWithCover
+    PlanWithCover --> ChapterGen --> PromptService3 --> SharedPromptSection --> EdgeSection --> GeminiSection --> EdgeSection --> StreamHandler --> RawMD
+    RawMD --> Fix1 --> Fix2 --> MermaidDecision
+    MermaidDecision -->|"Ja"| Fix3 --> CleanMD --> AddOnProcessor
+    MermaidDecision -->|"Nei"| EdgeMermaidFix --> SharedPromptFix --> GeminiFix --> EdgeMermaidFix --> Fix2
+    AddOnProcessor --> EdgeImageChapter --> ChapterImageGen --> FinalChapter
+    AddOnProcessor --> SmartChunking --> EdgeScript --> EdgeTTS --> FinalChapter
+    AddOnProcessor -->|"uten add-ons"| FinalChapter
 
-    %% ─── FASE 6: ADD-ONS ───
-    subgraph AddOns ["🎁 ADD-ONS"]
-        direction TB
-        AddOnProcessor["⚡ processChapterAddOns()<br/><i>chapters.ts</i>"]
-        ChapterImageGen["🖼️ Imagen 4.0<br/><i>Illustrasjoner</i>"]
-        NarrationGen["🎙️ Gemini TTS<br/><i>tts.ts</i>"]
-        SmartChunking["✂️ Smart Chunking<br/><i>Bevarer linjeskift</i>"]
-    end
+    FinalChapter --> GenerationPayload["💾 Generert payload<br/><i>til Del 2</i>"]
+    PlanWithCover --> GenerationPayload
 
-    CleanMD -->|"Kapittel ferdig"| AddOnProcessor
+    classDef userNode fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#92400e
+    classDef landingNode fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#9d174d
+    classDef apiNode fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e40af
+    classDef processNode fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#5b21b6
+    classDef serviceNode fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px,color:#3730a3
+    classDef stateNode fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#166534
+    classDef decisionNode fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#c2410c
+    classDef sanitizerNode fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#075985
 
-    AddOnProcessor --> IllustrationDecision{"🖼️ Bilder?"}
-    IllustrationDecision -->|"Ja"| ChapterImageGen
-    ChapterImageGen -->|"Base64 bilde"| ChapterWithImage["📖 Chapter<br/><i>+ imageUrl</i>"]
-    IllustrationDecision -->|"Nei"| ChapterWithImage
+    class Entry,UserStart userNode
+    class LandingPage landingNode
+    class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix,ChapterImageGen apiNode
+    class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor,SmartChunking processNode
+    class PromptService1,PromptService2,PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS serviceNode
+    class CoreIdea,PlanReady,PlanWithCover,FinalChapter,GenerationPayload,UI stateNode
+    class PlanningLogic,SearchDecision,MermaidDecision decisionNode
+    class RawMD,Fix1,Fix2,Fix3,CleanMD sanitizerNode
+```
 
-    ChapterWithImage --> AudioDecision{"🔊 Audio?"}
-    AudioDecision -->|"Narrasjon"| SmartChunking
-    SmartChunking -->|"Tekstbiter med \\n"| NarrationGen
-    AudioDecision -->|"Nei"| FinalChapter["📖 GeneratedChapter<br/><i>Ferdig</i>"]
-    NarrationGen -->|"Base64 audio"| FinalChapter
+#### Del 2: State → Eksport
+```mermaid
+graph TD
+    %% ═══════════════════════════════════════════
+    %% 📱 STORY ENGINE - DEL 2 (STATE → EKSPORT)
+    %% Oppdatert: Februar 2026
+    %% ═══════════════════════════════════════════
 
-    %% ─── FASE 7: STATE & KOSTNADSSPORING ───
+    GenerationPayload["📥 Fra Del 1<br/><i>Plan + Chapters + Audio + Images</i>"]
+    QuotaUsage["💳 Credits/Kvoter<br/><i>Edge _shared/utils.ts</i>"]
+
     subgraph StateTracking ["💾 STATE & SPORING"]
         direction LR
         AppState[("App State<br/><i>React</i>")]
         UsageMetrics["📊 UsageMetrics<br/><i>Tokens/Images/Audio</i>"]
     end
-    
-    FinalChapter -->|"setGeneratedNovel()"| AppState
-    ModelPricing --> UsageMetrics
+
+    GenerationPayload --> AppState
+    GenerationPayload -.-> QuotaUsage
+    QuotaUsage --> UsageMetrics
     AppState --> UsageMetrics
 
-    %% ─── FASE 8: RENDERING ───
-    AppState -->|"Sender data"| Viewer["🖥️ ContentRenderer<br/><i>react-markdown + Mermaid</i>"]
-    Viewer -->|"Rendrer innhold"| Screen["📺 GenerationView<br/><i>Live + Yellow text</i>"]
-
-    %% ─── FASE 9: EKSPORT ───
+    Viewer["🖥️ ContentRenderer<br/><i>react-markdown + Mermaid</i>"]
+    Screen["📺 GenerationView<br/><i>Live + Yellow text</i>"]
     UserEnd((("👤 Bruker")))
-    UserEnd -.->|"Ser dokument"| Screen
-    UserEnd -->|"Last Ned"| DownloadBtn["⬇️ DownloadModal<br/><i>Format + Progress</i>"]
+    DownloadBtn["⬇️ DownloadModal<br/><i>Format + Progress</i>"]
+    FormatChoice{"📁 Format?"}
 
-    DownloadBtn --> FormatChoice{"📁 Format?"}
+    AppState --> Viewer --> Screen
+    UserEnd -.->|"Ser dokument"| Screen
+    UserEnd -->|"Last Ned"| DownloadBtn --> FormatChoice
 
     subgraph ExportService ["📤 EKSPORT SERVICE"]
         direction TB
@@ -360,35 +372,24 @@ graph TD
     ContentParse --> GenerateEPUB
     GenerateEPUB --> ExportEPUB
 
-    %% ═══════════════════════════════════════════
-    %% 🎨 STYLING CLASSES (GitHub Compatible)
-    %% ═══════════════════════════════════════════
-    
     classDef userNode fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#92400e
-    classDef landingNode fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#9d174d
     classDef apiNode fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e40af
     classDef processNode fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#5b21b6
     classDef serviceNode fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px,color:#3730a3
     classDef stateNode fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#166534
     classDef exportNode fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#9d174d
     classDef decisionNode fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#c2410c
-    classDef sanitizerNode fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#075985
     classDef viewNode fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px,color:#5b21b6
     classDef metricsNode fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#854d0e
 
-    class Entry,UserStart,UserEnd userNode
-    class LandingPage landingNode
-    class GeminiAPI1,GeminiAPI2,GeminiAPI3,SearchAPI,ImageGen,ChapterImageGen,NarrationGen apiNode
-    class UI,ChapterGen,StreamHandler,Viewer,AddOnProcessor,AIRecommend,SmartChunking processNode
-    class PromptService1,PromptService2,PromptService3,DLService,FileAnalyzer,URLAnalyzer,FileParser,ContentParse,DocStyles,ExportModules serviceNode
-    class AppState,PlanReady,CoreIdea,FinalChapter,PlanWithCover,ChapterWithImage,PlanGenerator,NoSearch stateNode
-    class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,ExportWebsite,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,GenerateWebsite,FullMD,DownloadBtn exportNode
-    class PlanningLogic,SearchDecision,IllustrationDecision,AudioDecision,FormatChoice decisionNode
-    class RawMD,Fix1,Fix2,Fix3,CleanMD sanitizerNode
-    class Screen viewNode
-    class ModelPricing,UsageMetrics metricsNode
+    class UserEnd userNode
+    class Viewer,Screen viewNode
+    class DLService,ContentParse,ExportModules serviceNode
+    class AppState,GenerationPayload stateNode
+    class QuotaUsage,UsageMetrics metricsNode
+    class FormatChoice decisionNode
+    class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,ExportWebsite,ExportPPTX,ExportEPUB,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,GenerateWebsite,GeneratePPTX,GenerateEPUB,FullMD,DownloadBtn exportNode
 ```
-![Oversikt](public/flowchart-tr.png)
 </details>
 
 <details>
@@ -429,110 +430,100 @@ Hvordan frontend kommuniserer med AI-modellene og håndterer asynkrone strømmer
 sequenceDiagram
     autonumber
     
-    box rgba(99, 102, 241, 0.1) 🎯 BRUKERGRENSESNITT
+    box rgba(99, 102, 241, 0.1) 🎯 KLIENT
         participant User as 👤 Bruker
         participant FE as 🖥️ Frontend
+        participant San as 🧼 Sanitizer
+        participant DL as 📦 Download/Export
     end
     
-    box rgba(16, 185, 129, 0.1) 🧠 AI-MOTOR
-        participant AI as ⚡ Gemini API
+    box rgba(16, 185, 129, 0.1) ☁️ EDGE
+        participant Edge as ⚙️ Supabase Edge Functions
+    end
+    
+    box rgba(245, 158, 11, 0.1) 🧠 MODELLER
+        participant Gemini as ⚡ Gemini API
         participant Search as 🔍 Google Search
         participant Imagen as 🎨 Imagen
     end
+
+    Note over User,Imagen: 🎯 FASE 1: Input & AI-anbefalinger
     
-    box rgba(245, 158, 11, 0.1) ⚙️ PROSESSERING
-        participant San as 🛡️ Sanitizer
-        participant Parse as 📑 Parser
-        participant DL as 📦 Download
+    User->>+FE: 📝 Input: idé, fil eller URL
+    alt Filanalyse
+        FE->>+Edge: POST ai-analyze-file
+        Edge->>+Gemini: Multimodal analyse
+        Gemini-->>-Edge: Analyse-resultat
+        Edge-->>-FE: Core Idea / sammendrag
+    else URL-analyse
+        FE->>+Edge: POST url-analyze
+        Edge-->>-FE: Innhold / sammendrag
     end
+    FE->>+Edge: POST ai-suggest-settings
+    Edge->>Gemini: Prompt fra shared/prompts
+    Gemini-->>Edge: Settings-forslag
+    Edge-->>-FE: category/genre/creativity/grounding
 
-    Note over User,DL: 🎯 FASE 1: Input & AI-Anbefalinger
-    
-    User->>+FE: 📝 Input: Idé, fil eller URL
-    FE->>+AI: 🤖 Analyser innhold
-    AI-->>-FE: 💡 Core Idea + Anbefalinger
-    FE-->>User: ✨ Foreslått kategori/sjanger/søk
-
-    Note over User,DL: 📐 FASE 2: Planlegging & Research
+    Note over User,Imagen: 📐 FASE 2: Planlegging og cover
     
     User->>FE: ✅ Godkjenn innstillinger
-    FE->>+AI: 📋 Generer plan
+    FE->>+Edge: POST ai-plan
+    Note over Edge: buildPlanPrompt() fra shared/prompts
     
-    alt 🔍 Google Search aktivert
-        AI->>+Search: Søk etter fakta
-        Search-->>-AI: 📰 Grounded data + kilder
+    alt Grounding aktivert
+        Edge->>+Search: Hent kilder/fakta
+        Search-->>-Edge: Grounded data
     end
     
-    AI-->>-FE: 📖 NovelPlan (JSON)
-    FE->>+Imagen: 🖼️ Generer cover
-    Imagen-->>-FE: 🎨 Base64 bilde
+    Edge->>+Gemini: Generer plan JSON
+    Gemini-->>-Edge: NovelPlan + citations
+    Edge-->>-FE: Plan-respons
+    FE->>+Edge: POST ai-image (cover)
+    Edge->>+Imagen: Generer cover
+    Imagen-->>-Edge: Base64 bilde
+    Edge-->>-FE: coverImageUrl
 
-    Note over User,DL: ✍️ FASE 3: Innholdsgenerering
+    Note over User,Imagen: ✍️ FASE 3: Seksjonsgenerering (SSE)
     
-    FE->>+AI: 📚 Generer kapitler (batch)
-    
-    loop 📖 Per kapittel (streaming)
-        AI-->>FE: ✨ Markdown chunk
-        FE->>San: 🧼 Valider + rens
-        San-->>FE: ✅ Ren output
-        FE-->>User: 🖼️ Live oppdatering (gul tekst)
-    end
-    
-    AI-->>-FE: ✅ Alle kapitler ferdig
-    
-    opt 🎁 Add-ons aktivert
-        loop 📖 Per kapittel
-            opt 🖼️ Illustrasjoner
-                FE->>+Imagen: Generer kapittel-bilde
-                Imagen-->>-FE: 🎨 Base64 bilde
+    loop Per seksjon
+        FE->>+Edge: POST ai-generate-section (stream)
+        Note over Edge: buildGenerateSectionPrompt() fra shared/prompts
+        Edge->>+Gemini: streamGenerateContent
+        loop Per chunk
+            Gemini-->>Edge: Markdown chunk
+            Edge-->>FE: SSE event chunk
+            FE->>San: Rens + valider Mermaid
+            opt Mermaid krever AI-fiks
+                San->>+Edge: POST ai-mermaid-fix
+                Edge->>Gemini: Fix-prompt (shared/prompts)
+                Gemini-->>Edge: Fikset diagram
+                Edge-->>-San: Valid Mermaid
             end
-            opt 🎙️ Audio
-                FE->>+AI: TTS narrasjon
-                AI-->>-FE: 🔊 Base64 audio
-            end
+            San-->>FE: Ren output
+            FE-->>User: Live oppdatering
         end
+        Gemini-->>-Edge: Seksjon ferdig
+        Edge-->>-FE: DONE event
     end
     
-    FE-->>User: 📺 Komplett visning (hvit tekst)
+    Note over User,Imagen: 🎁 FASE 4: Add-ons
+    opt Illustrasjoner / TTS
+        FE->>+Edge: POST ai-image (kapittel)
+        Edge->>Imagen: Generer illustrasjon
+        Imagen-->>Edge: Base64 bilde
+        Edge-->>-FE: chapter image
+        FE->>+Edge: POST ai-script-convert / ai-tts
+        Edge->>Gemini: Script/TTS behandling
+        Gemini-->>Edge: Audio/script-data
+        Edge-->>-FE: Audio chunks
+    end
 
-    Note over User,DL: 📥 FASE 4: Eksport & Levering
+    Note over User,DL: 📥 FASE 5: Eksport
     
     User->>FE: 📁 Velg eksportformat
-    FE->>Parse: 📑 MD → Strukturerte blokker
-    Parse-->>FE: 📦 Headers, lister, tabeller, mermaid
+    FE->>DL: Parse markdown + bygg filer
     
-    alt 📄 Dokument (TXT)
-        FE->>+DL: YAML + Markdown
-        DL-->>-User: ⬇️ .txt fil
-    else 📕 Dokument (PDF)
-        FE->>+DL: Blokker → jsPDF
-        DL->>DL: 🎨 Bold/italic + Mermaid PNG
-        DL-->>-User: ⬇️ .pdf fil
-    else 📘 Dokument (DOCX)
-        FE->>+DL: Blokker → docx
-        DL->>DL: 📝 Numbered lists + styling
-        DL-->>-User: ⬇️ .docx fil
-    else 🎵 Audio (MP3/WAV)
-        FE->>+DL: Audio chunks → MP3 (64kbps) / WAV
-        DL-->>-User: ⬇️ .zip (MP3 eller WAV per kapittel)
-    else 🎬 Video (MP4)
-        FE->>+DL: Audio + bilder → WebCodecs (H.264/AAC)
-        DL-->>-User: ⬇️ .zip (MP4 per kapittel, 16:9 / 9:16)
-    else 🌐 Nettside (ZIP)
-        FE->>+DL: Samle HTML/CSS/JS + Assets
-        DL->>DL: 📚 Render Mermaid PNGs
-        DL-->>-User: ⬇️ .zip (Interaktiv side)
-    else 📊 PowerPoint (PPTX)
-        FE->>+DL: AI oppsummer → PptxGenJS
-        DL->>DL: 🎯 Slides + diagrammer
-        DL-->>-User: ⬇️ .pptx fil
-    else 📚 E-bok (EPUB)
-        FE->>+DL: Blokker → XHTML + Cover
-        DL->>DL: 📦 EPUB 3 pakking
-        DL-->>-User: ⬇️ .epub fil
-    end
-    
-    Note over User,DL: 📊 Kostnadssporing oppdateres kontinuerlig
+    DL-->>User: TXT / PDF / DOCX / MP3 / MP4 / ZIP / PPTX / EPUB
 ```
 </details>
 
@@ -543,128 +534,159 @@ sequenceDiagram
 <details>
 <summary><strong>Klikk for filstruktur</strong></summary>
 
-Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdbarhet og skalerbarhet. Vi bruker nå en tydelig domenestruktur under services.
+Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdbarhet og skalerbarhet. Vi bruker nå en tydelig domenestruktur under `services`, samt et delt prompt-lag i `shared/prompts` for å hindre prompt-drift mellom frontend og Edge Functions.
 
 ```text
 .
-├── App.tsx                      # Global state, view-ruting og kostnadssporing
-├── README.md                    # Dokumentasjon
-├── CHANGELOG.md                 # Endringslogg
-├── ROADMAP.md                   # Veikart og fremtidsplaner
-├── constants.ts                 # Globale konstanter (stemmer, stiler)
-├── types.ts                     # TypeScript definisjoner for hele applikasjonen
-├── genres.ts                    # Definisjoner av hovedsjangre og kategorier
-├── genreOptions.ts              # Kontekstuelle sub-options (faktasjekk, lengde, etc.)
-├── languages.ts                 # Støttede språk for I/O
+├── App.tsx                         # Global state, view-ruting og kostnadssporing
+├── README.md                       # Dokumentasjon
+├── CHANGELOG.md                    # Endringslogg
+├── ROADMAP.md                      # Veikart og fremtidsplaner
+├── constants.ts                    # Globale konstanter (stemmer, stiler)
+├── types.ts                        # TypeScript definisjoner for hele applikasjonen
+├── genres.ts                       # Definisjoner av hovedsjangre og kategorier
+├── genreOptions.ts                 # Kontekstuelle sub-options (faktasjekk, lengde, etc.)
+├── languages.ts                    # Støttede språk for I/O
 ├── components/
-│   ├── Icons.tsx                # Ikoner (SVG)
-│   ├── MermaidDebugPage.tsx     # Debug side for Mermaid
-│   ├── ParserTest.tsx           # Test-komponent for parser
-│   ├── landing/                 # Landingsside komponenter
-│   │   └── LandingPage.tsx      # Hovedinngang / Hero-seksjon
-│   ├── ui/                      # Gjenbrukbare UI-komponenter
-│   │   ├── ContentRenderer.tsx  # Markdown/Mermaid renderer (ReactMarkdown)
-│   │   ├── DownloadModal.tsx    # Modal for valg av eksportformat
-│   │   ├── ErrorBoundary.tsx    # Feilhåndtering
-│   │   ├── LoadingView.tsx      # Animerte laste-steg (Analyzing -> Finalizing)
-│   │   ├── LogViewer.tsx        # Debug-konsoll i UI
-│   │   ├── Mermaid.tsx          # Wrapper for Mermaid-diagrammer
-│   │   ├── PlanningStepper.tsx  # Visuell fremdriftsindikator
-│   │   ├── ResearchSourcesBox.tsx # Visning av Google Search-kilder
-│   │   └── SettingsModal.tsx    # Avanserte innstillinger (Logger, Terskelverdier)
-│   └── views/                   # Hovedvisninger (States)
-│       ├── LoginView.tsx        # Innlogging og autentisering
-│       ├── WaitlistView.tsx     # Venteliste og early access
-│       ├── IntroView.tsx        # Input, filanalyse, drag-n-drop
-│       ├── CastingView.tsx      # Karakteroversikt og stemmevalg
-│       ├── DashboardView.tsx    # Brukerdashboard og prosjektoversikt
-│       ├── GenerationView.tsx   # Live streaming av innhold
-│       └── CompleteView.tsx     # Ferdig resultat, avspilling og regenerering
-├── services/                    # FORRETNINGSLOGIKK (MODULÆR)
-│   ├── ContentParser.ts         # AST-parser som konverterer MD til blokker
-│   ├── ContentSanitizer.ts      # "Vaskemaskinen" (Regex-rensing, header-fiks)
-│   ├── documentStyles.ts        # Fasade for styles/index.ts
-│   ├── downloadService.ts       # Fasade for export/index.ts
-│   ├── api.ts                   # URL-analyse og ekstern API-kommunikasjon
-│   ├── auth.ts                  # Autentiseringslogikk
-│   ├── formatConstants.ts       # Konstanter for overskriftsformater
-│   ├── geminiService.ts         # Fasade for ai/index.ts
-│   ├── modelPricing.ts          # Prismodeller for Gemini/Imagen
-│   ├── prompts.ts               # Fasade for prompts/index.ts
-│   ├── supabaseApi.ts           # Klient for Supabase Edge Functions
-│   ├── supabaseClient.ts        # Supabase autentisering og oppsett
-│   ├── ai/                      # AI-integrasjon (Google GenAI)
-│   │   ├── audioHelpers.ts      # PCM/Base64 hjelpere
-│   │   ├── chapters.ts          # Generering av kapitler (tekst + add-ons)
-│   │   ├── client.ts            # GoogleGenAI klient-init
-│   │   ├── config.ts            # Konfigurasjon (tokens, sikkerhet)
-│   │   ├── fileExtract.ts       # Filanalyse (DOCX, PDF, Code, Images)
-│   │   ├── imagen.ts            # Bildegenerering (Imagen & Gemini)
-│   │   ├── index.ts             # Eksportør
-│   │   ├── json.ts              # Robust JSON-parsing
-│   │   ├── plan.ts              # Planlegging og oversettelse
-│   │   ├── retry.ts             # Feilhåndtering og retry-logikk
-│   │   ├── schemas.ts           # Zod/JSON schemas for AI output
-│   │   ├── summarize.ts         # AI-oppsummering for PPTX bullet points
-│   │   └── tts.ts               # Tekst-til-tale logikk (Gemini)
-│   ├── aiHybrid.ts              # Hybrid-løsning (Edge Functions + Client)
-│   ├── export/                  # Eksport-moduler
-│   │   ├── docx.ts              # DOCX-generering
-│   │   ├── epub.ts              # EPUB 3 e-bok generering (XHTML + Cover)
-│   │   ├── index.ts             # Eksportør
-│   │   ├── markdown.ts          # Markdown-generering
-│   │   ├── mp3.ts               # Lyd-sammenstilling (MP3 64kbps / WAV)
-│   │   ├── pdf.ts               # PDF-generering med avansert formatering
-│   │   ├── pptx.ts              # PowerPoint-generering (Non-Fiction)
-│   │   ├── utils.ts             # Delte eksport-hjelpere (Mermaid render)
-│   │   ├── video.ts             # Videorendring (MP4 H.264/AAC, 16:9 / 9:16) med "Smart Split"
-│   │   └── website.ts           # Interaktiv nettside-pakking (ZIP)
-│   ├── format/                  # Tekstformatering
-│   │   └── sectionHeaders.ts    # Håndtering av kapitteloverskrifter og språk
-│   ├── i18n/                    # Internasjonalisering
-│   │   └── translations.ts      # Oversettelser (NO/EN) for UI og eksport
-│   ├── prompts/                 # AI-instrukser (Prompts)
-│   │   └── fragments/           # Gjenbrukbare prompt-deler (Regler)
-│   │       ├── markdownRules.ts # Regler for MD-struktur
-│   │       ├── mermaidRules.ts  # Regler for Mermaid v11 syntaks
-│   │       ├── mermaidSyntaxV11.ts # Detaljerte Mermaid syntaksregler
-│   │       └── professionalVisualization.ts # Konsulent-stil guider
-│   ├── sanitize/                # Rens og validering
-│   │   └── mermaidFixer.ts      # Self-healing Mermaid logikk
-│   └── styles/                  # Stildefinisjoner
-│       ├── config.ts            # Globale stilvariabler
-│       ├── docx.ts              # DOCX-spesifikke stiler
-│       ├── helpers.ts           # Hjelpefunksjoner for farger/størrelser
-│       ├── index.ts             # Eksportør
-│       ├── pdf.ts               # PDF-spesifikke stiler
-│       ├── types.ts             # Type-definisjoner for stiler
-│       └── units.ts             # Enhetskonvertering (mm, px, pt)
-├── supabase/                    # SUPABASE BACKEND (Edge Functions + DB)
-│   ├── config.toml              # Supabase lokal konfigurasjon
-│   ├── deno.json                # Deno konfigurasjon for Edge Functions
+│   ├── Icons.tsx                   # Ikoner (SVG)
+│   ├── MermaidDebugPage.tsx        # Debug side for Mermaid
+│   ├── OnboardingModal.tsx         # Førstegangs onboarding
+│   ├── ParserTest.tsx              # Test-komponent for parser
+│   ├── landing/                    # Landingsside komponenter
+│   │   └── LandingPage.tsx         # Hovedinngang / Hero-seksjon
+│   ├── ui/                         # Gjenbrukbare UI-komponenter
+│   │   ├── ContentRenderer.tsx     # Markdown/Mermaid renderer (ReactMarkdown)
+│   │   ├── DownloadModal.tsx       # Modal for valg av eksportformat
+│   │   ├── ErrorBoundary.tsx       # Feilhåndtering
+│   │   ├── LoadingView.tsx         # Animerte laste-steg (Analyzing -> Finalizing)
+│   │   ├── LogViewer.tsx           # Debug-konsoll i UI
+│   │   ├── Mermaid.tsx             # Wrapper for Mermaid-diagrammer
+│   │   ├── PlanningStepper.tsx     # Visuell fremdriftsindikator
+│   │   ├── ResearchSourcesBox.tsx  # Visning av Google Search-kilder
+│   │   └── SettingsModal.tsx       # Avanserte innstillinger (Logger, Terskelverdier)
+│   └── views/                      # Hovedvisninger (States)
+│       ├── AltIntroDesignView.tsx  # Alternativ intro-layout / design
+│       ├── DashboardView.tsx       # Brukerdashboard og prosjektoversikt
+│       ├── ProjectsView.tsx        # Prosjektliste og prosjektstyring
+│       ├── LoginView.tsx           # Innlogging og autentisering
+│       ├── WaitlistView.tsx        # Venteliste og early access
+│       ├── IntroView.tsx           # Input, filanalyse, drag-n-drop
+│       ├── CastingView.tsx         # Karakteroversikt og stemmevalg
+│       ├── GenerationView.tsx      # Live streaming av innhold
+│       └── CompleteView.tsx        # Ferdig resultat, avspilling og regenerering
+├── scripts/                        # Verktøy og test-skript
+│   ├── check-prompt-drift.mjs      # CI-guard mot inline core-prompts i Edge Functions
+│   ├── smoke-prompt-builders.ts    # Smoke-test av shared prompt-builders
+│   ├── verify_quotas.ts            # Kvote/credit test mot Edge Functions
+│   └── ...                         # Repro/parse/test hjelpeskript
+├── services/                       # FORRETNINGSLOGIKK (MODULÆR)
+│   ├── ContentParser.ts            # AST-parser som konverterer MD til blokker
+│   ├── ContentSanitizer.ts         # "Vaskemaskinen" (Regex-rensing, header-fiks)
+│   ├── documentStyles.ts           # Fasade for styles/index.ts
+│   ├── downloadService.ts          # Fasade for export/index.ts
+│   ├── api.ts                      # URL-analyse og ekstern API-kommunikasjon
+│   ├── auth.ts                     # Autentiseringslogikk
+│   ├── formatConstants.ts          # Konstanter for overskriftsformater
+│   ├── geminiService.ts            # Fasade for ai/index.ts
+│   ├── modelPricing.ts             # Prismodeller for Gemini/Imagen
+│   ├── prompts.ts                  # Stabil offentlig entrypoint (barrel re-export)
+│   ├── supabaseApi.ts              # Klient for Supabase Edge Functions
+│   ├── supabaseClient.ts           # Supabase autentisering og oppsett
+│   ├── ai/                         # AI-integrasjon (Google GenAI)
+│   │   ├── audioHelpers.ts         # PCM/Base64 hjelpere
+│   │   ├── chapters.ts             # Generering av kapitler (tekst + add-ons)
+│   │   ├── config.ts               # Konfigurasjon (tokens, sikkerhet)
+│   │   ├── fileExtract.ts          # Filanalyse (DOCX, PDF, Code, Images)
+│   │   ├── imageGenerator.ts       # Bildegenerering via Supabase/API-lag
+│   │   ├── imagen.ts               # Bildegenerering (Imagen & Gemini)
+│   │   ├── index.ts                # Eksportør
+│   │   ├── retry.ts                # Feilhåndtering og retry-logikk
+│   │   ├── schemas.ts              # Zod/JSON schemas for AI output
+│   │   ├── summarize.ts            # AI-oppsummering for PPTX bullet points
+│   │   ├── tts.ts                  # Tekst-til-tale logikk (Gemini)
+│   │   └── utils.ts                # Delte AI-hjelpere
+│   ├── aiHybrid.ts                 # Edge-first orkestrering (lokal fallback fjernet)
+│   ├── export/                     # Eksport-moduler
+│   │   ├── docx.ts                 # DOCX-generering
+│   │   ├── epub.ts                 # EPUB 3 e-bok generering (XHTML + Cover)
+│   │   ├── index.ts                # Eksportør
+│   │   ├── markdown.ts             # Markdown-generering
+│   │   ├── mp3.ts                  # Lyd-sammenstilling (MP3 64kbps / WAV)
+│   │   ├── pdf.ts                  # PDF-generering med avansert formatering
+│   │   ├── pptx.ts                 # PowerPoint-generering (Non-Fiction)
+│   │   ├── utils.ts                # Delte eksport-hjelpere (Mermaid render)
+│   │   ├── video.ts                # Videorendring (MP4 H.264/AAC, 16:9 / 9:16) med "Smart Split"
+│   │   └── website.ts              # Interaktiv nettside-pakking (ZIP)
+│   ├── format/                     # Tekstformatering
+│   │   └── sectionHeaders.ts       # Håndtering av kapitteloverskrifter og språk
+│   ├── i18n/                       # Internasjonalisering
+│   │   └── translations.ts         # Oversettelser (NO/EN) for UI og eksport
+│   ├── prompts/                    # Lokale prompt-moduler (split refaktor)
+│   │   ├── README.md               # Modulgrense + safe refactor-regler
+│   │   ├── core.ts                 # Delte lokale prompt-konstanter/hjelpere
+│   │   ├── referencePrompts.ts     # Fil-/media-analyse prompts
+│   │   ├── settingsPrompts.ts      # Settings + enhance-idea prompts
+│   │   ├── novelPlanPrompts.ts     # Plan/story prompts
+│   │   ├── chapterPrompts.ts       # Chapter/section + export/QA/TTS prompts
+│   │   └── fragments/              # Re-export av shared fragments
+│   │       ├── markdownRules.ts    # MD-regler (fra shared/prompts)
+│   │       ├── mermaidRules.ts     # Mermaid-regler (fra shared/prompts)
+│   │       ├── mermaidSyntaxV11.ts # Mermaid v11 syntaks (shared)
+│   │       └── professionalVisualization.ts # Visualiseringsstrategi (shared)
+│   ├── sanitize/                   # Rens og validering
+│   │   └── mermaidFixer.ts         # Self-healing Mermaid logikk
+│   └── styles/                     # Stildefinisjoner
+│       ├── config.ts               # Globale stilvariabler
+│       ├── docx.ts                 # DOCX-spesifikke stiler
+│       ├── helpers.ts              # Hjelpefunksjoner for farger/størrelser
+│       ├── index.ts                # Eksportør
+│       ├── pdf.ts                  # PDF-spesifikke stiler
+│       ├── types.ts                # Type-definisjoner for stiler
+│       └── units.ts                # Enhetskonvertering (mm, px, pt)
+├── shared/                         # Delt kode mellom frontend og Edge Functions
+│   └── prompts/                    # Prompt source-of-truth (core generation flows)
+│       ├── builders/               # Prompt-builders for Edge flows
+│       │   ├── sectionPrompt.ts    # ai-generate-section
+│       │   ├── planPrompt.ts       # ai-plan
+│       │   ├── suggestPrompt.ts    # ai-suggest-prompt
+│       │   ├── suggestSettingsPrompt.ts # ai-suggest-settings
+│       │   └── mermaidFixPrompt.ts # ai-mermaid-fix
+│       ├── fragments/              # Delte prompt-fragmenter
+│       │   ├── markdownRules.ts    # Markdown-regler
+│       │   ├── mermaidRules.ts     # Mermaid-regler
+│       │   ├── mermaidSyntaxV11.ts # Mermaid v11 syntaks
+│       │   └── professionalVisualization.ts # Visualisering
+│       └── index.ts                # Stabil eksportflate
+├── supabase/                       # SUPABASE BACKEND (Edge Functions + DB)
+│   ├── config.toml                 # Supabase lokal konfigurasjon
+│   ├── deno.json                   # Deno konfigurasjon for Edge Functions
 │   ├── functions/
-│   │   ├── _shared/             # Delt logikk for alle Edge Functions
-│   │   │   ├── utils.ts         # Auth, allowlist, kvote-håndtering
-│   │   │   └── rateLimit.ts     # Upstash Redis rate limiting
-│   │   ├── ai-analyze-file/     # Analyse av opplastede filer (multimodal)
-│   │   ├── ai-generate-section/ # Server-side generering (SSE Streaming)
-│   │   ├── ai-image/            # Bildegenerering (Imagen 4.0)
-│   │   ├── ai-mermaid-fix/      # Mermaid-fiksing med AI
-│   │   ├── ai-plan/             # Planleggings-agent (Google Search)
-│   │   ├── ai-script-convert/   # Konvertering til filmmanus
-│   │   ├── ai-suggest-prompt/   # Prompt-forbedring
-│   │   ├── ai-suggest-settings/ # Innstillings-anbefalinger
-│   │   ├── ai-summarize/        # Oppsummerings-agent
-│   │   ├── ai-tts/              # Tekst-til-tale (Gemini TTS)
-│   │   ├── ai-user-profile/     # Brukerprofil og preferanser
-│   │   └── url-analyze/         # Analyse av nettsider (Scraping)
-│   └── migrations/              # Database-migrasjoner
-│       └── 20260120_quota_system.sql  # Kvote-system tabeller og RPC
-├── scripts/                     # Verktøy og test-skript
-└── utils/                       # Generelle hjelpefunksjoner
-    ├── audio.ts                 # PCM/WAV-hjelpere (lavnivå)
-    ├── dom.ts                   # DOM-manipulasjon
-    └── fileParser.ts            # Parsing av opplastede filer (.txt gjenoppretting)
+│   │   ├── _shared/                # Delt logikk for alle Edge Functions
+│   │   │   ├── utils.ts            # Auth, allowlist, kvote/credit-håndtering
+│   │   │   ├── rateLimit.ts        # Upstash Redis rate limiting
+│   │   │   ├── genres.ts           # Delt sjangerdata
+│   │   │   └── genreOptions.ts     # Delt sub-option data
+│   │   ├── ai-analyze-file/        # Analyse av opplastede filer (multimodal)
+│   │   ├── ai-generate-section/    # Server-side generering (SSE Streaming)
+│   │   ├── ai-image/               # Bildegenerering (Imagen 4.0)
+│   │   ├── ai-mermaid-fix/         # Mermaid-fiksing med AI
+│   │   ├── ai-plan/                # Planleggings-agent (Google Search)
+│   │   ├── ai-script-convert/      # Konvertering til filmmanus
+│   │   ├── ai-suggest-prompt/      # Prompt-forbedring
+│   │   ├── ai-suggest-settings/    # Innstillings-anbefalinger
+│   │   ├── ai-summarize/           # Oppsummerings-agent
+│   │   ├── ai-tts/                 # Tekst-til-tale (Gemini TTS)
+│   │   ├── ai-user-profile/        # Brukerprofil og preferanser
+│   │   ├── url-analyze/            # Analyse av nettsider (Scraping)
+│   │   └── deno.d.ts               # Supplerende module declarations
+│   └── migrations/                 # Database-migrasjoner
+│       ├── 20260120_quota_system.sql  # Kvote-system tabeller og RPC
+│       ├── 20260129_add_credits_columns.sql # Credits-kolonner og flyt
+│       └── ...                     # Videre fixes/cleanup migrasjoner
+└── utils/                          # Generelle hjelpefunksjoner
+    ├── audio.ts                    # PCM/WAV-hjelpere (lavnivå)
+    ├── dom.ts                      # DOM-manipulasjon
+    └── fileParser.ts               # Parsing av opplastede filer (.txt gjenoppretting)
 ```
 ### Nøkkelkomponenter forklart
 
@@ -672,6 +694,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
 * `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
+* `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag.
+* `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
 * `supabase/functions/_shared/utils.ts`: Delt logikk for alle Edge Functions inkludert auth, allowlist, kvote-reservering og brukslogging.
 * `supabase/migrations/20260120_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
 
@@ -684,6 +708,13 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 Kildekoden til Story Engine er for tiden i et privat repository (novel-planner) for å beskytte immaterielle rettigheter (IP). Dette repoet fungerer som teknisk dokumentasjon.
 
 For investorer, partnere eller utviklere som har fått tildelt tilgangsrettigheter, gjelder følgende oppsett:
+
+### 🛠️ Forutsetninger
+*   **Node.js**: v20+
+*   **Deno**: v2.6.8+ (for Edge Functions)
+*   **Supabase CLI**: v2.76.3+
+
+### 🚀 Installasjon
 
 1.  **Klon kildekode-repoet**
    (Krever autorisasjon)
@@ -698,7 +729,12 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     ```
 
 3.  **Sett opp miljøvariabler**
-    Lag en `.env.local` fil i rotmappen og legg inn din API-nøkkel:
+    Lag en `.env.local` fil i rotmappen og legg inn Supabase-oppsett:
+    ```env
+    VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+    VITE_SUPABASE_ANON_KEY=<anon-key>
+    ```
+    For enkelte lokale testskript kan du i tillegg trenge:
     ```env
     VITE_GEMINI_API_KEY=din_nøkkel_her
     ```
@@ -729,7 +765,6 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 
 Vi bygger fremtidens publiseringsverktøy. Her er hva som kommer:
 
-*   🎬 **Vertical Video Export (9:16)**: TikTok/Reels/Shorts versjon av videoer (MP4) med sentrert crop og skjulte tabeller.
 *   📰 **Integrasjon mot Retriever/Mediearkivet**: For dypere faktasjekk mot norske kilder.
 *   🗣️ **Multi-LLM Konsensus-debatt**: La flere AI-modeller diskutere en sak før konklusjon trekkes.
 *   📻 **Advanced Audio (Radio Play)**: Lydeffekter og bakgrunnsmusikk mikset med fortellerstemmen.
