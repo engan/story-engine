@@ -139,24 +139,21 @@ Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende o
 
 ## 🏗️ Teknisk Arkitektur
 
-<details>
-<summary><strong>Klikk for å se Dataflyt (Input → Eksport)</strong></summary>
-
 ### Dataflyt (Input → Eksport)
 
-Dette diagrammet viser hvordan data beveger seg fra brukerens input, gjennom våre prosesseringssteg, og ut som ferdige formater.
+Dataflyten er delt i to separate diagrammer for bedre lesbarhet.
 
-#### Del 1: Input → Generering
+<details>
+<summary><strong>Klikk for å se Dataflyt Del 1 (Input → Generering)</strong></summary>
+
+### Dataflyt Del 1: Input → Generering
+
+Dette diagrammet dekker input, analyse, planlegging og innholdsgenerering fram til ferdig generert payload.
 ```mermaid
 graph TD
-    %% ═══════════════════════════════════════════
-    %% 📱 STORY ENGINE - DEL 1 (INPUT → GENERERING)
-    %% Oppdatert: Februar 2026
-    %% ═══════════════════════════════════════════
-
     Entry((("🚀 App Start")))
     Entry --> LandingPage["🏠 Landing Page<br/><i>LandingPage.tsx</i>"]
-    LandingPage -->|"Kom i gang"| UserStart((("👤 Bruker")))
+    LandingPage --> UserStart((("👤 Bruker")))
 
     subgraph InputSources ["📥 INPUT KILDER"]
         direction TB
@@ -165,42 +162,49 @@ graph TD
         URLInput["🌐 URL Analyse"]
         PlanFile["📄 .txt Plan"]
     end
-    UserStart --> InputSources
+    UserStart -->|"Velger kilde"| InputSources
 
     subgraph Analysis ["🔍 ANALYSE & ANBEFALINGER"]
         direction TB
+        CoreIdea["💡 Core Idea"]
+        UI["🎨 IntroView"]
+        AIRecommend["🤖 getRecommendedSettingsHybrid()"]
+        SuggestPrompt["✨ enhanceUserIdeaHybrid()"]
         FileAnalyzer["⚙️ fileExtract.ts"]
-        PromptService1["📋 getAnalyze*Prompt()"]
         URLAnalyzer["🔗 api.ts"]
         FileParser["📑 fileParser.ts"]
-        SuggestPrompt["✨ enhanceUserIdeaHybrid()"]
-        AIRecommend["🤖 getRecommendedSettingsHybrid()"]
+        SharedPromptSuggest["🧩 shared/prompts<br/><i>suggest builders</i>"]
         EdgeSuggestPrompt["⚙️ ai-suggest-prompt"]
         EdgeSuggestSettings["⚙️ ai-suggest-settings"]
         EdgeAnalyzeFile["⚙️ ai-analyze-file"]
         EdgeUrlAnalyze["⚙️ url-analyze"]
-        SharedPromptSuggest["🧩 shared/prompts<br/><i>suggest builders</i>"]
         GeminiAnalyze["🤖 Gemini API<br/><i>2.5-flash/pro</i>"]
-        CoreIdea["💡 Core Idea"]
-        UI["🎨 IntroView"]
     end
 
     IdeaInput --> AIRecommend
     IdeaInput --> SuggestPrompt
-    SuggestPrompt --> EdgeSuggestPrompt --> SharedPromptSuggest --> GeminiAnalyze --> CoreIdea
+    SuggestPrompt --> EdgeSuggestPrompt
+    EdgeSuggestPrompt --> SharedPromptSuggest
+    EdgeSuggestPrompt --> GeminiAnalyze
     CoreIdea --> AIRecommend
-    AIRecommend --> EdgeSuggestSettings --> SharedPromptSuggest
-    EdgeSuggestSettings --> GeminiAnalyze --> UI
+    AIRecommend --> EdgeSuggestSettings
+    EdgeSuggestSettings --> SharedPromptSuggest
+    EdgeSuggestSettings --> GeminiAnalyze
+    GeminiAnalyze --> CoreIdea
+    EdgeSuggestSettings --> UI
 
-    FileInput --> FileAnalyzer --> PromptService1 --> EdgeAnalyzeFile --> GeminiAnalyze --> CoreIdea
-    URLInput --> URLAnalyzer --> EdgeUrlAnalyze --> GeminiAnalyze
+    FileInput --> FileAnalyzer
+    FileAnalyzer --> EdgeAnalyzeFile
+    EdgeAnalyzeFile --> GeminiAnalyze
+    URLInput --> URLAnalyzer
+    URLAnalyzer --> EdgeUrlAnalyze
+    EdgeUrlAnalyze --> GeminiAnalyze
     PlanFile --> FileParser --> PlanReady["📋 NovelPlan<br/><i>fra fil</i>"]
 
     subgraph Planning ["📐 PLANLEGGING"]
         direction TB
         PlanningLogic{"🤔 Har vi plan?"}
         PlanGenerator["📝 generateNovelPlanHybrid()"]
-        PromptService2["📋 getNovelPlanPrompt()"]
         SharedPromptPlan["🧩 shared/prompts<br/><i>planPrompt.ts</i>"]
         EdgePlan["⚙️ ai-plan"]
         GeminiPlan["🤖 Gemini API<br/><i>2.5-pro</i>"]
@@ -210,11 +214,14 @@ graph TD
 
     UI --> PlanningLogic
     PlanningLogic -->|"Ja"| PlanReady
-    PlanningLogic -->|"Nei"| PlanGenerator --> PromptService2 --> SharedPromptPlan --> EdgePlan --> GeminiPlan
+    PlanningLogic -->|"Nei"| PlanGenerator
+    PlanGenerator --> SharedPromptPlan
+    SharedPromptPlan --> EdgePlan
+    EdgePlan --> GeminiPlan
     EdgePlan --> SearchDecision
     SearchDecision -->|"Ja"| SearchAPI --> EdgePlan
     SearchDecision -->|"Nei"| EdgePlan
-    EdgePlan -->|"JSON Plan + metadata"| PlanReady
+    EdgePlan --> PlanReady
 
     subgraph ContentFlow ["✍️ GENERERING + SANITIZE + ADD-ONS"]
         direction TB
@@ -230,31 +237,48 @@ graph TD
         RawMD["📄 Rå MD"]
         Fix1["🔧 ContentSanitizer"]
         Fix2["✅ mermaidFixer"]
-        MermaidDecision{"📊 Mermaid gyldig?"}
+        MermaidDecision{"📊 Mermaid OK?"}
         EdgeMermaidFix["⚙️ ai-mermaid-fix"]
         SharedPromptFix["🧩 mermaidFixPrompt.ts"]
         GeminiFix["🤖 Mermaid fix"]
-        Fix3["📝 Spacing"]
         CleanMD["✨ Ren MD"]
         AddOnProcessor["⚡ processChapterAddOns()"]
         EdgeImageChapter["⚙️ ai-image (chapter)"]
-        ChapterImageGen["🖼️ Kapitelbilder"]
-        SmartChunking["✂️ Smart Chunking"]
         EdgeScript["⚙️ ai-script-convert"]
         EdgeTTS["⚙️ ai-tts"]
         FinalChapter["📖 GeneratedChapter"]
+        GenerationPayload["💾 Payload til Del 2"]
     end
 
-    PlanReady --> EdgeImageCover --> ImageGen --> EdgeImageCover --> PlanWithCover
-    PlanWithCover --> ChapterGen --> PromptService3 --> SharedPromptSection --> EdgeSection --> GeminiSection --> EdgeSection --> StreamHandler --> RawMD
-    RawMD --> Fix1 --> Fix2 --> MermaidDecision
-    MermaidDecision -->|"Ja"| Fix3 --> CleanMD --> AddOnProcessor
-    MermaidDecision -->|"Nei"| EdgeMermaidFix --> SharedPromptFix --> GeminiFix --> EdgeMermaidFix --> Fix2
-    AddOnProcessor --> EdgeImageChapter --> ChapterImageGen --> FinalChapter
-    AddOnProcessor --> SmartChunking --> EdgeScript --> EdgeTTS --> FinalChapter
-    AddOnProcessor -->|"uten add-ons"| FinalChapter
-
-    FinalChapter --> GenerationPayload["💾 Generert payload<br/><i>til Del 2</i>"]
+    PlanReady --> EdgeImageCover
+    EdgeImageCover --> ImageGen
+    ImageGen --> EdgeImageCover
+    EdgeImageCover --> PlanWithCover
+    PlanWithCover --> ChapterGen
+    ChapterGen --> PromptService3
+    PromptService3 --> SharedPromptSection
+    SharedPromptSection --> EdgeSection
+    EdgeSection --> GeminiSection
+    GeminiSection --> EdgeSection
+    EdgeSection --> StreamHandler
+    StreamHandler --> RawMD
+    RawMD --> Fix1
+    Fix1 --> Fix2
+    Fix2 --> MermaidDecision
+    MermaidDecision -->|"Ja"| CleanMD
+    MermaidDecision -->|"Nei"| EdgeMermaidFix
+    EdgeMermaidFix --> SharedPromptFix
+    SharedPromptFix --> GeminiFix
+    GeminiFix --> EdgeMermaidFix
+    EdgeMermaidFix --> Fix2
+    CleanMD --> AddOnProcessor
+    AddOnProcessor --> EdgeImageChapter
+    AddOnProcessor --> EdgeScript
+    EdgeScript --> EdgeTTS
+    AddOnProcessor --> FinalChapter
+    EdgeImageChapter --> FinalChapter
+    EdgeTTS --> FinalChapter
+    FinalChapter --> GenerationPayload
     PlanWithCover --> GenerationPayload
 
     classDef userNode fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#92400e
@@ -268,15 +292,21 @@ graph TD
 
     class Entry,UserStart userNode
     class LandingPage landingNode
-    class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix,ChapterImageGen apiNode
-    class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor,SmartChunking processNode
-    class PromptService1,PromptService2,PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS serviceNode
+    class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix apiNode
+    class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor processNode
+    class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS serviceNode
     class CoreIdea,PlanReady,PlanWithCover,FinalChapter,GenerationPayload,UI stateNode
     class PlanningLogic,SearchDecision,MermaidDecision decisionNode
-    class RawMD,Fix1,Fix2,Fix3,CleanMD sanitizerNode
+    class RawMD,Fix1,Fix2,CleanMD sanitizerNode
 ```
+</details>
 
-#### Del 2: State → Eksport
+<details>
+<summary><strong>Klikk for å se Dataflyt Del 2 (State → Eksport)</strong></summary>
+
+### Dataflyt Del 2: State → Eksport
+
+Dette diagrammet dekker state/sporing, visning og alle eksportformatene.
 ```mermaid
 graph TD
     %% ═══════════════════════════════════════════
