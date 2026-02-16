@@ -178,7 +178,7 @@ graph TD
         EdgeSuggestSettings["⚙️ ai-suggest-settings"]
         EdgeAnalyzeFile["⚙️ ai-analyze-file"]
         EdgeUrlAnalyze["⚙️ url-analyze"]
-        GeminiAnalyze["🤖 Gemini API<br/><i>2.5-flash/pro</i>"]
+        GeminiAnalyze["🤖 Gemini API<br/><i>3-flash/pro</i>"]
     end
 
     IdeaInput --> AIRecommend
@@ -207,7 +207,7 @@ graph TD
         PlanGenerator["📝 generateNovelPlanHybrid()"]
         SharedPromptPlan["🧩 shared/prompts<br/><i>planPrompt.ts</i>"]
         EdgePlan["⚙️ ai-plan"]
-        GeminiPlan["🤖 Gemini API<br/><i>2.5-pro</i>"]
+        GeminiPlan["🤖 Gemini API<br/><i>3-pro</i>"]
         SearchDecision{"🔎 Google Search?"}
         SearchAPI["🌍 Grounding + Citations"]
     end
@@ -568,155 +568,165 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 
 ```text
 .
-├── App.tsx                         # Global state, view-ruting og kostnadssporing
-├── README.md                       # Dokumentasjon
-├── CHANGELOG.md                    # Endringslogg
-├── ROADMAP.md                      # Veikart og fremtidsplaner
-├── constants.ts                    # Globale konstanter (stemmer, stiler)
-├── types.ts                        # TypeScript definisjoner for hele applikasjonen
-├── genres.ts                       # Definisjoner av hovedsjangre og kategorier
-├── genreOptions.ts                 # Kontekstuelle sub-options (faktasjekk, lengde, etc.)
-├── languages.ts                    # Støttede språk for I/O
+├── App.tsx                                   # Global state, view-ruting og kostnadssporing
+├── README.md                                 # Dokumentasjon
+├── CHANGELOG.md                              # Endringslogg
+├── ROADMAP.md                                # Veikart og fremtidsplaner
+├── constants.ts                              # Globale konstanter (stemmer, stiler)
+├── types.ts                                  # TypeScript definisjoner for hele applikasjonen
+├── genres.ts                                 # Definisjoner av hovedsjangre og kategorier
+├── genreOptions.ts                           # Kontekstuelle sub-options (faktasjekk, lengde, etc.)
+├── genreUtils.ts                             # Delte sjanger-hjelpere (fiction/non-fiction checks)
+├── languages.ts                              # Støttede språk for I/O
 ├── components/
-│   ├── Icons.tsx                   # Ikoner (SVG)
-│   ├── MermaidDebugPage.tsx        # Debug side for Mermaid
-│   ├── OnboardingModal.tsx         # Førstegangs onboarding
-│   ├── ParserTest.tsx              # Test-komponent for parser
-│   ├── landing/                    # Landingsside komponenter
-│   │   └── LandingPage.tsx         # Hovedinngang / Hero-seksjon
-│   ├── ui/                         # Gjenbrukbare UI-komponenter
-│   │   ├── ContentRenderer.tsx     # Markdown/Mermaid renderer (ReactMarkdown)
-│   │   ├── DownloadModal.tsx       # Modal for valg av eksportformat
-│   │   ├── ErrorBoundary.tsx       # Feilhåndtering
-│   │   ├── LoadingView.tsx         # Animerte laste-steg (Analyzing -> Finalizing)
-│   │   ├── LogViewer.tsx           # Debug-konsoll i UI
-│   │   ├── Mermaid.tsx             # Wrapper for Mermaid-diagrammer
-│   │   ├── PlanningStepper.tsx     # Visuell fremdriftsindikator
-│   │   ├── ResearchSourcesBox.tsx  # Visning av Google Search-kilder
-│   │   └── SettingsModal.tsx       # Avanserte innstillinger (Logger, Terskelverdier)
-│   └── views/                      # Hovedvisninger (States)
-│       ├── AltIntroDesignView.tsx  # Alternativ intro-layout / design
-│       ├── DashboardView.tsx       # Brukerdashboard og prosjektoversikt
-│       ├── ProjectsView.tsx        # Prosjektliste og prosjektstyring
-│       ├── LoginView.tsx           # Innlogging og autentisering
-│       ├── WaitlistView.tsx        # Venteliste og early access
-│       ├── IntroView.tsx           # Input, filanalyse, drag-n-drop
-│       ├── CastingView.tsx         # Karakteroversikt og stemmevalg
-│       ├── GenerationView.tsx      # Live streaming av innhold
-│       └── CompleteView.tsx        # Ferdig resultat, avspilling og regenerering
-├── scripts/                        # Verktøy og test-skript
-│   ├── check-prompt-drift.mjs      # CI-guard mot inline core-prompts i Edge Functions
-│   ├── smoke-prompt-builders.ts    # Smoke-test av shared prompt-builders
-│   ├── verify_quotas.ts            # Kvote/credit test mot Edge Functions
-│   └── ...                         # Repro/parse/test hjelpeskript
-├── services/                       # FORRETNINGSLOGIKK (MODULÆR)
-│   ├── ContentParser.ts            # AST-parser som konverterer MD til blokker
-│   ├── ContentSanitizer.ts         # "Vaskemaskinen" (Regex-rensing, header-fiks)
-│   ├── documentStyles.ts           # Fasade for styles/index.ts
-│   ├── downloadService.ts          # Fasade for export/index.ts
-│   ├── api.ts                      # URL-analyse og ekstern API-kommunikasjon
-│   ├── auth.ts                     # Autentiseringslogikk
-│   ├── formatConstants.ts          # Konstanter for overskriftsformater
-│   ├── geminiService.ts            # Fasade for ai/index.ts
-│   ├── modelPricing.ts             # Prismodeller for Gemini/Imagen
-│   ├── prompts.ts                  # Stabil offentlig entrypoint (barrel re-export)
-│   ├── supabaseApi.ts              # Klient for Supabase Edge Functions
-│   ├── supabaseClient.ts           # Supabase autentisering og oppsett
-│   ├── ai/                         # AI-integrasjon (Google GenAI)
-│   │   ├── audioHelpers.ts         # PCM/Base64 hjelpere
-│   │   ├── chapters.ts             # Generering av kapitler (tekst + add-ons)
-│   │   ├── config.ts               # Konfigurasjon (tokens, sikkerhet)
-│   │   ├── fileExtract.ts          # Filanalyse (DOCX, PDF, Code, Images)
-│   │   ├── imageGenerator.ts       # Bildegenerering via Supabase/API-lag
-│   │   ├── imagen.ts               # Bildegenerering (Imagen & Gemini)
-│   │   ├── index.ts                # Eksportør
-│   │   ├── retry.ts                # Feilhåndtering og retry-logikk
-│   │   ├── schemas.ts              # Zod/JSON schemas for AI output
-│   │   ├── summarize.ts            # AI-oppsummering for PPTX bullet points
-│   │   ├── tts.ts                  # Tekst-til-tale logikk (Gemini)
-│   │   └── utils.ts                # Delte AI-hjelpere
-│   ├── aiHybrid.ts                 # Edge-first orkestrering (lokal fallback fjernet)
-│   ├── export/                     # Eksport-moduler
-│   │   ├── docx.ts                 # DOCX-generering
-│   │   ├── epub.ts                 # EPUB 3 e-bok generering (XHTML + Cover)
-│   │   ├── index.ts                # Eksportør
-│   │   ├── markdown.ts             # Markdown-generering
-│   │   ├── mp3.ts                  # Lyd-sammenstilling (MP3 64kbps / WAV)
-│   │   ├── pdf.ts                  # PDF-generering med avansert formatering
-│   │   ├── pptx.ts                 # PowerPoint-generering (Non-Fiction)
-│   │   ├── utils.ts                # Delte eksport-hjelpere (Mermaid render)
-│   │   ├── video.ts                # Videorendring (MP4 H.264/AAC, 16:9 / 9:16) med "Smart Split"
-│   │   └── website.ts              # Interaktiv nettside-pakking (ZIP)
-│   ├── format/                     # Tekstformatering
-│   │   └── sectionHeaders.ts       # Håndtering av kapitteloverskrifter og språk
-│   ├── i18n/                       # Internasjonalisering
-│   │   └── translations.ts         # Oversettelser (NO/EN) for UI og eksport
-│   ├── prompts/                    # Lokale prompt-moduler (split refaktor)
-│   │   ├── README.md               # Modulgrense + safe refactor-regler
-│   │   ├── core.ts                 # Delte lokale prompt-konstanter/hjelpere
-│   │   ├── referencePrompts.ts     # Fil-/media-analyse prompts
-│   │   ├── settingsPrompts.ts      # Settings + enhance-idea prompts
-│   │   ├── novelPlanPrompts.ts     # Plan/story prompts
-│   │   ├── chapterPrompts.ts       # Chapter/section + export/QA/TTS prompts
-│   │   └── fragments/              # Re-export av shared fragments
-│   │       ├── markdownRules.ts    # MD-regler (fra shared/prompts)
-│   │       ├── mermaidRules.ts     # Mermaid-regler (fra shared/prompts)
-│   │       ├── mermaidSyntaxV11.ts # Mermaid v11 syntaks (shared)
-│   │       └── professionalVisualization.ts # Visualiseringsstrategi (shared)
-│   ├── sanitize/                   # Rens og validering
-│   │   └── mermaidFixer.ts         # Self-healing Mermaid logikk
-│   └── styles/                     # Stildefinisjoner
-│       ├── config.ts               # Globale stilvariabler
-│       ├── docx.ts                 # DOCX-spesifikke stiler
-│       ├── helpers.ts              # Hjelpefunksjoner for farger/størrelser
-│       ├── index.ts                # Eksportør
-│       ├── pdf.ts                  # PDF-spesifikke stiler
-│       ├── types.ts                # Type-definisjoner for stiler
-│       └── units.ts                # Enhetskonvertering (mm, px, pt)
-├── shared/                         # Delt kode mellom frontend og Edge Functions
-│   └── prompts/                    # Prompt source-of-truth (core generation flows)
-│       ├── builders/               # Prompt-builders for Edge flows
-│       │   ├── sectionPrompt.ts    # ai-generate-section
-│       │   ├── planPrompt.ts       # ai-plan
-│       │   ├── suggestPrompt.ts    # ai-suggest-prompt
-│       │   ├── suggestSettingsPrompt.ts # ai-suggest-settings
-│       │   └── mermaidFixPrompt.ts # ai-mermaid-fix
-│       ├── fragments/              # Delte prompt-fragmenter
-│       │   ├── markdownRules.ts    # Markdown-regler
-│       │   ├── mermaidRules.ts     # Mermaid-regler
-│       │   ├── mermaidSyntaxV11.ts # Mermaid v11 syntaks
-│       │   └── professionalVisualization.ts # Visualisering
-│       └── index.ts                # Stabil eksportflate
-├── supabase/                       # SUPABASE BACKEND (Edge Functions + DB)
-│   ├── config.toml                 # Supabase lokal konfigurasjon
-│   ├── deno.json                   # Deno konfigurasjon for Edge Functions
+│   ├── Icons.tsx                             # Ikoner (SVG)
+│   ├── MermaidDebugPage.tsx                  # Debug side for Mermaid
+│   ├── OnboardingModal.tsx                   # Førstegangs onboarding
+│   ├── ParserTest.tsx                        # Test-komponent for parser
+│   ├── landing/                              # Landingsside komponenter
+│   │   └── LandingPage.tsx                   # Hovedinngang / Hero-seksjon
+│   ├── ui/                                   # Gjenbrukbare UI-komponenter
+│   │   ├── ContentRenderer.tsx               # Markdown/Mermaid renderer (ReactMarkdown)
+│   │   ├── DownloadModal.tsx                 # Modal for valg av eksportformat
+│   │   ├── ErrorBoundary.tsx                 # Feilhåndtering
+│   │   ├── LoadingView.tsx                   # Animerte laste-steg (Analyzing -> Finalizing)
+│   │   ├── LogViewer.tsx                     # Debug-konsoll i UI
+│   │   ├── Mermaid.tsx                       # Wrapper for Mermaid-diagrammer
+│   │   ├── PlanningStepper.tsx               # Visuell fremdriftsindikator
+│   │   ├── ResearchSourcesBox.tsx            # Visning av Google Search-kilder
+│   │   └── SettingsModal.tsx                 # Avanserte innstillinger (Logger, Terskelverdier)
+│   └── views/                                # Hovedvisninger (States)
+│       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring
+│       ├── AltIntroDesignView.tsx            # Alternativ intro-layout / design
+│       ├── DashboardView.tsx                 # Brukerdashboard og prosjektoversikt
+│       ├── ProjectsView.tsx                  # Prosjektliste og prosjektstyring
+│       ├── LoginView.tsx                     # Innlogging og autentisering
+│       ├── WaitlistView.tsx                  # Venteliste og early access
+│       ├── IntroView.tsx                     # Input, filanalyse, drag-n-drop
+│       ├── CastingView.tsx                   # Karakteroversikt og stemmevalg
+│       ├── GenerationView.tsx                # Live streaming av innhold
+│       └── CompleteView.tsx                  # Ferdig resultat, avspilling og regenerering
+├── scripts/                                  # Verktøy og test-skript
+│   ├── check-prompt-drift.mjs                # CI-guard mot inline core-prompts i Edge Functions
+│   ├── smoke-prompt-builders.ts              # Smoke-test av shared prompt-builders
+│   ├── verify_quotas.ts                      # Kvote/credit test mot Edge Functions
+│   └── ...                                   # Repro/parse/test hjelpeskript
+├── services/                                 # FORRETNINGSLOGIKK (MODULÆR)
+│   ├── ContentParser.ts                      # AST-parser som konverterer MD til blokker
+│   ├── ContentSanitizer.ts                   # "Vaskemaskinen" (Regex-rensing, header-fiks)
+│   ├── documentStyles.ts                     # Fasade for styles/index.ts
+│   ├── downloadService.ts                    # Fasade for export/index.ts
+│   ├── api.ts                                # URL-analyse og ekstern API-kommunikasjon
+│   ├── auth.ts                               # Autentiseringslogikk
+│   ├── formatConstants.ts                    # Konstanter for overskriftsformater
+│   ├── geminiService.ts                      # Fasade for ai/index.ts
+│   ├── modelPricing.ts                       # Prismodeller for Gemini/Imagen
+│   ├── prompts.ts                            # Stabil offentlig entrypoint (barrel re-export)
+│   ├── supabaseApi.ts                        # Klient for Supabase Edge Functions
+│   ├── supabaseClient.ts                     # Supabase autentisering og oppsett
+│   ├── ai/                                   # AI-integrasjon (Google GenAI)
+│   │   ├── audioHelpers.ts                   # PCM/Base64 hjelpere
+│   │   ├── chapters.ts                       # Generering av kapitler (tekst + add-ons)
+│   │   ├── config.ts                         # Konfigurasjon (tokens, sikkerhet)
+│   │   ├── fileExtract.ts                    # Filanalyse (DOCX, PDF, Code, Images)
+│   │   ├── imageGenerator.ts                 # Bildegenerering via Supabase/API-lag
+│   │   ├── imagen.ts                         # Bildegenerering (Imagen & Gemini)
+│   │   ├── index.ts                          # Eksportør
+│   │   ├── retry.ts                          # Feilhåndtering og retry-logikk
+│   │   ├── schemas.ts                        # Zod/JSON schemas for AI output
+│   │   ├── summarize.ts                      # AI-oppsummering for PPTX bullet points
+│   │   ├── tts.ts                            # Tekst-til-tale logikk (Gemini)
+│   │   └── utils.ts                          # Delte AI-hjelpere
+│   ├── aiHybrid.ts                           # Edge-first orkestrering (lokal fallback fjernet)
+│   ├── export/                               # Eksport-moduler
+│   │   ├── docx.ts                           # DOCX-generering
+│   │   ├── epub.ts                           # EPUB 3 e-bok generering (XHTML + Cover)
+│   │   ├── index.ts                          # Eksportør
+│   │   ├── markdown.ts                       # Markdown-generering
+│   │   ├── mp3.ts                            # Lyd-sammenstilling (MP3 64kbps / WAV)
+│   │   ├── pdf.ts                            # PDF-generering med avansert formatering
+│   │   ├── pptx.ts                           # PowerPoint-generering (Non-Fiction)
+│   │   ├── utils.ts                          # Delte eksport-hjelpere (Mermaid render)
+│   │   ├── video.ts                          # Videorendring (MP4 H.264/AAC, 16:9 / 9:16) med "Smart Split"
+│   │   └── website.ts                        # Interaktiv nettside-pakking (ZIP)
+│   ├── format/                               # Tekstformatering
+│   │   └── sectionHeaders.ts                 # Håndtering av kapitteloverskrifter og språk
+│   ├── i18n/                                 # Internasjonalisering
+│   │   └── translations.ts                   # Oversettelser (NO/EN) for UI og eksport
+│   ├── prompts/                              # Lokale prompt-moduler (split refaktor)
+│   │   ├── README.md                         # Modulgrense + safe refactor-regler
+│   │   ├── core.ts                           # Delte lokale prompt-konstanter/hjelpere
+│   │   ├── referencePrompts.ts               # Fil-/media-analyse prompts
+│   │   ├── settingsPrompts.ts                # Settings + enhance-idea prompts
+│   │   ├── novelPlanPrompts.ts               # Plan/story prompts
+│   │   ├── chapterPrompts.ts                 # Chapter/section + export/QA/TTS prompts
+│   │   └── fragments/                        # Re-export av shared fragments
+│   │       ├── markdownRules.ts              # MD-regler (fra shared/prompts)
+│   │       ├── mermaidRules.ts               # Mermaid-regler (fra shared/prompts)
+│   │       ├── mermaidSyntaxV11.ts           # Mermaid v11 syntaks (shared)
+│   │       └── professionalVisualization.ts  # Visualiseringsstrategi (shared)
+│   ├── sanitize/                             # Rens og validering
+│   │   └── mermaidFixer.ts                   # Self-healing Mermaid logikk
+│   └── styles/                               # Stildefinisjoner
+│       ├── config.ts                         # Globale stilvariabler
+│       ├── docx.ts                           # DOCX-spesifikke stiler
+│       ├── helpers.ts                        # Hjelpefunksjoner for farger/størrelser
+│       ├── index.ts                          # Eksportør
+│       ├── pdf.ts                            # PDF-spesifikke stiler
+│       ├── types.ts                          # Type-definisjoner for stiler
+│       └── units.ts                          # Enhetskonvertering (mm, px, pt)
+├── shared/                                   # Delt kode mellom frontend og Edge Functions
+│   └── prompts/                              # Prompt source-of-truth (core generation flows)
+│       ├── builders/                         # Prompt-builders for Edge flows
+│       │   ├── sectionPrompt.ts              # ai-generate-section
+│       │   ├── planPrompt.ts                 # ai-plan
+│       │   ├── suggestPrompt.ts              # ai-suggest-prompt
+│       │   ├── suggestSettingsPrompt.ts      # ai-suggest-settings
+│       │   └── mermaidFixPrompt.ts           # ai-mermaid-fix
+│       ├── fragments/                        # Delte prompt-fragmenter
+│       │   ├── markdownRules.ts              # Markdown-regler
+│       │   ├── mermaidRules.ts               # Mermaid-regler
+│       │   ├── mermaidSyntaxV11.ts           # Mermaid v11 syntaks
+│       │   └── professionalVisualization.ts  # Visualisering
+│       └── index.ts                          # Stabil eksportflate
+├── supabase/                                 # SUPABASE BACKEND (Edge Functions + DB)
+│   ├── config.toml                           # Supabase lokal konfigurasjon
+│   ├── deno.json                             # Deno konfigurasjon for Edge Functions
 │   ├── functions/
-│   │   ├── _shared/                # Delt logikk for alle Edge Functions
-│   │   │   ├── utils.ts            # Auth, allowlist, kvote/credit-håndtering
-│   │   │   ├── rateLimit.ts        # Upstash Redis rate limiting
-│   │   │   ├── genres.ts           # Delt sjangerdata
-│   │   │   └── genreOptions.ts     # Delt sub-option data
-│   │   ├── ai-analyze-file/        # Analyse av opplastede filer (multimodal)
-│   │   ├── ai-generate-section/    # Server-side generering (SSE Streaming)
-│   │   ├── ai-image/               # Bildegenerering (Imagen 4.0)
-│   │   ├── ai-mermaid-fix/         # Mermaid-fiksing med AI
-│   │   ├── ai-plan/                # Planleggings-agent (Google Search)
-│   │   ├── ai-script-convert/      # Konvertering til filmmanus
-│   │   ├── ai-suggest-prompt/      # Prompt-forbedring
-│   │   ├── ai-suggest-settings/    # Innstillings-anbefalinger
-│   │   ├── ai-summarize/           # Oppsummerings-agent
-│   │   ├── ai-tts/                 # Tekst-til-tale (Gemini TTS)
-│   │   ├── ai-user-profile/        # Brukerprofil og preferanser
-│   │   ├── url-analyze/            # Analyse av nettsider (Scraping)
-│   │   └── deno.d.ts               # Supplerende module declarations
-│   └── migrations/                 # Database-migrasjoner
-│       ├── 20260120_quota_system.sql  # Kvote-system tabeller og RPC
-│       ├── 20260129_add_credits_columns.sql # Credits-kolonner og flyt
-│       └── ...                     # Videre fixes/cleanup migrasjoner
-└── utils/                          # Generelle hjelpefunksjoner
-    ├── audio.ts                    # PCM/WAV-hjelpere (lavnivå)
-    ├── dom.ts                      # DOM-manipulasjon
-    └── fileParser.ts               # Parsing av opplastede filer (.txt gjenoppretting)
+│   │   ├── _shared/                          # Delt logikk for alle Edge Functions
+│   │   │   ├── utils.ts                      # Auth, allowlist, kvote/credit-håndtering
+│   │   │   ├── pricing.ts                    # Pris- og kredittkonvertering (server-side)
+│   │   │   ├── rateLimit.ts                  # Upstash Redis rate limiting
+│   │   │   ├── genres.ts                     # Delt sjangerdata
+│   │   │   └── genreOptions.ts               # Delt sub-option data
+│   │   ├── ai-admin-adjust-credits/          # Admin: kredittjustering (+/-)
+│   │   ├── ai-admin-list-users/              # Admin: brukerliste/status/tier/limits
+│   │   ├── ai-admin-update-user/             # Admin: allowlist + tier-endring
+│   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal)
+│   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
+│   │   ├── ai-image/                         # Bildegenerering (Imagen 4.0)
+│   │   ├── ai-mermaid-fix/                   # Mermaid-fiksing med AI
+│   │   ├── ai-plan/                          # Planleggings-agent (Google Search)
+│   │   ├── ai-script-convert/                # Konvertering til filmmanus
+│   │   ├── ai-stripe-checkout/               # Oppretter Stripe Checkout for kredittkjøp
+│   │   ├── ai-stripe-webhook/                # Verifiserer betaling og fyller kreditter
+│   │   ├── ai-suggest-prompt/                # Prompt-forbedring
+│   │   ├── ai-suggest-settings/              # Innstillings-anbefalinger
+│   │   ├── ai-summarize/                     # Oppsummerings-agent
+│   │   ├── ai-tts/                           # Tekst-til-tale (Gemini TTS)
+│   │   ├── ai-user-profile/                  # Brukerprofil og preferanser
+│   │   ├── url-analyze/                      # Analyse av nettsider (Scraping)
+│   │   └── deno.d.ts                         # Supplerende module declarations
+│   └── migrations/                           # Database-migrasjoner
+│       ├── 20260120000000_quota_system.sql   # Kvote-system tabeller og RPC
+│       ├── 20260129000000_add_credits_columns.sql # Credits-kolonner og flyt
+│       ├── 20260216160000_fix_credit_idempotency_by_type.sql # Idempotens-fiks for kreditt-trekk
+│       ├── 20260216173000_create_admin_users_table.sql # Admin-brukere tabell
+│       └── ...                               # Videre fixes/cleanup migrasjoner
+└── utils/                                    # Generelle hjelpefunksjoner
+    ├── audio.ts                              # PCM/WAV-hjelpere (lavnivå)
+    ├── dom.ts                                # DOM-manipulasjon
+    └── fileParser.ts                         # Parsing av opplastede filer (.txt gjenoppretting)
 ```
 ### Nøkkelkomponenter forklart
 
@@ -724,10 +734,12 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
 * `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
+* `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer og kredittjustering.
 * `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
-* `supabase/functions/_shared/utils.ts`: Delt logikk for alle Edge Functions inkludert auth, allowlist, kvote-reservering og brukslogging.
-* `supabase/migrations/20260120_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
+* `supabase/functions/_shared/utils.ts`: Delt logikk for Edge Functions inkludert auth, allowlist, admin checks, kvote-reservering og brukslogging.
+* `supabase/functions/_shared/pricing.ts`: Server-side prismapping (`USD -> credits`) for konsistent kredittbelastning.
+* `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
 
 </details>
 
