@@ -74,34 +74,34 @@ Opplev en komplett generert leveranse direkte i nettleseren. Klikk på bildet un
 <table>
   <tr>
     <td>
-      <strong>Seksjon 1: Velkommen til Story Engine</strong><br/>
-      <a href="https://neoweb.no/se-walkthrough/chapter-1.webm">
-        <img src="https://neoweb.no/se-walkthrough/poster-1.png" width="420" alt="Seksjon 1"/>
+      <strong>Seksjon 1: Hva Story Engine er i dagens versjon</strong><br/>
+      <a href="https://neoweb.no/se-walkthrough/section-1.mp4">
+        <img src="https://neoweb.no/se-walkthrough/section-1.png" width="420" alt="Seksjon 1"/>
       </a><br/>
-      Introduksjon til Story Engine og dets muligheter.
+      Plattformens kjerne, mål og hvorfor pipeline-basert produksjon gir bedre leveringssikkerhet.
     </td>
     <td>
-      <strong>Seksjon 2: Slik fungerer det</strong><br/>
-      <a href="https://neoweb.no/se-walkthrough/chapter-2.webm">
-        <img src="https://neoweb.no/se-walkthrough/poster-2.png" width="420" alt="Seksjon 2"/>
+      <strong>Seksjon 2: Arbeidsflyt i praksis (input, styring og regenerering)</strong><br/>
+      <a href="https://neoweb.no/se-walkthrough/section-2.mp4">
+        <img src="https://neoweb.no/se-walkthrough/section-2.png" width="420" alt="Seksjon 2"/>
       </a><br/>
-      Steg-for-steg gjennomgang av arbeidsflyten.
+      Startmodi, Suggest-flyter, Story Engine-fil import og hvilke innstillinger som bevisst forblir justerbare.
     </td>
   </tr>
   <tr>
     <td>
-      <strong>Seksjon 3: Nøkkelfunksjoner</strong><br/>
-      <a href="https://neoweb.no/se-walkthrough/chapter-3.webm">
-        <img src="https://neoweb.no/se-walkthrough/poster-3.png" width="420" alt="Seksjon 3"/>
+      <strong>Seksjon 3: Leveranser, add-ons og formatstrategi</strong><br/>
+      <a href="https://neoweb.no/se-walkthrough/section-3.mp4">
+        <img src="https://neoweb.no/se-walkthrough/section-3.png" width="420" alt="Seksjon 3"/>
       </a><br/>
-      Deep dive i avanserte funksjoner.
+      Hvordan ett prosjektgrunnlag gjenbrukes til dokument, presentasjon, web, video, lyd og e-bok.
     </td>
     <td>
-      <strong>Seksjon 4: Teknologi og Sikkerhet</strong><br/>
-      <a href="https://neoweb.no/se-walkthrough/chapter-4.webm">
-        <img src="https://neoweb.no/se-walkthrough/poster-4.png" width="420" alt="Seksjon 4"/>
+      <strong>Seksjon 4: Teknologi, sikkerhet, kostkontroll og administrasjon</strong><br/>
+      <a href="https://neoweb.no/se-walkthrough/section-4.mp4">
+        <img src="https://neoweb.no/se-walkthrough/section-4.png" width="420" alt="Seksjon 4"/>
       </a><br/>
-      Teknisk arkitektur og sikkerhetsprinsipper.
+      Edge-first arkitektur, server-side kredittlogikk, prompt-SSOT og adminverktøy for brukerstyring.
     </td>
   </tr>
 </table>
