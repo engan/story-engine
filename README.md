@@ -55,15 +55,23 @@
 Story Engine kan nå testes på midlertidig server her:
 👉 **[https://story.neoweb.no](https://story.neoweb.no)** 
 
-### 🌐 Live Interaktiv Rapport
-Opplev en komplett generert leveranse direkte i nettleseren. Klikk på bildet under for å utforske den interaktive nettsiden som Story Engine produserer automatisk:
+### 🌐 Live demoer
+- **Story Engine showcase (landing/index.html):**  
+  [https://neoweb.no/se-walkthrough/index.html](https://neoweb.no/se-walkthrough/index.html)  
+  Viser leveranseuniverset med video, lyd og eksporteksempler.
+
+- **Interaktiv nettside-eksport (website/index.html):**  
+  [https://neoweb.no/se-walkthrough/website/index.html](https://neoweb.no/se-walkthrough/website/index.html)  
+  Ferdig eksportert nettside generert fra Story Engine.
 
 <p>
   <a href="https://neoweb.no/se-walkthrough/index.html">
-    <img src="https://neoweb.no/se-walkthrough/infographic.png" width="900" alt="Interaktiv Rapport Demo"/>
+    <img src="https://neoweb.no/se-walkthrough/infographic.png" width="900" alt="Story Engine Showcase"/>
   </a>
   <br/>
-  <a href="https://neoweb.no/se-walkthrough/index.html"><strong>Åpne Interaktiv Demo ➔</strong></a>
+  <a href="https://neoweb.no/se-walkthrough/index.html"><strong>Åpne Showcase ➔</strong></a>
+  &nbsp;|&nbsp;
+  <a href="https://neoweb.no/se-walkthrough/website/index.html"><strong>Åpne Nettside-eksport ➔</strong></a>
 </p>
 
 ---
