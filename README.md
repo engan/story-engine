@@ -65,7 +65,7 @@ Story Engine kan nå testes på midlertidig server her:
   Ferdig eksportert nettside generert fra Story Engine.
 
 <p>
-  <a href="https://neoweb.no/se-walkthrough/index.html">
+  <a href="https://neoweb.no/se-walkthrough/website/index.html">
     <img src="https://neoweb.no/se-walkthrough/infographic.png" width="900" alt="Story Engine Showcase"/>
   </a>
   <br/>
