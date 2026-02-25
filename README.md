@@ -218,6 +218,7 @@ graph TD
         GeminiPlan["🤖 Gemini API<br/><i>3-pro</i>"]
         SearchDecision{"🔎 Google Search?"}
         SearchAPI["🌍 Grounding + Citations"]
+        PlanCoverAttempt["🖼️ ai-plan cover attempt<br/><i>(Gemini/Imagen)</i>"]
     end
 
     UI --> PlanningLogic
@@ -229,20 +230,25 @@ graph TD
     EdgePlan --> SearchDecision
     SearchDecision -->|"Ja"| SearchAPI --> EdgePlan
     SearchDecision -->|"Nei"| EdgePlan
+    EdgePlan --> PlanCoverAttempt --> EdgePlan
     EdgePlan --> PlanReady
 
     subgraph ContentFlow ["✍️ GENERERING + SANITIZE + ADD-ONS"]
         direction TB
-        EdgeImageCover["⚙️ ai-image (cover)"]
-        ImageGen["🎨 Imagen 4.0"]
+        CoverDecision{"🖼️ Cover fra ai-plan?"}
+        EdgeImageCover["⚙️ ai-image (cover fallback)"]
+        ImageGen["🎨 Image Model<br/><i>Imagen / Gemini Image</i>"]
         PlanWithCover["📖 Plan + coverImageUrl"]
         ChapterGen["📚 generateChapterBatch()"]
-        PromptService3["📋 getBaseChapterPrompt()"]
+        PromptService3["📋 Request assembly<br/><i>chapters.ts</i>"]
         SharedPromptSection["🧩 shared/prompts<br/><i>sectionPrompt.ts</i>"]
         EdgeSection["⚙️ ai-generate-section<br/><i>SSE</i>"]
         GeminiSection["🤖 Gemini Streaming"]
         StreamHandler["📡 chapters.ts"]
         RawMD["📄 Rå MD"]
+        CodexDecision{"🧠 Codex post-check?"}
+        EdgeCodex["⚙️ ai-codex-postcheck"]
+        CodexModel["🧠 OpenAI Codex"]
         Fix1["🔧 ContentSanitizer"]
         Fix2["✅ mermaidFixer"]
         MermaidDecision{"📊 Mermaid OK?"}
@@ -258,7 +264,9 @@ graph TD
         GenerationPayload["💾 Payload til Del 2"]
     end
 
-    PlanReady --> EdgeImageCover
+    PlanReady --> CoverDecision
+    CoverDecision -->|"Ja"| PlanWithCover
+    CoverDecision -->|"Nei"| EdgeImageCover
     EdgeImageCover --> ImageGen
     ImageGen --> EdgeImageCover
     EdgeImageCover --> PlanWithCover
@@ -270,7 +278,12 @@ graph TD
     GeminiSection --> EdgeSection
     EdgeSection --> StreamHandler
     StreamHandler --> RawMD
-    RawMD --> Fix1
+    RawMD --> CodexDecision
+    CodexDecision -->|"Ja (non-fiction)"| EdgeCodex
+    EdgeCodex --> CodexModel
+    CodexModel --> EdgeCodex
+    EdgeCodex --> Fix1
+    CodexDecision -->|"Nei / fallback"| Fix1
     Fix1 --> Fix2
     Fix2 --> MermaidDecision
     MermaidDecision -->|"Ja"| CleanMD
@@ -302,10 +315,11 @@ graph TD
     class LandingPage landingNode
     class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix apiNode
     class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor processNode
-    class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS serviceNode
+    class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,EdgeCodex serviceNode
     class CoreIdea,PlanReady,PlanWithCover,FinalChapter,GenerationPayload,UI stateNode
-    class PlanningLogic,SearchDecision,MermaidDecision decisionNode
+    class PlanningLogic,SearchDecision,CoverDecision,CodexDecision,MermaidDecision decisionNode
     class RawMD,Fix1,Fix2,CleanMD sanitizerNode
+    class CodexModel apiNode
 ```
 </details>
 
@@ -481,8 +495,9 @@ sequenceDiagram
     
     box rgba(245, 158, 11, 0.1) 🧠 MODELLER
         participant Gemini as ⚡ Gemini API
+        participant OpenAI as 🧠 OpenAI (Codex)
         participant Search as 🔍 Google Search
-        participant Imagen as 🎨 Imagen
+        participant Imagen as 🎨 Image Model (Imagen/Gemini)
     end
 
     Note over User,Imagen: 🎯 FASE 1: Input & AI-anbefalinger
@@ -515,11 +530,17 @@ sequenceDiagram
     
     Edge->>+Gemini: Generer plan JSON
     Gemini-->>-Edge: NovelPlan + citations
-    Edge-->>-FE: Plan-respons
-    FE->>+Edge: POST ai-image (cover)
-    Edge->>+Imagen: Generer cover
-    Imagen-->>-Edge: Base64 bilde
-    Edge-->>-FE: coverImageUrl
+    opt ai-plan forsøker cover
+        Edge->>Imagen: Generer cover (Gemini/Imagen)
+        Imagen-->>Edge: Base64 bilde eller feil
+    end
+    Edge-->>-FE: Plan-respons (+ optional coverImageUrl/status)
+    opt ai-plan cover feilet (ett fallback-forsøk)
+        FE->>+Edge: POST ai-image (cover fallback)
+        Edge->>+Imagen: Generer cover
+        Imagen-->>-Edge: Base64 bilde
+        Edge-->>-FE: coverImageUrl
+    end
 
     Note over User,Imagen: ✍️ FASE 3: Seksjonsgenerering (SSE)
     
@@ -530,18 +551,24 @@ sequenceDiagram
         loop Per chunk
             Gemini-->>Edge: Markdown chunk
             Edge-->>FE: SSE event chunk
-            FE->>San: Rens + valider Mermaid
-            opt Mermaid krever AI-fiks
-                San->>+Edge: POST ai-mermaid-fix
-                Edge->>Gemini: Fix-prompt (shared/prompts)
-                Gemini-->>Edge: Fikset diagram
-                Edge-->>-San: Valid Mermaid
-            end
-            San-->>FE: Ren output
             FE-->>User: Live oppdatering
         end
         Gemini-->>-Edge: Seksjon ferdig
         Edge-->>-FE: DONE event
+        opt Non-fiction post-check (Codex)
+            FE->>+Edge: POST ai-codex-postcheck
+            Edge->>+OpenAI: Responses API (Codex)
+            OpenAI-->>-Edge: Revidert tekst / fallback
+            Edge-->>-FE: Post-check resultat
+        end
+        FE->>San: Rens + valider Mermaid
+        opt Mermaid krever AI-fiks
+            San->>+Edge: POST ai-mermaid-fix
+            Edge->>Gemini: Fix-prompt (shared/prompts)
+            Gemini-->>Edge: Fikset diagram
+            Edge-->>-San: Valid Mermaid
+        end
+        San-->>FE: Ren output
     end
     
     Note over User,Imagen: 🎁 FASE 4: Add-ons
@@ -605,10 +632,11 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   └── SettingsModal.tsx                 # Avanserte innstillinger (Logger, Terskelverdier)
 │   └── views/                                # Hovedvisninger (States)
 │       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring
-│       ├── AltIntroDesignView.tsx            # Alternativ intro-layout / design
+│       ├── BillingView.tsx                   # Abonnement, kreditter og Stripe-portal
 │       ├── DashboardView.tsx                 # Brukerdashboard og prosjektoversikt
 │       ├── ProjectsView.tsx                  # Prosjektliste og prosjektstyring
 │       ├── LoginView.tsx                     # Innlogging og autentisering
+│       ├── QrAuthorizeView.tsx               # Mobil autorisering for QR-login
 │       ├── WaitlistView.tsx                  # Venteliste og early access
 │       ├── IntroView.tsx                     # Input, filanalyse, drag-n-drop
 │       ├── CastingView.tsx                   # Karakteroversikt og stemmevalg
@@ -660,13 +688,12 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── format/                               # Tekstformatering
 │   │   └── sectionHeaders.ts                 # Håndtering av kapitteloverskrifter og språk
 │   ├── i18n/                                 # Internasjonalisering
-│   │   └── translations.ts                   # Oversettelser (NO/EN) for UI og eksport
+│   │   └── translations.ts                   # Oversettelser (14 språk) for UI og eksport
 │   ├── prompts/                              # Lokale prompt-moduler (split refaktor)
 │   │   ├── README.md                         # Modulgrense + safe refactor-regler
 │   │   ├── core.ts                           # Delte lokale prompt-konstanter/hjelpere
 │   │   ├── referencePrompts.ts               # Fil-/media-analyse prompts
 │   │   ├── settingsPrompts.ts                # Settings + enhance-idea prompts
-│   │   ├── novelPlanPrompts.ts               # Plan/story prompts
 │   │   ├── chapterPrompts.ts                 # Chapter/section + export/QA/TTS prompts
 │   │   └── fragments/                        # Re-export av shared fragments
 │   │       ├── markdownRules.ts              # MD-regler (fra shared/prompts)
@@ -703,33 +730,39 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── functions/
 │   │   ├── _shared/                          # Delt logikk for alle Edge Functions
 │   │   │   ├── utils.ts                      # Auth, allowlist, kvote/credit-håndtering
+│   │   │   ├── openai.ts                     # OpenAI Responses API helper (server-side)
 │   │   │   ├── pricing.ts                    # Pris- og kredittkonvertering (server-side)
 │   │   │   ├── rateLimit.ts                  # Upstash Redis rate limiting
 │   │   │   ├── genres.ts                     # Delt sjangerdata
 │   │   │   └── genreOptions.ts               # Delt sub-option data
 │   │   ├── ai-admin-adjust-credits/          # Admin: kredittjustering (+/-)
 │   │   ├── ai-admin-list-users/              # Admin: brukerliste/status/tier/limits
+│   │   ├── ai-admin-manage-flags/            # Admin: legg til/løs opp brukerflagg
 │   │   ├── ai-admin-update-user/             # Admin: allowlist + tier-endring
 │   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal)
+│   │   ├── ai-codex-postcheck/               # Post-check revisjon (OpenAI Codex, non-fiction)
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
-│   │   ├── ai-image/                         # Bildegenerering (Imagen 4.0)
+│   │   ├── ai-image/                         # Bildegenerering (Imagen + Gemini Image)
 │   │   ├── ai-mermaid-fix/                   # Mermaid-fiksing med AI
 │   │   ├── ai-plan/                          # Planleggings-agent (Google Search)
 │   │   ├── ai-script-convert/                # Konvertering til filmmanus
 │   │   ├── ai-stripe-checkout/               # Oppretter Stripe Checkout for kredittkjøp
+│   │   ├── ai-stripe-portal/                 # Stripe Customer Portal (abonnement)
+│   │   ├── ai-stripe-subscription-checkout/  # Oppretter Stripe Checkout for abonnement
 │   │   ├── ai-stripe-webhook/                # Verifiserer betaling og fyller kreditter
 │   │   ├── ai-suggest-prompt/                # Prompt-forbedring
 │   │   ├── ai-suggest-settings/              # Innstillings-anbefalinger
 │   │   ├── ai-summarize/                     # Oppsummerings-agent
 │   │   ├── ai-tts/                           # Tekst-til-tale (Gemini TTS)
 │   │   ├── ai-user-profile/                  # Brukerprofil og preferanser
+│   │   ├── qr-login/                         # QR login (create/authorize/exchange)
 │   │   ├── url-analyze/                      # Analyse av nettsider (Scraping)
 │   │   └── deno.d.ts                         # Supplerende module declarations
 │   └── migrations/                           # Database-migrasjoner
-│       ├── 20260120000000_quota_system.sql   # Kvote-system tabeller og RPC
-│       ├── 20260129000000_add_credits_columns.sql # Credits-kolonner og flyt
-│       ├── 20260216160000_fix_credit_idempotency_by_type.sql # Idempotens-fiks for kreditt-trekk
-│       ├── 20260216173000_create_admin_users_table.sql # Admin-brukere tabell
+│       ├── 20260120000000_quota_system.sql                    # Kvote-system tabeller og RPC
+│       ├── 20260129000000_add_credits_columns.sql             # Credits-kolonner og flyt
+│       ├── 20260216160000_fix_credit_idempotency_by_type.sql  # Idempotens-fiks for kreditt-trekk
+│       ├── 20260216173000_create_admin_users_table.sql        # Admin-brukere tabell
 │       └── ...                               # Videre fixes/cleanup migrasjoner
 └── utils/                                    # Generelle hjelpefunksjoner
     ├── audio.ts                              # PCM/WAV-hjelpere (lavnivå)
@@ -788,6 +821,27 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     ```env
     VITE_GEMINI_API_KEY=din_nøkkel_her
     ```
+
+    For server-side AI (Supabase Edge Functions) må hemmelige nøkler settes som Supabase secrets
+    (ikke kun i `.env.local`). Codex post-check (fase 1) bruker OpenAI Responses API og styres
+    av server-side feature flags:
+    ```bash
+    supabase secrets set OPENAI_API_KEY=sk-...
+    supabase secrets set CODEX_POSTCHECK_MODE=non-fiction-only
+    # optional toggles / tuning:
+    # supabase secrets set ENABLE_CODEX_POSTCHECK=true
+    # supabase secrets set CODEX_POSTCHECK_MODEL=gpt-5.2-codex
+    # supabase secrets set CODEX_POSTCHECK_CREDITS=0
+    # supabase secrets set CODEX_POSTCHECK_MAX_INPUT_CHARS=120000
+    # supabase secrets set CODEX_POSTCHECK_TIMEOUT_MS=60000
+    # supabase secrets set CODEX_POSTCHECK_MAX_RETRIES=1
+    ```
+
+    **Codex post-check (fase 1) flyt (non-fiction):**
+    1. `ai-generate-section` genererer seksjonstekst med Gemini 3.1 Pro.
+    2. Klienten sender ferdig seksjonstekst til `ai-codex-postcheck` (server-side) for revisjon.
+    3. Codex returnerer full revidert tekst (eller blir hoppet over / fallback ved feil).
+    4. Story Engine kjører fortsatt Mermaid-validering etterpå som ekstra sikkerhetsnett.
 
 4.  **Start utviklingsserveren**
     ```bash
