@@ -4,7 +4,8 @@
 ![React](https://img.shields.io/badge/React-00599C?style=for-the-badge&logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![Gemini 3 Pro](https://img.shields.io/badge/Gemini_3_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![Gemini 3.x Pro](https://img.shields.io/badge/Gemini_3.x_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![Vertex AI](https://img.shields.io/badge/Vertex_AI-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
 ![Made in Norway](https://img.shields.io/badge/Made_in_Norway-A63A3A?style=for-the-badge&logo=flag-icon&logoColor=white)
 
 ![Story Engine Infographic](public/infographic.png)
@@ -17,7 +18,7 @@
 
 *   ✍️ **Smart Prompt-utvidelse**: Usikker på hvordan du skal formulere deg? Ett klikk forvandler enkle stikkord til en rik, detaljert prosjektbeskrivelse optimalisert for at AI-en skal gi best mulig resultat.
 
-*   ✨ **AI-anbefalte innstillinger**: Få forslag til kategori, sjanger/format (155 kombinasjoner), søk, kreativitet og diagram-frekvens - automatisk tilpasset din idé.
+*   ✨ **AI-anbefalte innstillinger**: Få forslag til kategori, sjanger/format (158 kombinasjoner), søk, kreativitet og diagram-frekvens - automatisk tilpasset din idé.
 
 *   📄 **Native Dokumentgenerering**: Skaper ekte PDF, DOCX og MP3-filer direkte i nettleseren uten eksterne konverteringstjenester.
 
@@ -46,6 +47,14 @@
 *   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
 
 *   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning. "Self-healing" Mermaid-diagrammer som fikser syntaksfeil automatisk.
+
+*   🔍 **Final Review (QA Memo)**: Helhetlig kvalitetsvurdering av ferdig genererte dokumenter. En dedikert AI-agent leser hele dokumentet etter generering og returnerer et strukturert QA-memo med verdict (`strong` / `acceptable` / `needs_revision`), prioriterte forbedringsforslag, og seksjonsspesifikke issues – uten å endre selve dokumentet.
+
+*   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Routing-logikken lever i `shared/routing/` og brukes av alle Edge Functions.
+
+*   📊 **Quota Health Monitoring**: Sanntids-dashboard for Google Cloud API-kvoter (Gemini, Imagen, Vertex AI) med automatisk synkronisering, helseberegning, og trendvisning. Eget admin-view (`QuotaHealthView`).
+
+*   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Fire tier-nivåer (Free, Starter, Pro, Enterprise) med ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg. Konfigurert i `shared/billing/`.
 
 ---
 
@@ -124,6 +133,7 @@ Møtet med brukeren – rent, moderne og inviterende.
 
 ### Startside app
 Etter landingssiden – moderne og stilrent panel.
+
 ![Startside app](public/story-engine.png)
 
 ### Alternativt smal skjermbredde
@@ -137,10 +147,76 @@ Skriv inn dine nye ideer umiddelbart på din telefon.
 
 ### Generation Progress
 Noen trinn før genereringen, her foregår researchingen.
-![Generation Progress](public/researching.png)
+
+![Generation Progress](public/processing.png)
 
 Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende oppdateringer.
-![Generation Progress](public/generation-progress.jpg)
+
+![Generation Progress](public/generation-progress.png)
+
+Her kan man følge skrivingen seksjon for seksjon etter hvert som den skrives.
+
+![Generation Progress](public/generation-progress-2.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se Projects</strong></summary>
+
+### Projects
+Prosjektoversikten samler alle lagrede prosjekter på ett sted. Her kan brukeren åpne tidligere arbeid, starte en remake fra eksisterende grunnlag, og holde kontroll på hele arbeidsflyten uten å miste historikk.
+
+![Projects](public/projects.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se Dashboard</strong></summary>
+
+### Dashboard
+Dashboardet gir et raskt overblikk over konto, aktivitet og status. Det er her brukeren ser hva som nylig er generert, hvilke funksjoner som er brukt, og hvordan prosjektarbeidet utvikler seg over tid.
+
+![Dashboard](public/dashboard.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se Billing</strong></summary>
+
+### Billing
+Billing-siden samler abonnement, kredittsaldo, top-ups og betalingsstatus i ett tydelig grensesnitt. Målet er at brukeren alltid skal forstå hva som er inkludert, hva som er kjøpt, og hva som er neste steg.
+
+![Billing](public/Billing.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se Monitoring</strong></summary>
+
+### Quota Health
+Monitoring viser levende status for AI-kvoter, forbruk og operasjonell helse. Dette er admin-flaten som gjør det mulig å oppdage kapasitetsproblemer, lese runtime-flagg og vurdere neste rollout-steg før noe faktisk går galt.
+
+![Quota Health](public/monitoring-quota-health.png)
+
+### Runtime & Config
+Her vises hvilke runtime-flagg og fallback-mekanismer som faktisk er aktive. Det gjør overvåkningen konkret, og kobler konfigurasjon direkte til hvordan systemet oppfører seg i produksjon.
+
+![Runtime & Config](public/monitoring-runtime.png)
+
+### Phase 2 Readiness
+Readiness-visningen samler signalene som trengs før neste Vertex-bølge kan vurderes. Den gjør canary-beslutninger mer synlige og mindre avhengige av manuell tolkning på tvers av flere paneler.
+
+![Phase 2 Readiness](public/monitoring-phase2.png)
+
+### Operational Risks
+Dette panelet løfter frem de viktigste operative risikopunktene i et format som er lett å bruke i hverdagen. Målet er å gjøre oppfølging konkret, ikke bare informativ.
+
+![Operational Risks](public/monitoring-operational-risks.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se Users</strong></summary>
+
+### Users
+Admin-brukerlisten gir full oversikt over brukere, tier, kreditter og abonnementsstatus. Dette gjør support- og driftsarbeid raskere, tryggere og langt mindre avhengig av å slå opp data flere steder.
+
+![Users](public/admin-users.png)
 </details>
 
 ---
@@ -186,7 +262,7 @@ graph TD
         EdgeSuggestSettings["⚙️ ai-suggest-settings"]
         EdgeAnalyzeFile["⚙️ ai-analyze-file"]
         EdgeUrlAnalyze["⚙️ url-analyze"]
-        GeminiAnalyze["🤖 Gemini API<br/><i>3-flash/pro</i>"]
+        GeminiAnalyze["🤖 Gemini API<br/><i>3.x flash/pro</i>"]
     end
 
     IdeaInput --> AIRecommend
@@ -215,10 +291,11 @@ graph TD
         PlanGenerator["📝 generateNovelPlanHybrid()"]
         SharedPromptPlan["🧩 shared/prompts<br/><i>planPrompt.ts</i>"]
         EdgePlan["⚙️ ai-plan"]
-        GeminiPlan["🤖 Gemini API<br/><i>3-pro</i>"]
+        ModelRouter["🧭 shared/routing<br/><i>decision.ts</i>"]
+        GeminiPlan["🤖 Gemini API<br/><i>3.x pro (via Vertex/Dev)</i>"]
         SearchDecision{"🔎 Google Search?"}
         SearchAPI["🌍 Grounding + Citations"]
-        PlanCoverAttempt["🖼️ ai-plan cover attempt<br/><i>(Gemini/Imagen)</i>"]
+        PlanCoverAttempt["🖼️ ai-plan cover attempt<br/><i>(Imagen 4.x)</i>"]
     end
 
     UI --> PlanningLogic
@@ -226,7 +303,8 @@ graph TD
     PlanningLogic -->|"Nei"| PlanGenerator
     PlanGenerator --> SharedPromptPlan
     SharedPromptPlan --> EdgePlan
-    EdgePlan --> GeminiPlan
+    EdgePlan --> ModelRouter
+    ModelRouter --> GeminiPlan
     EdgePlan --> SearchDecision
     SearchDecision -->|"Ja"| SearchAPI --> EdgePlan
     SearchDecision -->|"Nei"| EdgePlan
@@ -237,13 +315,14 @@ graph TD
         direction TB
         CoverDecision{"🖼️ Cover fra ai-plan?"}
         EdgeImageCover["⚙️ ai-image (cover fallback)"]
-        ImageGen["🎨 Image Model<br/><i>Imagen / Gemini Image</i>"]
+        ImageGen["🎨 Imagen 4.x"]
         PlanWithCover["📖 Plan + coverImageUrl"]
         ChapterGen["📚 generateChapterBatch()"]
         PromptService3["📋 Request assembly<br/><i>chapters.ts</i>"]
         SharedPromptSection["🧩 shared/prompts<br/><i>sectionPrompt.ts</i>"]
         EdgeSection["⚙️ ai-generate-section<br/><i>SSE</i>"]
-        GeminiSection["🤖 Gemini Streaming"]
+        RoutingSection["🧭 shared/routing"]
+        GeminiSection["🤖 Gemini Streaming<br/><i>Vertex AI / Dev API</i>"]
         StreamHandler["📡 chapters.ts"]
         RawMD["📄 Rå MD"]
         CodexDecision{"🧠 Codex post-check?"}
@@ -274,7 +353,8 @@ graph TD
     ChapterGen --> PromptService3
     PromptService3 --> SharedPromptSection
     SharedPromptSection --> EdgeSection
-    EdgeSection --> GeminiSection
+    EdgeSection --> RoutingSection
+    RoutingSection --> GeminiSection
     GeminiSection --> EdgeSection
     EdgeSection --> StreamHandler
     StreamHandler --> RawMD
@@ -315,7 +395,7 @@ graph TD
     class LandingPage landingNode
     class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix apiNode
     class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor processNode
-    class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,EdgeCodex serviceNode
+    class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,EdgeCodex,ModelRouter,RoutingSection serviceNode
     class CoreIdea,PlanReady,PlanWithCover,FinalChapter,GenerationPayload,UI stateNode
     class PlanningLogic,SearchDecision,CoverDecision,CodexDecision,MermaidDecision decisionNode
     class RawMD,Fix1,Fix2,CleanMD sanitizerNode
@@ -333,7 +413,7 @@ Dette diagrammet dekker state/sporing, visning og alle eksportformatene.
 graph TD
     %% ═══════════════════════════════════════════
     %% 📱 STORY ENGINE - DEL 2 (STATE → EKSPORT)
-    %% Oppdatert: Februar 2026
+    %% Oppdatert: Mars 2026
     %% ═══════════════════════════════════════════
 
     GenerationPayload["📥 Fra Del 1<br/><i>Plan + Chapters + Audio + Images</i>"]
@@ -359,6 +439,21 @@ graph TD
     AppState --> Viewer --> Screen
     UserEnd -.->|"Ser dokument"| Screen
     UserEnd -->|"Last Ned"| DownloadBtn --> FormatChoice
+
+    subgraph FinalReviewFlow ["🔍 FINAL REVIEW (QA MEMO)"]
+        direction TB
+        ReviewDecision{"🔍 Kjør Final Review?"}
+        EdgeFinalReview["⚙️ ai-final-review"]
+        ReviewModel["🤖 Pro Model<br/><i>Gemini/GPT/Opus</i>"]
+        QAMemo["📋 QA Memo<br/><i>verdict + issues</i>"]
+    end
+
+    AppState -->|"Ferdig dokument"| ReviewDecision
+    ReviewDecision -->|"Ja"| EdgeFinalReview
+    EdgeFinalReview --> ReviewModel
+    ReviewModel --> EdgeFinalReview
+    EdgeFinalReview --> QAMemo
+    ReviewDecision -->|"Nei / Ikke tilgjengelig"| DownloadBtn
 
     subgraph ExportService ["📤 EKSPORT SERVICE"]
         direction TB
@@ -441,6 +536,9 @@ graph TD
     class QuotaUsage,UsageMetrics metricsNode
     class FormatChoice decisionNode
     class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,ExportWebsite,ExportPPTX,ExportEPUB,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,GenerateWebsite,GeneratePPTX,GenerateEPUB,FullMD,DownloadBtn exportNode
+    classDef reviewNode fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46
+    class EdgeFinalReview,ReviewModel,QAMemo reviewNode
+    class ReviewDecision decisionNode
 ```
 </details>
 
@@ -583,7 +681,17 @@ sequenceDiagram
         Edge-->>-FE: Audio chunks
     end
 
-    Note over User,DL: 📥 FASE 5: Eksport
+    Note over User,Imagen: 🔍 FASE 5: Final Review (QA Memo)
+    opt Final Review aktivert
+        FE->>+Edge: POST ai-final-review
+        Note over Edge: Hele dokumentet sendes til pro-modell
+        Edge->>+Gemini: Helhetlig dokumentvurdering
+        Gemini-->>-Edge: QA Memo JSON
+        Edge-->>-FE: verdict + issues + priority actions
+        FE-->>User: Viser QA Memo i CompleteView
+    end
+
+    Note over User,DL: 📥 FASE 6: Eksport
     
     User->>FE: 📁 Velg eksportformat
     FE->>DL: Parse markdown + bygg filer
@@ -634,19 +742,26 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring
 │       ├── BillingView.tsx                   # Abonnement, kreditter og Stripe-portal
 │       ├── DashboardView.tsx                 # Brukerdashboard og prosjektoversikt
-│       ├── ProjectsView.tsx                  # Prosjektliste og prosjektstyring
+│       ├── ProjectsView.tsx                  # Prosjektliste, Remake og prosjektstyring
+│       ├── QuotaHealthView.tsx               # Google Cloud kvote-monitoring dashboard
+│       ├── quotaHealthPlanData.ts            # Plan-data for fase 2 quota readiness
+│       ├── pageShell.ts                      # Delt shell-layout for admin-sider
 │       ├── LoginView.tsx                     # Innlogging og autentisering
 │       ├── QrAuthorizeView.tsx               # Mobil autorisering for QR-login
 │       ├── WaitlistView.tsx                  # Venteliste og early access
 │       ├── IntroView.tsx                     # Input, filanalyse, drag-n-drop
 │       ├── CastingView.tsx                   # Karakteroversikt og stemmevalg
 │       ├── GenerationView.tsx                # Live streaming av innhold
-│       └── CompleteView.tsx                  # Ferdig resultat, avspilling og regenerering
+│       └── CompleteView.tsx                  # Ferdig resultat, Final Review Preview, regenerering
 ├── scripts/                                  # Verktøy og test-skript
 │   ├── check-prompt-drift.mjs                # CI-guard mot inline core-prompts i Edge Functions
 │   ├── smoke-prompt-builders.ts              # Smoke-test av shared prompt-builders
-│   ├── verify_quotas.ts                      # Kvote/credit test mot Edge Functions
-│   └── ...                                   # Repro/parse/test hjelpeskript
+│   ├── smoke-routing-decision.ts             # Smoke-test av model routing-logikk
+│   ├── smoke-suggest-settings-heuristics.ts  # Test av suggest-settings heuristikker
+│   ├── smoke-human-nuance-modes.ts           # Test av human-nuance prompt-modi
+│   ├── smoke-human-nuance-default-matrix.ts  # Default-matrise for human-nuance
+│   ├── eval-human-nuance-ab.ts               # A/B-evaluering av prompt-kvalitet
+│   └── archive/                              # Arkiverte/utdaterte skript
 ├── services/                                 # FORRETNINGSLOGIKK (MODULÆR)
 │   ├── ContentParser.ts                      # AST-parser som konverterer MD til blokker
 │   ├── ContentSanitizer.ts                   # "Vaskemaskinen" (Regex-rensing, header-fiks)
@@ -711,6 +826,16 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── types.ts                          # Type-definisjoner for stiler
 │       └── units.ts                          # Enhetskonvertering (mm, px, pt)
 ├── shared/                                   # Delt kode mellom frontend og Edge Functions
+│   ├── billing/                              # Abonnement- og tier-konfigurasjon
+│   │   ├── productPolicy.ts                  # Produktpolicy (kreditt-utløp, top-up regler)
+│   │   └── tierPresets.ts                    # Tier-definisjoner (Free/Starter/Pro/Enterprise)
+│   ├── fiction/                              # Fiction-spesifikk logikk
+│   ├── routing/                              # Intelligent model routing
+│   │   ├── decision.ts                       # Routing-beslutningsmotor
+│   │   ├── mapping.ts                        # Modell-til-oppgave mapping
+│   │   ├── types.ts                          # Routing-types
+│   │   └── index.ts                          # Eksportør
+│   ├── suggestSettings/                      # Delt suggest-settings logikk
 │   └── prompts/                              # Prompt source-of-truth (core generation flows)
 │       ├── builders/                         # Prompt-builders for Edge flows
 │       │   ├── sectionPrompt.ts              # ai-generate-section
@@ -734,17 +859,22 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   │   ├── pricing.ts                    # Pris- og kredittkonvertering (server-side)
 │   │   │   ├── rateLimit.ts                  # Upstash Redis rate limiting
 │   │   │   ├── genres.ts                     # Delt sjangerdata
-│   │   │   └── genreOptions.ts               # Delt sub-option data
+│   │   │   ├── genreOptions.ts               # Delt sub-option data
+│   │   │   ├── types.ts                      # Delte Edge Function-typer
+│   │   │   ├── vertexAuth.ts                 # Vertex AI autentisering (service account JWT)
+│   │   │   └── vertexGemini.ts               # Vertex AI Gemini API-klient
 │   │   ├── ai-admin-adjust-credits/          # Admin: kredittjustering (+/-)
 │   │   ├── ai-admin-list-users/              # Admin: brukerliste/status/tier/limits
 │   │   ├── ai-admin-manage-flags/            # Admin: legg til/løs opp brukerflagg
 │   │   ├── ai-admin-update-user/             # Admin: allowlist + tier-endring
 │   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal)
 │   │   ├── ai-codex-postcheck/               # Post-check revisjon (OpenAI Codex, non-fiction)
+│   │   ├── ai-final-review/                  # Helhetlig QA Memo (whole-document review)
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
-│   │   ├── ai-image/                         # Bildegenerering (Imagen + Gemini Image)
+│   │   ├── ai-image/                         # Bildegenerering (Imagen 4.x)
 │   │   ├── ai-mermaid-fix/                   # Mermaid-fiksing med AI
 │   │   ├── ai-plan/                          # Planleggings-agent (Google Search)
+│   │   ├── ai-quota-sync/                    # Google Cloud kvote-synkronisering
 │   │   ├── ai-script-convert/                # Konvertering til filmmanus
 │   │   ├── ai-stripe-checkout/               # Oppretter Stripe Checkout for kredittkjøp
 │   │   ├── ai-stripe-portal/                 # Stripe Customer Portal (abonnement)
@@ -754,7 +884,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-suggest-settings/              # Innstillings-anbefalinger
 │   │   ├── ai-summarize/                     # Oppsummerings-agent
 │   │   ├── ai-tts/                           # Tekst-til-tale (Gemini TTS)
-│   │   ├── ai-user-profile/                  # Brukerprofil og preferanser
+│   │   ├── ai-user-profile/                  # Brukerprofil, entitlements og feature-flagg
 │   │   ├── qr-login/                         # QR login (create/authorize/exchange)
 │   │   ├── url-analyze/                      # Analyse av nettsider (Scraping)
 │   │   └── deno.d.ts                         # Supplerende module declarations
@@ -775,11 +905,18 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
 * `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
-* `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer og kredittjustering.
+* `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering og brukerflagg.
+* `components/views/QuotaHealthView.tsx`: Dedikert dashboard for overvåking av Google Cloud API-kvoter med automatisk synkronisering og helseberegning.
+* `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, Final Review Preview (QA Memo), og prosjekthandlinger.
 * `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag.
+* `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
+* `shared/billing/*`: Produktpolicy og tier-presets (`productPolicy.ts`, `tierPresets.ts`) som definerer kredittregler, utløpspolicyer og tier-grenser.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
 * `supabase/functions/_shared/utils.ts`: Delt logikk for Edge Functions inkludert auth, allowlist, admin checks, kvote-reservering og brukslogging.
+* `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
 * `supabase/functions/_shared/pricing.ts`: Server-side prismapping (`USD -> credits`) for konsistent kredittbelastning.
+* `supabase/functions/ai-final-review/`: Helhetlig QA-agent som leser hele det genererte dokumentet og returnerer et strukturert QA-memo med verdict, prioriterte tiltak og seksjonsspesifikke issues.
+* `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
 * `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
 
 </details>
@@ -830,8 +967,10 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     supabase secrets set CODEX_POSTCHECK_MODE=non-fiction-only
     # optional toggles / tuning:
     # supabase secrets set ENABLE_CODEX_POSTCHECK=true
-    # supabase secrets set CODEX_POSTCHECK_MODEL=gpt-5.2-codex
-    # supabase secrets set CODEX_POSTCHECK_CREDITS=0
+    # supabase secrets set CODEX_POSTCHECK_MODEL=gpt-5.3-codex
+    # current backend default is 2 credits unless overridden:
+    # supabase secrets set CODEX_POSTCHECK_CREDITS=2
+    # set to 0 only for temporary testing / non-billed validation
     # supabase secrets set CODEX_POSTCHECK_MAX_INPUT_CHARS=120000
     # supabase secrets set CODEX_POSTCHECK_TIMEOUT_MS=60000
     # supabase secrets set CODEX_POSTCHECK_MAX_RETRIES=1
@@ -853,13 +992,16 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 
 Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
 
-### Siste endringer (arbeidsgren / story-engine-dev)
-- 🎬 **Video**: Mermaid-diagrammer viser nå "Diagram er utelatt i video"-melding. Listelementer beholder **bold**/*italic* formatering. Unummererte lister bruker bullet-punkt (•). Inline math ($...$) konverteres til kursiv. Fleksibel tabelldeteksjon.
-- 📄 **PDF/DOCX**: Inline math støttes som kursiv tekst. PDF-kodeblokker har emoji-til-tekst konvertering (jsPDF-begrensning). Forbedret word-wrap i kodeblokker.
-- 🎙️ **TTS**: Stemmenavn (Charon:, etc.) fjernes kun når de står som speaker-label på linjestarten – bevarer legitim bruk i tekst.
-- 🔗 **Lenker**: Konsistent lenkegjengivelse i video (cyan/understrek), PDF (blå/klikkbar), og DOCX (hyperlenker). Filtrerer ut "junk" grounding-lenker.
-- 🖥️ **UI**: Fikset tekstoverflyt i Generation Progress-kort.
-- 🛠️ **Refaktorering**: `externalApiService.ts` → `api.ts`.
+### Siste endringer (Mars 2026)
+- 🔍 **Final Review**: Ny `ai-final-review` Edge Function for helhetlig dokumentkvalitetsvurdering (QA Memo). Returnerer verdict, priority actions, og seksjonsspesifikke issues. Synlig i CompleteView under "Final Review Preview".
+- 🧭 **Model Routing**: Ny `shared/routing/`-modul med intelligent modellvalg basert på oppgavetype, kategori, kreativitet og genre. Erstatter hardkodede modellvalg.
+- � **Quota Health**: Ny `QuotaHealthView` og `ai-quota-sync` for sanntids-overvåking av Google Cloud API-kvoter.
+- 💳 **Billing/Tiers**: `shared/billing/` med `productPolicy.ts` og `tierPresets.ts` for komplett tier-konfigurasjon (Free/Starter/Pro/Enterprise).
+- ☁️ **Vertex AI**: Ny `vertexAuth.ts` og `vertexGemini.ts` i `_shared/` for direkte Vertex AI-tilgang via service account JWT.
+- 🧠 **Prompt Engineering**: Utvidet `shared/prompts/` med human-nuance prompt-modi og A/B-evalueringsskript.
+- 🎬 **Video**: Mermaid-diagrammer viser nå "Diagram er utelatt i video"-melding. Smart Split for perfekt typografi.
+- 📄 **PDF/DOCX**: Inline math støttes som kursiv tekst. Forbedret word-wrap i kodeblokker.
+- �️ **Admin**: Utvidet `AdminUsersView` med brukerflagg, tier-endringer og detaljert brukerinfo.
 
 > Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
@@ -867,8 +1009,15 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 
 ## 🗺️ Veikart
 
-Vi bygger fremtidens publiseringsverktøy. Her er hva som kommer:
+Vi bygger fremtidens publiseringsverktøy. Her er hva som er aktivt og planlagt:
 
+### Aktive planer (Q1-Q2 2026)
+*   🔁 **Multi-Round Final Review**: Bevaring av QA-memo historikk på tvers av "Remake"-handlinger, slik at AI-en husker sine tidligere revisjonsforslag. Se `docs/active-plans/final-review-multi-round-strategy.md`.
+*   🔧 **Guided Patch Mode** (deferred): Fremtidig utvidelse der AI-en foreslår konkrete, seksjonsmålrettede tekstendringer basert på QA-memoet. Se `docs/active-plans/final-review-guided-patch-decision-packet.md`.
+*   🌐 **Social Media Link Analysis**: Utvidelse av "Analyze Link" til YouTube-transkripter, X/Twitter-poster, Facebook/Instagram (oEmbed) og Gemini-basert videoanalyse. Se `docs/social-media-link-analysis-plan.md`.
+*   ☁️ **Vertex AI Phase 2 Migration**: Full migrering fra Gemini Developer API til Vertex AI for bedre kvoter, SLA og enterprise-features.
+
+### Fremtidige visjoner
 *   📰 **Integrasjon mot Retriever/Mediearkivet**: For dypere faktasjekk mot norske kilder.
 *   🗣️ **Multi-LLM Konsensus-debatt**: La flere AI-modeller diskutere en sak før konklusjon trekkes.
 *   📻 **Advanced Audio (Radio Play)**: Lydeffekter og bakgrunnsmusikk mikset med fortellerstemmen.
