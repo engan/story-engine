@@ -160,6 +160,21 @@ Her kan man følge skrivingen seksjon for seksjon etter hvert som den skrives.
 </details>
 
 <details>
+<summary><strong>Klikk for å se eksportformater</strong></summary>
+
+### Eksport og leveranseformater
+Story Engine er bygget for å gjøre ett prosjektgrunnlag om til flere ferdige leveranser. Her kan brukeren eksportere til blant annet lesbare dokumentformater, nettside, presentasjon, lyd og video, avhengig av hvilken type prosjekt som er generert.
+
+På lydsiden vises det to ulike formater i den øverste bryteren: klassisk fortelleropplesning og en mer dramatisert variant som radio play / lyddrama. Det gjør at samme tekstgrunnlag kan brukes enten som ren narrasjon eller som en mer scenisk lydopplevelse.
+
+På videosiden vises det også to ulike varianter i den andre øverste bryteren: vanlig bredformatvideo og en vertikal videoversjon tilpasset mobil og sosiale flater. Dette gjør eksporten mer praktisk når samme innhold skal brukes både som tradisjonell video og i mer korte, mobile formater.
+
+I tillegg viser denne visningen hvordan innholdet kan tas videre til flere konkrete leveranser, som dokumenteksport, webformat og andre sluttprodukter. Målet er å gjøre Story Engine til mer enn bare en skriveflate: det er også et system for å pakke samme prosjekt ut i flere brukbare formater.
+
+![Eksportformater](public/story-engine-format.png)
+</details>
+
+<details>
 <summary><strong>Klikk for å se Projects</strong></summary>
 
 ### Projects
