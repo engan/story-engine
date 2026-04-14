@@ -34,11 +34,15 @@
 
 *   🛠️ **AI-verktøykasse for spesialoppgaver**: Utfør avanserte oppgaver med ett klikk – konverter lydfiler til undertekster (.srt), generer en komplett README.md fra et .zip-arkiv, eller trekk ut et profesjonelt sammendrag fra et langt dokument.
 
-*   🌍 **Full språk-kontroll**: Velg mellom auto-deteksjon eller spesifiser nøyaktig hvilket språk historien skal skrives på. Inkluderer nå oversettelse av eksisterende prosjekter.
+*   🌍 **Full språk-kontroll**: Velg mellom auto-deteksjon eller spesifiser nøyaktig hvilket språk prosjektet skal skrives på. Eksisterende prosjekter kan nå oversettes via egne plan- og markdown-oversettere.
 
 *   📊 **Dynamisk Diagram-frekvens**: Kontroller den visuelle tettheten med presisjon - velg hvor ofte AI-en skal generere flytskjemaer, tidslinjer og grafer.
 
-*   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å lage nye formater som lyd, video eller nettside med den originale teksten eller oversett til et annet språk.
+*   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å regenerere outputs fra låst dokumentprofil, lage nye medievarianter eller opprette et nytt språkprosjekt.
+
+*   🔁 **Samlet Revise-flyt**: `Revise` bruker lagret QA-memo når det finnes, og lar deg enten oppdatere samme prosjekt eller lagre en ny revisjonsgren fra samme arbeidsflate.
+
+*   🎛️ **Variant / Regenerate Outputs**: `Variant` gjenbruker samme prosjektprofil for illustrasjoner, audio og språkbytte. Medie-only-varianter kan oppdatere samme prosjekt, mens språkbytte opprettes som nytt prosjekt.
 
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 
@@ -48,7 +52,7 @@
 
 *   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning. "Self-healing" Mermaid-diagrammer som fikser syntaksfeil automatisk.
 
-*   🔍 **Final Review (QA Memo)**: Helhetlig kvalitetsvurdering av ferdig genererte dokumenter. En dedikert AI-agent leser hele dokumentet etter generering og returnerer et strukturert QA-memo med verdict (`strong` / `acceptable` / `needs_revision`), prioriterte forbedringsforslag, og seksjonsspesifikke issues – uten å endre selve dokumentet.
+*   🔍 **Final Review (QA Memo)**: Helhetlig kvalitetsvurdering av ferdig genererte dokumenter. En dedikert AI-agent leser hele dokumentet etter generering og returnerer et strukturert QA-memo med verdict (`strong` / `needs_revision` / `high_risk`), prioriterte forbedringsforslag og seksjonsspesifikke issues – uten å endre selve dokumentet.
 
 *   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Routing-logikken lever i `shared/routing/` og brukes av alle Edge Functions.
 
@@ -178,7 +182,7 @@ I tillegg viser denne visningen hvordan innholdet kan tas videre til flere konkr
 <summary><strong>Klikk for å se Projects</strong></summary>
 
 ### Projects
-Prosjektoversikten samler alle lagrede prosjekter på ett sted. Her kan brukeren åpne tidligere arbeid, starte en remake fra eksisterende grunnlag, og holde kontroll på hele arbeidsflyten uten å miste historikk.
+Prosjektoversikten samler alle lagrede prosjekter på ett sted. Her kan brukeren åpne tidligere arbeid, bruke `Revise` for å oppdatere samme prosjekt eller lagre en ny revisjonsgren, og bruke `Variant` for å regenerere outputs eller opprette språkvarianter uten å miste historikk.
 
 ![Projects](public/projects.png)
 </details>
@@ -757,17 +761,18 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring
 │       ├── BillingView.tsx                   # Abonnement, kreditter og Stripe-portal
 │       ├── DashboardView.tsx                 # Brukerdashboard og prosjektoversikt
-│       ├── ProjectsView.tsx                  # Prosjektliste, Remake og prosjektstyring
+│       ├── ProjectsView.tsx                  # Avansert prosjektfamilievisning / lineage / QA-detaljer
+│       ├── ProjectsViewSimple.tsx            # Standard prosjektliste med Open / Variant / Revise
 │       ├── QuotaHealthView.tsx               # Google Cloud kvote-monitoring dashboard
 │       ├── quotaHealthPlanData.ts            # Plan-data for fase 2 quota readiness
 │       ├── pageShell.ts                      # Delt shell-layout for admin-sider
 │       ├── LoginView.tsx                     # Innlogging og autentisering
 │       ├── QrAuthorizeView.tsx               # Mobil autorisering for QR-login
 │       ├── WaitlistView.tsx                  # Venteliste og early access
-│       ├── IntroView.tsx                     # Input, filanalyse, drag-n-drop
+│       ├── IntroView.tsx                     # Input, filanalyse, Revise/Variant/import-workflows
 │       ├── CastingView.tsx                   # Karakteroversikt og stemmevalg
 │       ├── GenerationView.tsx                # Live streaming av innhold
-│       └── CompleteView.tsx                  # Ferdig resultat, Final Review Preview, regenerering
+│       └── CompleteView.tsx                  # Ferdig resultat, Final Review Memo, Revise/Variant-entrypoints
 ├── scripts/                                  # Verktøy og test-skript
 │   ├── check-prompt-drift.mjs                # CI-guard mot inline core-prompts i Edge Functions
 │   ├── smoke-prompt-builders.ts              # Smoke-test av shared prompt-builders
@@ -804,6 +809,14 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── tts.ts                            # Tekst-til-tale logikk (Gemini)
 │   │   └── utils.ts                          # Delte AI-hjelpere
 │   ├── aiHybrid.ts                           # Edge-first orkestrering (lokal fallback fjernet)
+│   ├── finalReview/                          # Whole-document review, revision guidance og rewrite-styrke
+│   │   ├── documentHash.ts                   # Fingerprinting av dokumentutkast for review-sammenligning
+│   │   ├── finalRevision.ts                  # Whole-document final revision
+│   │   ├── guidedPatch.ts                    # QA-ledet brief-seeding og patch-kandidater
+│   │   ├── initialRevisionGuidance.ts        # Førstepass-guidance for finale revisjoner
+│   │   ├── reviewCanon.ts                    # Normalisering av lagret review-state
+│   │   ├── reviewProgress.ts                 # Review-delta / stagnasjon / anbefalt neste steg
+│   │   └── rewriteStrength.ts                # Light / Medium / Heavy defaults per workflow
 │   ├── export/                               # Eksport-moduler
 │   │   ├── docx.ts                           # DOCX-generering
 │   │   ├── epub.ts                           # EPUB 3 e-bok generering (XHTML + Cover)
@@ -851,12 +864,16 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── types.ts                          # Routing-types
 │   │   └── index.ts                          # Eksportør
 │   ├── suggestSettings/                      # Delt suggest-settings logikk
+│   │   ├── heuristics.ts                     # Regex/guard heuristikker og fast-path regler
+│   │   └── normalization.ts                  # Normalisering av suggest-resultater og defaults
 │   └── prompts/                              # Prompt source-of-truth (core generation flows)
 │       ├── builders/                         # Prompt-builders for Edge flows
 │       │   ├── sectionPrompt.ts              # ai-generate-section
 │       │   ├── planPrompt.ts                 # ai-plan
 │       │   ├── suggestPrompt.ts              # ai-suggest-prompt
 │       │   ├── suggestSettingsPrompt.ts      # ai-suggest-settings
+│       │   ├── translateMarkdownPrompt.ts    # ai-translate-markdown
+│       │   ├── translatePlanPrompt.ts        # ai-translate-plan
 │       │   └── mermaidFixPrompt.ts           # ai-mermaid-fix
 │       ├── fragments/                        # Delte prompt-fragmenter
 │       │   ├── markdownRules.ts              # Markdown-regler
@@ -898,6 +915,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-suggest-prompt/                # Prompt-forbedring
 │   │   ├── ai-suggest-settings/              # Innstillings-anbefalinger
 │   │   ├── ai-summarize/                     # Oppsummerings-agent
+│   │   ├── ai-translate-markdown/            # Oversettelse av ferdig markdown-dokument
+│   │   ├── ai-translate-plan/                # Oversettelse av plan / scaffold før regenerering
 │   │   ├── ai-tts/                           # Tekst-til-tale (Gemini TTS)
 │   │   ├── ai-user-profile/                  # Brukerprofil, entitlements og feature-flagg
 │   │   ├── qr-login/                         # QR login (create/authorize/exchange)
@@ -922,8 +941,12 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
 * `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering og brukerflagg.
 * `components/views/QuotaHealthView.tsx`: Dedikert dashboard for overvåking av Google Cloud API-kvoter med automatisk synkronisering og helseberegning.
-* `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, Final Review Preview (QA Memo), og prosjekthandlinger.
+* `components/views/ProjectsViewSimple.tsx`: Standard prosjektoversikt med fargekodet status, komprimerte neste-steg-kort og handlingene `Open`, `Variant` og `Revise`.
+* `components/views/IntroView.tsx`: Samlet workspace for idéstart, importert Story Engine-fil, `Variant` og `Revise` med dynamiske save-targets.
+* `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, Final Review Memo, og inngang til `Variant` / `Revise`.
 * `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag.
+* `services/finalReview/*`: Logikken for whole-document final revision, review-progresjon, rewrite-styrke og QA-seedede revision briefs.
+* `shared/suggestSettings/*`: Felles heuristikker og normalisering for `Suggest Settings`, slik at frontend og edge holder samme tolkningsregler.
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
 * `shared/billing/*`: Produktpolicy og tier-presets (`productPolicy.ts`, `tierPresets.ts`) som definerer kredittregler, utløpspolicyer og tier-grenser.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
@@ -931,6 +954,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
 * `supabase/functions/_shared/pricing.ts`: Server-side prismapping (`USD -> credits`) for konsistent kredittbelastning.
 * `supabase/functions/ai-final-review/`: Helhetlig QA-agent som leser hele det genererte dokumentet og returnerer et strukturert QA-memo med verdict, prioriterte tiltak og seksjonsspesifikke issues.
+* `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
 * `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
 
@@ -940,7 +964,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 
 ## 🚀 Tilgang & Installasjon
 
-Kildekoden til Story Engine er for tiden i et privat repository (novel-planner) for å beskytte immaterielle rettigheter (IP). Dette repoet fungerer som teknisk dokumentasjon.
+Kildekoden til Story Engine ligger i et privat repository for å beskytte immaterielle rettigheter (IP). Dette repoet fungerer både som produktkode og løpende teknisk dokumentasjon for inviterte utviklere og testere.
 
 For investorer, partnere eller utviklere som har fått tildelt tilgangsrettigheter, gjelder følgende oppsett:
 
@@ -954,8 +978,8 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 1.  **Klon kildekode-repoet**
    (Krever autorisasjon)
     ```bash
-    git clone https://github.com/engan/novel-planner.git
-    cd novel-planner
+    git clone <private-story-engine-repo-url>
+    cd story-engine
     ```
 
 2.  **Installer avhengigheter**
@@ -1001,22 +1025,27 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     ```bash
     npm run dev
     ```
+
+5.  **Deploy Supabase Edge Functions**
+    Når du har endret edge-funksjoner, kan hele standardsuiten deployes med:
+    ```bash
+    npm run deploy:functions:noverify
+    ```
+    Scriptet deployer blant annet `ai-final-review`, `ai-translate-plan`, `ai-translate-markdown`, `qr-login`, `ai-quota-sync` og de øvrige kjernefunksjonene i `supabase/functions/`.
 ---
 
 ## 📝 Endringslogg
 
 Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
 
-### Siste endringer (Mars 2026)
-- 🔍 **Final Review**: Ny `ai-final-review` Edge Function for helhetlig dokumentkvalitetsvurdering (QA Memo). Returnerer verdict, priority actions, og seksjonsspesifikke issues. Synlig i CompleteView under "Final Review Preview".
-- 🧭 **Model Routing**: Ny `shared/routing/`-modul med intelligent modellvalg basert på oppgavetype, kategori, kreativitet og genre. Erstatter hardkodede modellvalg.
-- � **Quota Health**: Ny `QuotaHealthView` og `ai-quota-sync` for sanntids-overvåking av Google Cloud API-kvoter.
-- 💳 **Billing/Tiers**: `shared/billing/` med `productPolicy.ts` og `tierPresets.ts` for komplett tier-konfigurasjon (Free/Starter/Pro/Enterprise).
-- ☁️ **Vertex AI**: Ny `vertexAuth.ts` og `vertexGemini.ts` i `_shared/` for direkte Vertex AI-tilgang via service account JWT.
-- 🧠 **Prompt Engineering**: Utvidet `shared/prompts/` med human-nuance prompt-modi og A/B-evalueringsskript.
-- 🎬 **Video**: Mermaid-diagrammer viser nå "Diagram er utelatt i video"-melding. Smart Split for perfekt typografi.
-- 📄 **PDF/DOCX**: Inline math støttes som kursiv tekst. Forbedret word-wrap i kodeblokker.
-- �️ **Admin**: Utvidet `AdminUsersView` med brukerflagg, tier-endringer og detaljert brukerinfo.
+### Siste endringer (Mars-April 2026)
+- 🔁 **Samlet revisjonsflyt**: `Revise` er nå hovedinngangen for tekstforbedring, med valg mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren.
+- 🎛️ **Variant oppgradert**: `Variant` har egen save-target-logikk, støtte for språkvarianter som nytt prosjekt, og samme låste profil-kontrakt som importert Story Engine-fil.
+- 🔍 **Final Review Memo**: Whole-document QA og final revision er strammet inn rundt `ai-final-review`, `services/finalReview/*` og review-progresjon på tvers av revision branches.
+- 🌐 **Oversettelsesflyt**: Nye edge functions `ai-translate-plan` og `ai-translate-markdown` gjør språkvarianter til en egen server-side flyt.
+- 🧭 **Projects UX**: Enkel prosjektvisning er komprimert og tydeliggjort med fargekodet status, bedre neste-steg-guidance og admin-skjult advanced mode.
+- 🧠 **Suggest Settings**: Prompt- og heuristikkgrunnlaget er utvidet og dokumentert videre i egne planer under `docs/`.
+- 💳 **Deploy/ops**: `deploy:functions:noverify` dekker nå også `ai-final-review`, oversettelsesfunksjonene, `qr-login` og `ai-quota-sync`.
 
 > Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
@@ -1027,8 +1056,9 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 Vi bygger fremtidens publiseringsverktøy. Her er hva som er aktivt og planlagt:
 
 ### Aktive planer (Q1-Q2 2026)
-*   🔁 **Multi-Round Final Review**: Bevaring av QA-memo historikk på tvers av "Remake"-handlinger, slik at AI-en husker sine tidligere revisjonsforslag. Se `docs/active-plans/final-review-multi-round-strategy.md`.
+*   🔁 **Multi-Round Final Review**: Bevaring av QA-memo historikk på tvers av revisjonsgrener, slik at AI-en husker tidligere revisjonsforslag og kan måle stagnasjon/regresjon. Se `docs/active-plans/final-review-multi-round-strategy.md`.
 *   🔧 **Guided Patch Mode** (deferred): Fremtidig utvidelse der AI-en foreslår konkrete, seksjonsmålrettede tekstendringer basert på QA-memoet. Se `docs/active-plans/final-review-guided-patch-decision-packet.md`.
+*   🎯 **Suggest Settings Rebalancing**: Dokumentert arbeid for å balansere bias mellom de 158 category/genre-kombinasjonene i prompt, heuristikker og normalisering. Se `docs/suggest-settings-architecture-plan.md` og `docs/suggest-settings-rebalancing-plan.md`.
 *   🌐 **Social Media Link Analysis**: Utvidelse av "Analyze Link" til YouTube-transkripter, X/Twitter-poster, Facebook/Instagram (oEmbed) og Gemini-basert videoanalyse. Se `docs/social-media-link-analysis-plan.md`.
 *   ☁️ **Vertex AI Phase 2 Migration**: Full migrering fra Gemini Developer API til Vertex AI for bedre kvoter, SLA og enterprise-features.
 
