@@ -344,9 +344,6 @@ graph TD
         GeminiSection["🤖 Gemini Streaming<br/><i>Vertex AI / Dev API</i>"]
         StreamHandler["📡 chapters.ts"]
         RawMD["📄 Rå MD"]
-        CodexDecision{"🧠 Codex post-check?"}
-        EdgeCodex["⚙️ ai-codex-postcheck"]
-        CodexModel["🧠 OpenAI Codex"]
         Fix1["🔧 ContentSanitizer"]
         Fix2["✅ mermaidFixer"]
         MermaidDecision{"📊 Mermaid OK?"}
@@ -377,12 +374,7 @@ graph TD
     GeminiSection --> EdgeSection
     EdgeSection --> StreamHandler
     StreamHandler --> RawMD
-    RawMD --> CodexDecision
-    CodexDecision -->|"Ja (non-fiction)"| EdgeCodex
-    EdgeCodex --> CodexModel
-    CodexModel --> EdgeCodex
-    EdgeCodex --> Fix1
-    CodexDecision -->|"Nei / fallback"| Fix1
+    RawMD --> Fix1
     Fix1 --> Fix2
     Fix2 --> MermaidDecision
     MermaidDecision -->|"Ja"| CleanMD
@@ -414,11 +406,10 @@ graph TD
     class LandingPage landingNode
     class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix apiNode
     class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor processNode
-    class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,EdgeCodex,ModelRouter,RoutingSection serviceNode
+    class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,ModelRouter,RoutingSection serviceNode
     class CoreIdea,PlanReady,PlanWithCover,FinalChapter,GenerationPayload,UI stateNode
-    class PlanningLogic,SearchDecision,CoverDecision,CodexDecision,MermaidDecision decisionNode
+    class PlanningLogic,SearchDecision,CoverDecision,MermaidDecision decisionNode
     class RawMD,Fix1,Fix2,CleanMD sanitizerNode
-    class CodexModel apiNode
 ```
 </details>
 
@@ -672,12 +663,6 @@ sequenceDiagram
         end
         Gemini-->>-Edge: Seksjon ferdig
         Edge-->>-FE: DONE event
-        opt Non-fiction post-check (Codex)
-            FE->>+Edge: POST ai-codex-postcheck
-            Edge->>+OpenAI: Responses API (Codex)
-            OpenAI-->>-Edge: Revidert tekst / fallback
-            Edge-->>-FE: Post-check resultat
-        end
         FE->>San: Rens + valider Mermaid
         opt Mermaid krever AI-fiks
             San->>+Edge: POST ai-mermaid-fix
@@ -731,17 +716,28 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── README.md                                 # Dokumentasjon
 ├── CHANGELOG.md                              # Endringslogg
 ├── ROADMAP.md                                # Veikart og fremtidsplaner
+├── package.json                              # Scripts, avhengigheter og app-metadata
+├── vite.config.ts                            # Vite bygg/dev-konfigurasjon
+├── tailwind.config.js                        # Tailwind tema og scanning
+├── postcss.config.js                         # PostCSS pipeline
 ├── constants.ts                              # Globale konstanter (stemmer, stiler)
 ├── types.ts                                  # TypeScript definisjoner for hele applikasjonen
 ├── genres.ts                                 # Definisjoner av hovedsjangre og kategorier
 ├── genreOptions.ts                           # Kontekstuelle sub-options (faktasjekk, lengde, etc.)
 ├── genreUtils.ts                             # Delte sjanger-hjelpere (fiction/non-fiction checks)
 ├── languages.ts                              # Støttede språk for I/O
+├── metadata.json                             # Statisk app-/modellmetadata
+├── docs/                                     # Planer, eval-notater og operasjonell dokumentasjon
+├── public/                                   # Bilder, screenshots og statiske assets
+├── landing/                                  # Egen statisk showcase/landing
+├── src/                                      # Global CSS + Vite typer
 ├── components/
 │   ├── Icons.tsx                             # Ikoner (SVG)
 │   ├── MermaidDebugPage.tsx                  # Debug side for Mermaid
 │   ├── OnboardingModal.tsx                   # Førstegangs onboarding
 │   ├── ParserTest.tsx                        # Test-komponent for parser
+│   ├── auth/                                 # Login/QR-auth UI
+│   │   └── QrLogin.tsx                       # QR-login flyt for mobil autorisering
 │   ├── landing/                              # Landingsside komponenter
 │   │   └── LandingPage.tsx                   # Hovedinngang / Hero-seksjon
 │   ├── ui/                                   # Gjenbrukbare UI-komponenter
@@ -771,23 +767,33 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── GenerationView.tsx                # Live streaming av innhold
 │       └── CompleteView.tsx                  # Ferdig resultat, Final Review Memo, Revise/Variant-entrypoints
 ├── scripts/                                  # Verktøy og test-skript
+│   ├── audit-routing-coverage.ts             # Dekningssjekk for routing-regler mot katalogen
 │   ├── check-prompt-drift.mjs                # CI-guard mot inline core-prompts i Edge Functions
+│   ├── check-suggest-settings-plan.ts        # Parser-/integritetssjekk for suggest-settings testplan
+│   ├── compare-suggest-settings-eval.ts      # Sammenligner to suggest-settings eval-rapporter
+│   ├── eval-human-nuance-ab.ts               # A/B-evaluering av prompt-kvalitet
+│   ├── eval-suggest-settings.ts              # Live/dry-run eval mot suggest-settings-matrisen
+│   ├── smoke-human-nuance-default-matrix.ts  # Default-matrise for human-nuance
+│   ├── smoke-human-nuance-modes.ts           # Test av human-nuance prompt-modi
+│   ├── smoke-mermaid-fixes.ts                # Smoke-test av mermaid sanitizer/fixer
 │   ├── smoke-prompt-builders.ts              # Smoke-test av shared prompt-builders
 │   ├── smoke-routing-decision.ts             # Smoke-test av model routing-logikk
 │   ├── smoke-suggest-settings-heuristics.ts  # Test av suggest-settings heuristikker
-│   ├── smoke-human-nuance-modes.ts           # Test av human-nuance prompt-modi
-│   ├── smoke-human-nuance-default-matrix.ts  # Default-matrise for human-nuance
-│   ├── eval-human-nuance-ab.ts               # A/B-evaluering av prompt-kvalitet
+│   ├── summarize-suggest-settings-eval.ts    # Oppsummerer suggest-settings eval-rapporter
+│   ├── lib/                                  # Hjelpere for eval/testskript
+│   │   └── suggest-settings-plan.ts          # Parser for suggest-settings rebalanseringsplanen
 │   └── archive/                              # Arkiverte/utdaterte skript
 ├── services/                                 # FORRETNINGSLOGIKK (MODULÆR)
 │   ├── ContentParser.ts                      # AST-parser som konverterer MD til blokker
 │   ├── ContentSanitizer.ts                   # "Vaskemaskinen" (Regex-rensing, header-fiks)
+│   ├── cloudSave.ts                          # Prosjektpersistens, load/save/delete og lineage
 │   ├── documentStyles.ts                     # Fasade for styles/index.ts
 │   ├── downloadService.ts                    # Fasade for export/index.ts
 │   ├── api.ts                                # URL-analyse og ekstern API-kommunikasjon
 │   ├── auth.ts                               # Autentiseringslogikk
 │   ├── formatConstants.ts                    # Konstanter for overskriftsformater
 │   ├── geminiService.ts                      # Fasade for ai/index.ts
+│   ├── localStorageService.ts                # Klientlagring for drafts, settings og snapshots
 │   ├── modelPricing.ts                       # Prismodeller for Gemini/Imagen
 │   ├── prompts.ts                            # Stabil offentlig entrypoint (barrel re-export)
 │   ├── supabaseApi.ts                        # Klient for Supabase Edge Functions
@@ -852,9 +858,11 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       └── units.ts                          # Enhetskonvertering (mm, px, pt)
 ├── shared/                                   # Delt kode mellom frontend og Edge Functions
 │   ├── billing/                              # Abonnement- og tier-konfigurasjon
+│   │   ├── presentation.ts                   # UI-presentasjonstekster, feature-kort og notices
 │   │   ├── productPolicy.ts                  # Produktpolicy (kreditt-utløp, top-up regler)
 │   │   └── tierPresets.ts                    # Tier-definisjoner (Free/Starter/Pro/Enterprise)
 │   ├── fiction/                              # Fiction-spesifikk logikk
+│   │   └── premiseAnchor.ts                  # Premissforankring / continuity-hjelper for fiction
 │   ├── routing/                              # Intelligent model routing
 │   │   ├── decision.ts                       # Routing-beslutningsmotor
 │   │   ├── mapping.ts                        # Modell-til-oppgave mapping
@@ -865,6 +873,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   └── normalization.ts                  # Normalisering av suggest-resultater og defaults
 │   └── prompts/                              # Prompt source-of-truth (core generation flows)
 │       ├── builders/                         # Prompt-builders for Edge flows
+│       │   ├── coverImagePrompt.ts           # ai-image / cover-art prompt-bygging
 │       │   ├── sectionPrompt.ts              # ai-generate-section
 │       │   ├── planPrompt.ts                 # ai-plan
 │       │   ├── suggestPrompt.ts              # ai-suggest-prompt
@@ -873,6 +882,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       │   ├── translatePlanPrompt.ts        # ai-translate-plan
 │       │   └── mermaidFixPrompt.ts           # ai-mermaid-fix
 │       ├── fragments/                        # Delte prompt-fragmenter
+│       │   ├── humanNuance.ts                # Human-nuance stilmodi og skrivestyring
 │       │   ├── markdownRules.ts              # Markdown-regler
 │       │   ├── mermaidRules.ts               # Mermaid-regler
 │       │   ├── mermaidSyntaxV11.ts           # Mermaid v11 syntaks
@@ -893,11 +903,12 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   │   ├── vertexAuth.ts                 # Vertex AI autentisering (service account JWT)
 │   │   │   └── vertexGemini.ts               # Vertex AI Gemini API-klient
 │   │   ├── ai-admin-adjust-credits/          # Admin: kredittjustering (+/-)
+│   │   ├── ai-admin-delete-user/             # Admin: slett bruker, entitlements og historikk
 │   │   ├── ai-admin-list-users/              # Admin: brukerliste/status/tier/limits
 │   │   ├── ai-admin-manage-flags/            # Admin: legg til/løs opp brukerflagg
 │   │   ├── ai-admin-update-user/             # Admin: allowlist + tier-endring
+│   │   ├── ai-admin-user-activity/           # Admin: aktivitet/ledger for valgt bruker
 │   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal)
-│   │   ├── ai-codex-postcheck/               # Post-check revisjon (OpenAI Codex, non-fiction)
 │   │   ├── ai-final-review/                  # Helhetlig QA Memo (whole-document review)
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
 │   │   ├── ai-image/                         # Bildegenerering (Imagen 4.x)
@@ -994,27 +1005,16 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     ```
 
     For server-side AI (Supabase Edge Functions) må hemmelige nøkler settes som Supabase secrets
-    (ikke kun i `.env.local`). Codex post-check (fase 1) bruker OpenAI Responses API og styres
-    av server-side feature flags:
+    (ikke kun i `.env.local`). Whole-document final review / revision bruker OpenAI Responses API:
     ```bash
     supabase secrets set OPENAI_API_KEY=sk-...
-    supabase secrets set CODEX_POSTCHECK_MODE=non-fiction-only
-    # optional toggles / tuning:
-    # supabase secrets set ENABLE_CODEX_POSTCHECK=true
-    # supabase secrets set CODEX_POSTCHECK_MODEL=gpt-5.3-codex
-    # current backend default is 2 credits unless overridden:
-    # supabase secrets set CODEX_POSTCHECK_CREDITS=2
-    # set to 0 only for temporary testing / non-billed validation
-    # supabase secrets set CODEX_POSTCHECK_MAX_INPUT_CHARS=120000
-    # supabase secrets set CODEX_POSTCHECK_TIMEOUT_MS=60000
-    # supabase secrets set CODEX_POSTCHECK_MAX_RETRIES=1
+    # optional final review tuning:
+    # supabase secrets set ENABLE_FINAL_REVIEW=true
+    # supabase secrets set FINAL_REVIEW_MODE=qa_memo
+    # supabase secrets set FINAL_REVIEW_MODEL=gpt-5.4
+    # supabase secrets set FINAL_REVIEW_REASONING_EFFORT=high
+    # supabase secrets set FINAL_REVIEW_CREDITS=3
     ```
-
-    **Codex post-check (fase 1) flyt (non-fiction):**
-    1. `ai-generate-section` genererer seksjonstekst med Gemini 3.1 Pro.
-    2. Klienten sender ferdig seksjonstekst til `ai-codex-postcheck` (server-side) for revisjon.
-    3. Codex returnerer full revidert tekst (eller blir hoppet over / fallback ved feil).
-    4. Story Engine kjører fortsatt Mermaid-validering etterpå som ekstra sikkerhetsnett.
 
 4.  **Start utviklingsserveren**
     ```bash
