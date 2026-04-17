@@ -40,7 +40,7 @@
 
 *   📝 **Regenerer fra fil**: Last opp en tidligere generert Story Engine-fil (.txt) for å regenerere outputs fra låst dokumentprofil, lage nye medievarianter eller opprette et nytt språkprosjekt.
 
-*   🔁 **Samlet Revise-flyt**: `Revise` bruker lagret QA-memo når det finnes, og lar deg enten oppdatere samme prosjekt eller lagre en ny revisjonsgren fra samme arbeidsflate.
+*   🔁 **Samlet Revise-flyt**: `Revise` bruker lagret QA-memo når det finnes, prefiller revisjonsmål inn i arbeidsflaten, og lar deg enten oppdatere samme prosjekt eller lagre en ny revisjonsgren fra samme arbeidsflate.
 
 *   🎛️ **Variant / Regenerate Outputs**: `Variant` gjenbruker samme prosjektprofil for illustrasjoner, audio og språkbytte. Medie-only-varianter kan oppdatere samme prosjekt, mens språkbytte opprettes som nytt prosjekt.
 
@@ -59,6 +59,8 @@
 *   📊 **Quota Health Monitoring**: Sanntids-dashboard for Google Cloud API-kvoter (Gemini, Imagen, Vertex AI) med automatisk synkronisering, helseberegning, og trendvisning. Eget admin-view (`QuotaHealthView`).
 
 *   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Fire tier-nivåer (Free, Starter, Pro, Enterprise) med ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg. Konfigurert i `shared/billing/`.
+
+*   👥 **Admin Users med prosjektinnsikt**: Admin-flaten viser nå ikke bare tier, kreditter og aktivitet, men også en egen `Projects`-fane per bruker med prosjektantall, review health, revision branches og siste prosjektaktivitet.
 
 ---
 
@@ -182,7 +184,7 @@ I tillegg viser denne visningen hvordan innholdet kan tas videre til flere konkr
 <summary><strong>Klikk for å se Projects</strong></summary>
 
 ### Projects
-Prosjektoversikten samler alle lagrede prosjekter på ett sted. Her kan brukeren åpne tidligere arbeid, bruke `Revise` for å oppdatere samme prosjekt eller lagre en ny revisjonsgren, og bruke `Variant` for å regenerere outputs eller opprette språkvarianter uten å miste historikk.
+Prosjektoversikten samler alle lagrede prosjekter på ett sted. Her kan brukeren åpne tidligere arbeid, bruke `Revise` for å gå tilbake til arbeidsflaten med lagret QA-kontekst, velge mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren, og bruke `Variant` for å regenerere outputs eller opprette språkvarianter uten å miste historikk.
 
 ![Projects](public/projects.png)
 </details>
@@ -233,7 +235,7 @@ Dette panelet løfter frem de viktigste operative risikopunktene i et format som
 <summary><strong>Klikk for å se Users</strong></summary>
 
 ### Users
-Admin-brukerlisten gir full oversikt over brukere, tier, kreditter og abonnementsstatus. Dette gjør support- og driftsarbeid raskere, tryggere og langt mindre avhengig av å slå opp data flere steder.
+Admin-brukerlisten gir full oversikt over brukere, tier, kreditter og abonnementsstatus. I tillegg har hver bruker nå egne faner for `Overview`, `Projects`, `Credits` og `Activity`, slik at support og drift også kan se faktisk prosjektbruk, review health, revision branches og siste prosjektaktivitet uten å forlate adminflaten.
 
 ![Users](public/admin-users.png)
 </details>
@@ -416,14 +418,14 @@ graph TD
 <details>
 <summary><strong>Klikk for å se Dataflyt Del 2 (State → Eksport)</strong></summary>
 
-### Dataflyt Del 2: State → Eksport
+### Dataflyt Del 2: State → Review / Revise / Eksport
 
-Dette diagrammet dekker state/sporing, visning og alle eksportformatene.
+Dette diagrammet dekker state/sporing, prosjektvisning, QA/revise-flyt og alle eksportformatene.
 ```mermaid
 graph TD
     %% ═══════════════════════════════════════════
-    %% 📱 STORY ENGINE - DEL 2 (STATE → EKSPORT)
-    %% Oppdatert: Mars 2026
+    %% 📱 STORY ENGINE - DEL 2 (STATE → REVIEW / REVISE / EKSPORT)
+    %% Oppdatert: April 2026
     %% ═══════════════════════════════════════════
 
     GenerationPayload["📥 Fra Del 1<br/><i>Plan + Chapters + Audio + Images</i>"]
@@ -441,13 +443,19 @@ graph TD
     AppState --> UsageMetrics
 
     Viewer["🖥️ ContentRenderer<br/><i>react-markdown + Mermaid</i>"]
-    Screen["📺 GenerationView<br/><i>Live + Yellow text</i>"]
+    Screen["📺 GenerationView / CompleteView"]
+    ProjectsUI["📚 ProjectsViewSimple / ProjectsView"]
+    IntroUI["📝 IntroView<br/><i>Revise / Variant workspace</i>"]
     UserEnd((("👤 Bruker")))
     DownloadBtn["⬇️ DownloadModal<br/><i>Format + Progress</i>"]
     FormatChoice{"📁 Format?"}
+    SaveState["☁️ cloudSave.ts<br/><i>projects + stats + lineage</i>"]
 
     AppState --> Viewer --> Screen
+    AppState --> SaveState
+    SaveState --> ProjectsUI
     UserEnd -.->|"Ser dokument"| Screen
+    UserEnd -.->|"Ser lagrede prosjekter"| ProjectsUI
     UserEnd -->|"Last Ned"| DownloadBtn --> FormatChoice
 
     subgraph FinalReviewFlow ["🔍 FINAL REVIEW (QA MEMO)"]
@@ -463,7 +471,27 @@ graph TD
     EdgeFinalReview --> ReviewModel
     ReviewModel --> EdgeFinalReview
     EdgeFinalReview --> QAMemo
+    QAMemo --> Screen
     ReviewDecision -->|"Nei / Ikke tilgjengelig"| DownloadBtn
+
+    subgraph RevisionFlow ["🔁 REVISE / VARIANT / SAVE TARGET"]
+        direction TB
+        ReviseDecision{"🔁 Revise fra Complete/Projects?"}
+        VariantDecision{"🎛️ Variant?"}
+        SaveTarget{"💾 Same project<br/>eller new revision branch?"}
+        RevisionMemo["📋 Saved QA memo<br/><i>priority actions / guidance</i>"]
+    end
+
+    Screen --> ReviseDecision
+    ProjectsUI --> ReviseDecision
+    ProjectsUI --> VariantDecision
+    QAMemo --> RevisionMemo
+    ReviseDecision -->|"Ja"| IntroUI
+    VariantDecision -->|"Ja"| IntroUI
+    RevisionMemo --> IntroUI
+    IntroUI --> SaveTarget
+    SaveTarget --> SaveState
+    IntroUI -->|"Ny generering / språkvariant"| AppState
 
     subgraph ExportService ["📤 EKSPORT SERVICE"]
         direction TB
@@ -540,11 +568,11 @@ graph TD
     classDef metricsNode fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#854d0e
 
     class UserEnd userNode
-    class Viewer,Screen viewNode
-    class DLService,ContentParse,ExportModules serviceNode
-    class AppState,GenerationPayload stateNode
+    class Viewer,Screen,ProjectsUI,IntroUI viewNode
+    class DLService,ContentParse,ExportModules,SaveState serviceNode
+    class AppState,GenerationPayload,RevisionMemo stateNode
     class QuotaUsage,UsageMetrics metricsNode
-    class FormatChoice decisionNode
+    class FormatChoice,ReviseDecision,VariantDecision,SaveTarget decisionNode
     class ExportTXT,ExportPDF,ExportDOCX,ExportMP3,ExportWebM,ExportWebsite,ExportPPTX,ExportEPUB,GeneratePDF,GenerateDOCX,GenerateMP3,GenerateWebM,GenerateWebsite,GeneratePPTX,GenerateEPUB,FullMD,DownloadBtn exportNode
     classDef reviewNode fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46
     class EdgeFinalReview,ReviewModel,QAMemo reviewNode
@@ -695,8 +723,26 @@ sequenceDiagram
         FE-->>User: Viser QA Memo i CompleteView
     end
 
-    Note over User,DL: 📥 FASE 6: Eksport
-    
+    Note over User,DL: 🔁 FASE 6: Revise / Variant / Save target
+
+    alt Bruker velger Revise
+        User->>FE: Klikk Revise
+        FE-->>User: Åpner IntroView i revision mode
+        opt Lagret QA-memo finnes
+            FE->>FE: Prefill priority actions / revision brief
+        end
+        User->>FE: Velg same project eller new revision branch
+        FE->>FE: Oppdater save target + revision contract
+        FE->>+Edge: Kjør ny generering med revise-guidance
+        Edge-->>-FE: Revidert draft / ny branch
+        FE-->>User: Ny CompleteView + Projects state
+    else Bruker velger Variant
+        User->>FE: Klikk Variant
+        FE-->>User: Åpner IntroView med låst prosjektprofil
+    end
+
+    Note over User,DL: 📥 FASE 7: Eksport
+
     User->>FE: 📁 Velg eksportformat
     FE->>DL: Parse markdown + bygg filer
     
@@ -751,7 +797,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ResearchSourcesBox.tsx            # Visning av Google Search-kilder
 │   │   └── SettingsModal.tsx                 # Avanserte innstillinger (Logger, Terskelverdier)
 │   └── views/                                # Hovedvisninger (States)
-│       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring
+│       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring + projects/credits/activity tabs
 │       ├── BillingView.tsx                   # Abonnement, kreditter og Stripe-portal
 │       ├── DashboardView.tsx                 # Brukerdashboard og prosjektoversikt
 │       ├── ProjectsView.tsx                  # Avansert prosjektfamilievisning / lineage / QA-detaljer
@@ -908,6 +954,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-admin-manage-flags/            # Admin: legg til/løs opp brukerflagg
 │   │   ├── ai-admin-update-user/             # Admin: allowlist + tier-endring
 │   │   ├── ai-admin-user-activity/           # Admin: aktivitet/ledger for valgt bruker
+│   │   ├── ai-admin-user-projects/           # Admin: prosjektoversikt, review health og project rows per bruker
 │   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal)
 │   │   ├── ai-final-review/                  # Helhetlig QA Memo (whole-document review)
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
@@ -947,7 +994,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
 * `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
-* `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering og brukerflagg.
+* `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering, brukerflagg og en egen `Projects`-fane med per-bruker prosjektinnsikt.
 * `components/views/QuotaHealthView.tsx`: Dedikert dashboard for overvåking av Google Cloud API-kvoter med automatisk synkronisering og helseberegning.
 * `components/views/ProjectsViewSimple.tsx`: Standard prosjektoversikt med fargekodet status, komprimerte neste-steg-kort og handlingene `Open`, `Variant` og `Revise`.
 * `components/views/IntroView.tsx`: Samlet workspace for idéstart, importert Story Engine-fil, `Variant` og `Revise` med dynamiske save-targets.
@@ -962,6 +1009,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
 * `supabase/functions/_shared/pricing.ts`: Server-side prismapping (`USD -> credits`) for konsistent kredittbelastning.
 * `supabase/functions/ai-final-review/`: Helhetlig QA-agent som leser hele det genererte dokumentet og returnerer et strukturert QA-memo med verdict, prioriterte tiltak og seksjonsspesifikke issues.
+* `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en lettvekts prosjektoversikt for valgt bruker.
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
 * `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
@@ -1035,12 +1083,14 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 
 ### Siste endringer (Mars-April 2026)
 - 🔁 **Samlet revisjonsflyt**: `Revise` er nå hovedinngangen for tekstforbedring, med valg mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren.
+- 🧩 **Revise med lagret QA-kontekst**: `Revise` prefiller nå lagret QA-memo og prioriterte tiltak inn i arbeidsflaten når slikt review finnes.
 - 🎛️ **Variant oppgradert**: `Variant` har egen save-target-logikk, støtte for språkvarianter som nytt prosjekt, og samme låste profil-kontrakt som importert Story Engine-fil.
 - 🔍 **Final Review Memo**: Whole-document QA og final revision er strammet inn rundt `ai-final-review`, `services/finalReview/*` og review-progresjon på tvers av revision branches.
 - 🌐 **Oversettelsesflyt**: Nye edge functions `ai-translate-plan` og `ai-translate-markdown` gjør språkvarianter til en egen server-side flyt.
 - 🧭 **Projects UX**: Enkel prosjektvisning er komprimert og tydeliggjort med fargekodet status, bedre neste-steg-guidance og admin-skjult advanced mode.
+- 👥 **Admin Users Projects-tab**: Admin-brukerflaten viser nå også prosjektvolum, review health, revision branches og siste prosjektaktivitet via `ai-admin-user-projects`.
 - 🧠 **Suggest Settings**: Prompt- og heuristikkgrunnlaget er utvidet og dokumentert videre i egne planer under `docs/`.
-- 💳 **Deploy/ops**: `deploy:functions:noverify` dekker nå også `ai-final-review`, oversettelsesfunksjonene, `qr-login` og `ai-quota-sync`.
+- 💳 **Deploy/ops**: `deploy:functions:noverify` dekker nå også `ai-final-review`, oversettelsesfunksjonene, `qr-login`, `ai-quota-sync` og `ai-admin-user-projects`.
 
 > Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
