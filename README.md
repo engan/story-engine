@@ -135,10 +135,10 @@ Møtet med brukeren – rent, moderne og inviterende.
 ![Landingsside](public/app-hero-eng.png)
 
 <details>
-<summary><strong>Klikk for å se Story Engine app</strong></summary>
+<summary><strong>Klikk for å se Workspace: app og startside</strong></summary>
 
 ### Startside app
-Etter landingssiden – moderne og stilrent panel.
+Etter landingssiden møter brukeren hovedarbeidsflaten i Story Engine: et rent og fokusert panel der nye prosjekter kan startes med en gang. Her skriver man inn idé, tema eller bestilling, får hjelp til å utvide prompten, og setter retning for genereringen gjennom språk, kategori, sjanger, kreativitet, add-ons og andre produksjonsvalg. Målet med startsiden er å gjøre veien fra første tanke til kjørbar prosjektprofil så kort som mulig, uten at brukeren mister kontroll over hvordan innholdet skal produseres.
 
 ![Startside app](public/story-engine.png)
 
@@ -149,7 +149,7 @@ Skriv inn dine nye ideer umiddelbart på din telefon.
 </details>
 
 <details>
-<summary><strong>Klikk for å se genereringen i sanntid</strong></summary>
+<summary><strong>Klikk for å se Workspace: genereringen i sanntid</strong></summary>
 
 ### Generation Progress
 Noen trinn før genereringen, her foregår researchingen.
@@ -163,30 +163,59 @@ Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende o
 Her kan man følge skrivingen seksjon for seksjon etter hvert som den skrives.
 
 ![Generation Progress](public/generation-progress-2.png)
+
+Når førsteutkastet er skrevet ferdig, går flyten videre til behandling av revisjon og sluttkontroll. Her ser brukeren at systemet ikke bare produserer tekst, men også jobber videre med kvalitetssikring før prosjektet avsluttes.
+
+![Processing Revise](public/processing-revise.png)
+
+Til slutt havner prosjektet i ferdigvisningen. Her er genereringen fullført, og brukeren kan gå videre til eksport, åpning av prosjektet, nye varianter eller senere revisjon.
+
+![Generation Complete](public/generation-complete.png)
 </details>
 
 <details>
-<summary><strong>Klikk for å se eksportformater</strong></summary>
+<summary><strong>Klikk for å se Workspace: eksport og leveranseformater</strong></summary>
 
 ### Eksport og leveranseformater
-Story Engine er bygget for å gjøre ett prosjektgrunnlag om til flere ferdige leveranser. Her kan brukeren eksportere til blant annet lesbare dokumentformater, nettside, presentasjon, lyd og video, avhengig av hvilken type prosjekt som er generert.
-
-På lydsiden vises det to ulike formater i den øverste bryteren: klassisk fortelleropplesning og en mer dramatisert variant som radio play / lyddrama. Det gjør at samme tekstgrunnlag kan brukes enten som ren narrasjon eller som en mer scenisk lydopplevelse.
-
-På videosiden vises det også to ulike varianter i den andre øverste bryteren: vanlig bredformatvideo og en vertikal videoversjon tilpasset mobil og sosiale flater. Dette gjør eksporten mer praktisk når samme innhold skal brukes både som tradisjonell video og i mer korte, mobile formater.
-
-I tillegg viser denne visningen hvordan innholdet kan tas videre til flere konkrete leveranser, som dokumenteksport, webformat og andre sluttprodukter. Målet er å gjøre Story Engine til mer enn bare en skriveflate: det er også et system for å pakke samme prosjekt ut i flere brukbare formater.
+Story Engine gjør ett prosjektgrunnlag om til flere ferdige leveranser, blant annet dokumentformater, nettside, presentasjon, lyd og video. I denne visningen ser brukeren også at samme tekst kan eksporteres både som klassisk fortelleropplesning eller radio play, og som vanlig bredformatvideo eller vertikal mobilvideo. Poenget er at ett prosjekt ikke bare skrives ferdig, men kan pakkes ut i flere praktiske sluttformater.
 
 ![Eksportformater](public/story-engine-format.png)
 </details>
 
 <details>
-<summary><strong>Klikk for å se Projects</strong></summary>
+<summary><strong>Klikk for å se Projects: oversikt</strong></summary>
 
-### Projects
-Prosjektoversikten samler alle lagrede prosjekter på ett sted. Her kan brukeren åpne tidligere arbeid, bruke `Revise` for å gå tilbake til arbeidsflaten med lagret QA-kontekst, velge mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren, og bruke `Variant` for å regenerere outputs eller opprette språkvarianter uten å miste historikk.
+### Projects Overview
+Prosjektoversikten samler alle lagrede prosjekter på ett sted. Her ser brukeren hvilke utkast som er importert, hvilke som mangler første review, hvilke som allerede har baseline eller QA-status, og hva som er neste naturlige handling for hvert prosjekt.
 
-![Projects](public/projects.png)
+![Projects Overview](public/projects.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se Projects: åpne et prosjekt</strong></summary>
+
+### Projects / Open
+Når et prosjekt åpnes, får brukeren tilgang til cover, struktur, review-status, sist lagrede revisjon og kildeprompt uten å måtte inn i selve arbeidsflaten først. Dette gjør `Projects` til et reelt operasjonspanel, ikke bare en lagringsliste.
+
+![Projects Open](public/projects-open.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se Projects: Revise og revisjonsgren</strong></summary>
+
+### Projects / Revise
+`Revise` bygger videre på lagret QA-memo og gjør det tydelig om brukeren bør oppdatere samme prosjekt eller lagre en ny revisjonsgren. `Save Target` styrer nettopp dette valget: enten en direkte oppdatering av eksisterende prosjekt, eller lagring som en separat revision branch for trygg sammenligning og historikk. `Rewrite strength` gir samtidig kontroll over hvor forsiktig eller aggressivt teksten skal omskrives, slik at brukeren kan velge mellom små presiseringer og en mer omfattende redaksjonell omarbeiding. Dette gjør revisjonsarbeidet mer kontrollert, særlig når flere versjoner av samme prosjekt skal sammenlignes senere.
+
+![Projects Revise](public/projects-revision.png)
+</details>
+
+<details>
+<summary><strong>Klikk for å se Projects: Variant og regenererte outputs</strong></summary>
+
+### Projects / Variant
+`Variant` lar brukeren gjenbruke samme prosjektprofil for nye illustrasjoner, audio-output eller språkvarianter. Medievarianter kan oppdatere samme prosjekt videre, mens språkvarianter opprettes som et nytt prosjekt med samme grunnprofil, slik skjermbildet viser. Det gjør det mulig å videreføre samme grunnprosjekt til nye leveranser uten å miste historikk eller prosjektkontekst, samtidig som språkversjoner holdes adskilt som egne prosjekter.
+
+![Projects Variant](public/projects-variant.png)
 </details>
 
 <details>
