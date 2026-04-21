@@ -1061,6 +1061,12 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     # supabase secrets set FINAL_REVIEW_MODE=qa_memo
     # supabase secrets set FINAL_REVIEW_MODEL=gpt-5.4
     # supabase secrets set FINAL_REVIEW_REASONING_EFFORT=high
+    # hybrid pricing is now the recommended default:
+    # supabase secrets set FINAL_REVIEW_PRICING_MODE=hybrid
+    # supabase secrets set FINAL_REVIEW_BASE_CREDITS=4
+    # supabase secrets set FINAL_REVIEW_EXTRA_BATCH_CREDITS=2
+    # supabase secrets set FINAL_REVIEW_MIN_CREDITS=4
+    # legacy flat fallback:
     # supabase secrets set FINAL_REVIEW_CREDITS=3
     ```
 
@@ -1101,8 +1107,8 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 Vi bygger fremtidens publiseringsverktøy. Her er hva som er aktivt og planlagt:
 
 ### Aktive planer (Q1-Q2 2026)
-*   🔁 **Multi-Round Final Review**: Bevaring av QA-memo historikk på tvers av revisjonsgrener, slik at AI-en husker tidligere revisjonsforslag og kan måle stagnasjon/regresjon. Se `docs/active-plans/final-review-multi-round-strategy.md`.
-*   🔧 **Guided Patch Mode** (deferred): Fremtidig utvidelse der AI-en foreslår konkrete, seksjonsmålrettede tekstendringer basert på QA-memoet. Se `docs/active-plans/final-review-guided-patch-decision-packet.md`.
+*   🔁 **Multi-Round Final Review**: Bevaring av QA-memo historikk på tvers av revisjonsgrener, slik at AI-en husker tidligere revisjonsforslag og kan måle stagnasjon/regresjon. Se `docs/archived_plans/final-review-multi-round-strategy.md`.
+*   🔧 **Guided Patch Mode** (deferred): Fremtidig utvidelse der AI-en foreslår konkrete, seksjonsmålrettede tekstendringer basert på QA-memoet. Se `docs/archived_plans/final-review-guided-patch-decision-packet.md`.
 *   🎯 **Suggest Settings Rebalancing**: Dokumentert arbeid for å balansere bias mellom de 158 category/genre-kombinasjonene i prompt, heuristikker og normalisering. Se `docs/suggest-settings-architecture-plan.md` og `docs/suggest-settings-rebalancing-plan.md`.
 *   🌐 **Social Media Link Analysis**: Utvidelse av "Analyze Link" til YouTube-transkripter, X/Twitter-poster, Facebook/Instagram (oEmbed) og Gemini-basert videoanalyse. Se `docs/social-media-link-analysis-plan.md`.
 *   ☁️ **Vertex AI Phase 2 Migration**: Full migrering fra Gemini Developer API til Vertex AI for bedre kvoter, SLA og enterprise-features.
