@@ -1,11 +1,12 @@
 # Story Engine
-### Den AI-drevne publiseringsplattformen.
+### AI-drevet publiseringsplattform.
 
 ![React](https://img.shields.io/badge/React-00599C?style=for-the-badge&logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![Gemini 3.x Pro](https://img.shields.io/badge/Gemini_3.x_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![Gemini 3.1 Pro](https://img.shields.io/badge/Gemini_3.1_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 ![Vertex AI](https://img.shields.io/badge/Vertex_AI-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
+![OpenAI GPT-5.5](https://img.shields.io/badge/OpenAI_GPT--5.5-111827?style=for-the-badge&logo=openai&logoColor=white)
 ![Made in Norway](https://img.shields.io/badge/Made_in_Norway-A63A3A?style=for-the-badge&logo=flag-icon&logoColor=white)
 
 ![Story Engine Infographic](public/infographic.png)
@@ -30,7 +31,9 @@
 
 *   📚 **EPUB E-bok**: Eksporter som universell e-bok med cover, kapittelnavigasjon og bilder – klar for Apple Books, Kobo, Kindle og andre e-lesere.
 
-*   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. AI-en forstår innholdet og skriver "Core Idea" for deg.
+*   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. Core Idea kan i tillegg ha opptil 7 vedlegg, inkludert dokumenter og visuelle referanser, som analyseres før planlegging.
+
+*   🖼️ **Objektagnostiske visuelle referanser**: Opplastede Core Idea-bilder brukes som evidens og visuelle ankre, ikke som collage eller direkte kopi. Cover kan bruke hele referansepoolen, mens seksjonsbilder velger inntil 3 relevante referanser og markerer et primary identity anchor når et helmotiv finnes.
 
 *   🛠️ **AI-verktøykasse for spesialoppgaver**: Utfør avanserte oppgaver med ett klikk – konverter lydfiler til undertekster (.srt), generer en komplett README.md fra et .zip-arkiv, eller trekk ut et profesjonelt sammendrag fra et langt dokument.
 
@@ -46,19 +49,21 @@
 
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 
-*   🎙️ **Velg din stemmekvalitet**: Bytt mellom to kraftige Text-to-Speech modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv) eller Pro (maksimal kvalitet).
+*   🎙️ **Velg din stemmekvalitet**: Bytt mellom flere Text-to-Speech modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv), Gemini 2.5 Pro (maksimal kvalitet) eller Gemini 3.1 Flash TTS Preview.
 
 *   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
 
 *   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning. "Self-healing" Mermaid-diagrammer som fikser syntaksfeil automatisk.
 
-*   🔍 **Final Review (QA Memo)**: Helhetlig kvalitetsvurdering av ferdig genererte dokumenter. En dedikert AI-agent leser hele dokumentet etter generering og returnerer et strukturert QA-memo med verdict (`strong` / `needs_revision` / `high_risk`), prioriterte forbedringsforslag og seksjonsspesifikke issues – uten å endre selve dokumentet.
+*   🔍 **Final Revision + Final Review**: Etter førstegenerering kan Story Engine kjøre en whole-document Final Revision med GPT-5.5 medium før dokumentet lagres. Final Review er QA-memoet som leser ferdig dokument og returnerer verdict (`strong` / `needs_revision` / `high_risk`), prioriterte forbedringsforslag og seksjonsspesifikke issues uten å endre dokumentet.
 
 *   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Routing-logikken lever i `shared/routing/` og brukes av alle Edge Functions.
 
 *   📊 **Quota Health Monitoring**: Sanntids-dashboard for Google Cloud API-kvoter (Gemini, Imagen, Vertex AI) med automatisk synkronisering, helseberegning, og trendvisning. Eget admin-view (`QuotaHealthView`).
 
-*   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Fire tier-nivåer (Free, Starter, Pro, Enterprise) med ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg. Konfigurert i `shared/billing/`.
+*   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Aktive tier-nivåer er `pilot`, `pro` og `elite` med ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg. Eldre `enterprise`-verdier normaliseres til `elite`. Konfigurert i `shared/billing/`.
+
+*   📈 **Production Report og runtime ledger**: Eksportert Story Engine-fil viser både klientbasert provider-estimat og faktisk server-side kredittbruk når ledger-data er fanget, inkludert GPT-5.5, bildeoperasjoner, referanse-surcharge og Final Revision/Review.
 
 *   👥 **Admin Users med prosjektinnsikt**: Admin-flaten viser nå ikke bare tier, kreditter og aktivitet, men også en egen `Projects`-fane per bruker med prosjektantall, review health, revision branches og siste prosjektaktivitet.
 
@@ -312,7 +317,8 @@ graph TD
         EdgeSuggestSettings["⚙️ ai-suggest-settings"]
         EdgeAnalyzeFile["⚙️ ai-analyze-file"]
         EdgeUrlAnalyze["⚙️ url-analyze"]
-        GeminiAnalyze["🤖 Gemini API<br/><i>3.x flash/pro</i>"]
+        ReferenceEvidence["🖼️ Reference evidence<br/><i>opptil 7 Core Idea refs</i>"]
+        GeminiAnalyze["🤖 Gemini API<br/><i>3 Flash / 3.1 Pro</i>"]
     end
 
     IdeaInput --> AIRecommend
@@ -330,6 +336,8 @@ graph TD
     FileInput --> FileAnalyzer
     FileAnalyzer --> EdgeAnalyzeFile
     EdgeAnalyzeFile --> GeminiAnalyze
+    EdgeAnalyzeFile --> ReferenceEvidence
+    ReferenceEvidence --> CoreIdea
     URLInput --> URLAnalyzer
     URLAnalyzer --> EdgeUrlAnalyze
     EdgeUrlAnalyze --> GeminiAnalyze
@@ -342,10 +350,10 @@ graph TD
         SharedPromptPlan["🧩 shared/prompts<br/><i>planPrompt.ts</i>"]
         EdgePlan["⚙️ ai-plan"]
         ModelRouter["🧭 shared/routing<br/><i>decision.ts</i>"]
-        GeminiPlan["🤖 Gemini API<br/><i>3.x pro (via Vertex/Dev)</i>"]
+        GeminiPlan["🤖 Gemini API<br/><i>3 Flash / 3.1 Pro (via Vertex/Dev)</i>"]
         SearchDecision{"🔎 Google Search?"}
         SearchAPI["🌍 Grounding + Citations"]
-        PlanCoverAttempt["🖼️ ai-plan cover attempt<br/><i>(Imagen 4.x)</i>"]
+        PlanCoverAttempt["🖼️ ai-plan cover attempt<br/><i>ChatGPT Images / Gemini / Imagen</i>"]
     end
 
     UI --> PlanningLogic
@@ -353,6 +361,7 @@ graph TD
     PlanningLogic -->|"Nei"| PlanGenerator
     PlanGenerator --> SharedPromptPlan
     SharedPromptPlan --> EdgePlan
+    ReferenceEvidence -.-> EdgePlan
     EdgePlan --> ModelRouter
     ModelRouter --> GeminiPlan
     EdgePlan --> SearchDecision
@@ -365,7 +374,7 @@ graph TD
         direction TB
         CoverDecision{"🖼️ Cover fra ai-plan?"}
         EdgeImageCover["⚙️ ai-image (cover fallback)"]
-        ImageGen["🎨 Imagen 4.x"]
+        ImageGen["🎨 Image models<br/><i>ChatGPT Images / Gemini / Imagen</i>"]
         PlanWithCover["📖 Plan + coverImageUrl"]
         ChapterGen["📚 generateChapterBatch()"]
         PromptService3["📋 Request assembly<br/><i>chapters.ts</i>"]
@@ -391,6 +400,8 @@ graph TD
     end
 
     PlanReady --> CoverDecision
+    ReferenceEvidence -.-> PlanCoverAttempt
+    ReferenceEvidence -.-> EdgeImageChapter
     CoverDecision -->|"Ja"| PlanWithCover
     CoverDecision -->|"Nei"| EdgeImageCover
     EdgeImageCover --> ImageGen
@@ -438,7 +449,7 @@ graph TD
     class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix apiNode
     class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor processNode
     class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,ModelRouter,RoutingSection serviceNode
-    class CoreIdea,PlanReady,PlanWithCover,FinalChapter,GenerationPayload,UI stateNode
+    class CoreIdea,ReferenceEvidence,PlanReady,PlanWithCover,FinalChapter,GenerationPayload,UI stateNode
     class PlanningLogic,SearchDecision,CoverDecision,MermaidDecision decisionNode
     class RawMD,Fix1,Fix2,CleanMD sanitizerNode
 ```
@@ -487,12 +498,12 @@ graph TD
     UserEnd -.->|"Ser lagrede prosjekter"| ProjectsUI
     UserEnd -->|"Last Ned"| DownloadBtn --> FormatChoice
 
-    subgraph FinalReviewFlow ["🔍 FINAL REVIEW (QA MEMO)"]
+    subgraph FinalReviewFlow ["🔍 FINAL REVISION / REVIEW"]
         direction TB
-        ReviewDecision{"🔍 Kjør Final Review?"}
+        ReviewDecision{"🔍 Kjør Final Revision / Review?"}
         EdgeFinalReview["⚙️ ai-final-review"]
-        ReviewModel["🤖 Pro Model<br/><i>Gemini/GPT/Opus</i>"]
-        QAMemo["📋 QA Memo<br/><i>verdict + issues</i>"]
+        ReviewModel["🧠 OpenAI Responses<br/><i>GPT-5.5 medium</i>"]
+        QAMemo["📋 Revised document / QA Memo<br/><i>final text eller verdict + issues</i>"]
     end
 
     AppState -->|"Ferdig dokument"| ReviewDecision
@@ -660,9 +671,9 @@ sequenceDiagram
     
     box rgba(245, 158, 11, 0.1) 🧠 MODELLER
         participant Gemini as ⚡ Gemini API
-        participant OpenAI as 🧠 OpenAI (Codex)
+        participant OpenAI as 🧠 OpenAI Responses (GPT-5.5 medium)
         participant Search as 🔍 Google Search
-        participant Imagen as 🎨 Image Model (Imagen/Gemini)
+        participant Imagen as 🎨 Image Models (ChatGPT Images/Gemini/Imagen)
     end
 
     Note over User,Imagen: 🎯 FASE 1: Input & AI-anbefalinger
@@ -696,7 +707,7 @@ sequenceDiagram
     Edge->>+Gemini: Generer plan JSON
     Gemini-->>-Edge: NovelPlan + citations
     opt ai-plan forsøker cover
-        Edge->>Imagen: Generer cover (Gemini/Imagen)
+        Edge->>Imagen: Generer cover (ChatGPT Images/Gemini/Imagen)
         Imagen-->>Edge: Base64 bilde eller feil
     end
     Edge-->>-FE: Plan-respons (+ optional coverImageUrl/status)
@@ -742,14 +753,14 @@ sequenceDiagram
         Edge-->>-FE: Audio chunks
     end
 
-    Note over User,Imagen: 🔍 FASE 5: Final Review (QA Memo)
-    opt Final Review aktivert
-        FE->>+Edge: POST ai-final-review
-        Note over Edge: Hele dokumentet sendes til pro-modell
-        Edge->>+Gemini: Helhetlig dokumentvurdering
-        Gemini-->>-Edge: QA Memo JSON
+    Note over User,OpenAI: 🔍 FASE 5: Final Revision + Final Review
+    opt Auto Final Revision / Final Review aktivert
+        FE->>+Edge: POST ai-final-review (final_revision / qa_memo)
+        Note over Edge: Hele dokumentet sendes til OpenAI Responses
+        Edge->>+OpenAI: Whole-document final revision eller QA memo
+        OpenAI-->>-Edge: QA Memo JSON eller revised sections
         Edge-->>-FE: verdict + issues + priority actions
-        FE-->>User: Viser QA Memo i CompleteView
+        FE-->>User: Viser revidert dokument eller QA Memo i CompleteView
     end
 
     Note over User,DL: 🔁 FASE 6: Revise / Variant / Save target
@@ -862,6 +873,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── ContentParser.ts                      # AST-parser som konverterer MD til blokker
 │   ├── ContentSanitizer.ts                   # "Vaskemaskinen" (Regex-rensing, header-fiks)
 │   ├── cloudSave.ts                          # Prosjektpersistens, load/save/delete og lineage
+│   ├── coreIdeaAttachmentRecords.ts          # Normaliserer Core Idea vedlegg for prosjektlagring/eksport
+│   ├── coreIdeaAttachments.ts                # Klientflyt for Core Idea fil- og bildereferanser
 │   ├── documentStyles.ts                     # Fasade for styles/index.ts
 │   ├── downloadService.ts                    # Fasade for export/index.ts
 │   ├── api.ts                                # URL-analyse og ekstern API-kommunikasjon
@@ -869,20 +882,22 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── formatConstants.ts                    # Konstanter for overskriftsformater
 │   ├── geminiService.ts                      # Fasade for ai/index.ts
 │   ├── localStorageService.ts                # Klientlagring for drafts, settings og snapshots
-│   ├── modelPricing.ts                       # Prismodeller for Gemini/Imagen
+│   ├── modelPricing.ts                       # Lokale provider-estimater for Gemini, OpenAI, image og TTS
 │   ├── prompts.ts                            # Stabil offentlig entrypoint (barrel re-export)
+│   ├── referenceEvidence.ts                  # Bygger evidenspakke for visuelle Core Idea-referanser
 │   ├── supabaseApi.ts                        # Klient for Supabase Edge Functions
 │   ├── supabaseClient.ts                     # Supabase autentisering og oppsett
-│   ├── ai/                                   # AI-integrasjon (Google GenAI)
+│   ├── usageMetrics.ts                       # Runtime usage ledger og Production Report-grunnlag
+│   ├── ai/                                   # AI-orkestrering via Supabase, Google, OpenAI og image providers
 │   │   ├── audioHelpers.ts                   # PCM/Base64 hjelpere
 │   │   ├── chapters.ts                       # Generering av kapitler (tekst + add-ons)
 │   │   ├── config.ts                         # Konfigurasjon (tokens, sikkerhet)
 │   │   ├── fileExtract.ts                    # Filanalyse (DOCX, PDF, Code, Images)
 │   │   ├── imageGenerator.ts                 # Bildegenerering via Supabase/API-lag
-│   │   ├── imagen.ts                         # Bildegenerering (Imagen & Gemini)
+│   │   ├── imagen.ts                         # Bildegenerering (Gemini/Imagen-kompatibilitet)
 │   │   ├── index.ts                          # Eksportør
 │   │   ├── retry.ts                          # Feilhåndtering og retry-logikk
-│   │   ├── schemas.ts                        # Zod/JSON schemas for AI output
+│   │   ├── schemas.ts                        # JSON schemas for AI output
 │   │   ├── summarize.ts                      # AI-oppsummering for PPTX bullet points
 │   │   ├── tts.ts                            # Tekst-til-tale logikk (Gemini)
 │   │   └── utils.ts                          # Delte AI-hjelpere
@@ -935,7 +950,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── billing/                              # Abonnement- og tier-konfigurasjon
 │   │   ├── presentation.ts                   # UI-presentasjonstekster, feature-kort og notices
 │   │   ├── productPolicy.ts                  # Produktpolicy (kreditt-utløp, top-up regler)
-│   │   └── tierPresets.ts                    # Tier-definisjoner (Free/Starter/Pro/Enterprise)
+│   │   └── tierPresets.ts                    # Tier-definisjoner (pilot/pro/elite)
 │   ├── fiction/                              # Fiction-spesifikk logikk
 │   │   └── premiseAnchor.ts                  # Premissforankring / continuity-hjelper for fiction
 │   ├── routing/                              # Intelligent model routing
@@ -969,6 +984,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── functions/
 │   │   ├── _shared/                          # Delt logikk for alle Edge Functions
 │   │   │   ├── utils.ts                      # Auth, allowlist, kvote/credit-håndtering
+│   │   │   ├── imageReferences.ts            # Validering og klargjøring av opplastede referansebilder
 │   │   │   ├── openai.ts                     # OpenAI Responses API helper (server-side)
 │   │   │   ├── pricing.ts                    # Pris- og kredittkonvertering (server-side)
 │   │   │   ├── rateLimit.ts                  # Upstash Redis rate limiting
@@ -985,9 +1001,9 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-admin-user-activity/           # Admin: aktivitet/ledger for valgt bruker
 │   │   ├── ai-admin-user-projects/           # Admin: prosjektoversikt, review health og project rows per bruker
 │   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal)
-│   │   ├── ai-final-review/                  # Helhetlig QA Memo (whole-document review)
+│   │   ├── ai-final-review/                  # Final Revision + QA Memo (whole-document)
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
-│   │   ├── ai-image/                         # Bildegenerering (Imagen 4.x)
+│   │   ├── ai-image/                         # Bildegenerering (ChatGPT Images / Gemini / Imagen)
 │   │   ├── ai-mermaid-fix/                   # Mermaid-fiksing med AI
 │   │   ├── ai-plan/                          # Planleggings-agent (Google Search)
 │   │   ├── ai-quota-sync/                    # Google Cloud kvote-synkronisering
@@ -1003,6 +1019,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-translate-plan/                # Oversettelse av plan / scaffold før regenerering
 │   │   ├── ai-tts/                           # Tekst-til-tale (Gemini TTS)
 │   │   ├── ai-user-profile/                  # Brukerprofil, entitlements og feature-flagg
+│   │   ├── cleanup-project-visual-references/ # Rydder midlertidige visuelle referanser for prosjekt
 │   │   ├── qr-login/                         # QR login (create/authorize/exchange)
 │   │   ├── url-analyze/                      # Analyse av nettsider (Scraping)
 │   │   └── deno.d.ts                         # Supplerende module declarations
@@ -1019,7 +1036,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ```
 ### Nøkkelkomponenter forklart
 
-* `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker nå "Smart Chunking" for å bevare linjeskift i TTS-tekst, noe som er kritisk for korrekt videorendring og synkronisering.
+* `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker "Smart Chunking" for TTS/video, velger inntil 3 seksjonsbildereferanser fra Core Idea-poolen og prioriterer et primary identity anchor når et helmotiv er tilgjengelig.
+* `services/coreIdeaAttachments.ts` og `services/referenceEvidence.ts`: Klientlaget for Core Idea-vedlegg, visuell evidens og objektagnostiske referansepakker som sendes videre til planlegging og bildegenerering.
 * `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
 * `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
@@ -1029,15 +1047,17 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `components/views/IntroView.tsx`: Samlet workspace for idéstart, importert Story Engine-fil, `Variant` og `Revise` med dynamiske save-targets.
 * `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, Final Review Memo, og inngang til `Variant` / `Revise`.
 * `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag.
-* `services/finalReview/*`: Logikken for whole-document final revision, review-progresjon, rewrite-styrke og QA-seedede revision briefs.
+* `services/finalReview/*`: Logikken for whole-document Final Revision, review-progresjon, rewrite-styrke og QA-seedede revision briefs.
 * `shared/suggestSettings/*`: Felles heuristikker og normalisering for `Suggest Settings`, slik at frontend og edge holder samme tolkningsregler.
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
 * `shared/billing/*`: Produktpolicy og tier-presets (`productPolicy.ts`, `tierPresets.ts`) som definerer kredittregler, utløpspolicyer og tier-grenser.
+* `services/modelPricing.ts`: Lokal prisestimatkonfigurasjon for Production Report, inkludert GPT-5.5 og long-context terskler der provider-prisingen skiller mellom normal og lang kontekst.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
 * `supabase/functions/_shared/utils.ts`: Delt logikk for Edge Functions inkludert auth, allowlist, admin checks, kvote-reservering og brukslogging.
+* `supabase/functions/_shared/imageReferences.ts`: Delt validering og normalisering av referansebilder. Core Idea kan analysere opptil 7 visuelle referanser, mens seksjonsbilder fortsatt får et begrenset utvalg.
 * `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
 * `supabase/functions/_shared/pricing.ts`: Server-side prismapping (`USD -> credits`) for konsistent kredittbelastning.
-* `supabase/functions/ai-final-review/`: Helhetlig QA-agent som leser hele det genererte dokumentet og returnerer et strukturert QA-memo med verdict, prioriterte tiltak og seksjonsspesifikke issues.
+* `supabase/functions/ai-final-review/`: OpenAI Responses-basert kvalitetstrinn for både automatisk Final Revision og manuelt Final Review QA Memo. Standard runtime er GPT-5.5 med medium reasoning.
 * `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en lettvekts prosjektoversikt for valgt bruker.
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
@@ -1052,9 +1072,9 @@ Kildekoden til Story Engine ligger i et privat repository for å beskytte immate
 For investorer, partnere eller utviklere som har fått tildelt tilgangsrettigheter, gjelder følgende oppsett:
 
 ### 🛠️ Forutsetninger
-*   **Node.js**: v20+
+*   **Node.js**: v22+ anbefalt (dev/smoke-skript bruker moderne Node-runtime)
 *   **Deno**: v2.6.8+ (for Edge Functions)
-*   **Supabase CLI**: v2.76.3+
+*   **Supabase CLI**: v2.75+ (nyere versjon anbefales ved Edge Function-deploy)
 
 ### 🚀 Installasjon
 
@@ -1076,20 +1096,42 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     VITE_SUPABASE_URL=https://<project-ref>.supabase.co
     VITE_SUPABASE_ANON_KEY=<anon-key>
     ```
-    For enkelte lokale testskript kan du i tillegg trenge:
+    For enkelte lokale Node-/eval-skript kan du i tillegg trenge server-style miljøvariabler i shell/session
+    (uten `VITE_`-prefix):
     ```env
-    VITE_GEMINI_API_KEY=din_nøkkel_her
+    GEMINI_API_KEY=din_nøkkel_her
+    GOOGLE_CLOUD_PROJECT_ID=<gcp-project-id>
+    GOOGLE_CLOUD_LOCATION=global
     ```
 
     For server-side AI (Supabase Edge Functions) må hemmelige nøkler settes som Supabase secrets
-    (ikke kun i `.env.local`). Whole-document final review / revision bruker OpenAI Responses API:
+    (ikke kun i `.env.local`). Gemini/Vertex brukes til planlegging, seksjonsgenerering, analyse,
+    Mermaid-fiks, TTS og enkelte verktøyflyter:
+    ```bash
+    supabase secrets set GEMINI_API_KEY=...
+    # optional Vertex AI routing:
+    # supabase secrets set USE_VERTEX_PLAN=true
+    # supabase secrets set USE_VERTEX_SECTION_GEN=true
+    # supabase secrets set USE_VERTEX_SCRIPT_CONVERT=true
+    # supabase secrets set USE_VERTEX_SUMMARIZE=true
+    # supabase secrets set USE_VERTEX_MERMAID_FIX=true
+    # supabase secrets set USE_VERTEX_TRANSLATE_PLAN=true
+    # supabase secrets set USE_VERTEX_TTS=true
+    # supabase secrets set GOOGLE_CLOUD_PROJECT_ID=<gcp-project-id>
+    # supabase secrets set GOOGLE_CLOUD_LOCATION=global
+    # supabase secrets set GOOGLE_SERVICE_ACCOUNT_JSON='<service-account-json>'
+    ```
+
+    Whole-document Final Revision og Final Review bruker OpenAI Responses API. Hvis `FINAL_REVIEW_MODEL`
+    og `FINAL_REVIEW_REASONING_EFFORT` ikke settes som secrets, bruker koden standarden GPT-5.5 med
+    medium reasoning:
     ```bash
     supabase secrets set OPENAI_API_KEY=sk-...
     # optional final review tuning:
     # supabase secrets set ENABLE_FINAL_REVIEW=true
     # supabase secrets set FINAL_REVIEW_MODE=qa_memo
-    # supabase secrets set FINAL_REVIEW_MODEL=gpt-5.4
-    # supabase secrets set FINAL_REVIEW_REASONING_EFFORT=high
+    # supabase secrets set FINAL_REVIEW_MODEL=gpt-5.5
+    # supabase secrets set FINAL_REVIEW_REASONING_EFFORT=medium
     # hybrid pricing is now the recommended default:
     # supabase secrets set FINAL_REVIEW_PRICING_MODE=hybrid
     # supabase secrets set FINAL_REVIEW_BASE_CREDITS=4
@@ -1104,12 +1146,17 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     npm run dev
     ```
 
-5.  **Deploy Supabase Edge Functions**
+5.  **Deploy Supabase DB-migrasjoner og Edge Functions**
+    Når du har endret `supabase/migrations/`, push migrasjonene først:
+    ```bash
+    npx supabase db push
+    ```
+
     Når du har endret edge-funksjoner, kan hele standardsuiten deployes med:
     ```bash
     npm run deploy:functions:noverify
     ```
-    Scriptet deployer blant annet `ai-final-review`, `ai-translate-plan`, `ai-translate-markdown`, `qr-login`, `ai-quota-sync` og de øvrige kjernefunksjonene i `supabase/functions/`.
+    Scriptet deployer blant annet `ai-final-review`, `ai-image`, `ai-plan`, `cleanup-project-visual-references`, `ai-translate-plan`, `ai-translate-markdown`, `qr-login`, `ai-quota-sync`, admin-/Stripe-funksjonene og de øvrige kjernefunksjonene i `supabase/functions/`.
 ---
 
 ## 📝 Endringslogg
@@ -1119,13 +1166,15 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 ### Siste endringer (Mars-April 2026)
 - 🔁 **Samlet revisjonsflyt**: `Revise` er nå hovedinngangen for tekstforbedring, med valg mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren.
 - 🧩 **Revise med lagret QA-kontekst**: `Revise` prefiller nå lagret QA-memo og prioriterte tiltak inn i arbeidsflaten når slikt review finnes.
+- 🧠 **GPT-5.5 for kvalitetstrinn**: Final Revision og Final Review bruker nå GPT-5.5 medium som standard, og Production Report har lokal GPT-5.5-prising i provider-estimatet.
+- 🖼️ **Core Idea referansebilder**: Core Idea støtter opptil 7 opplastede dokumenter/bilder. Seksjonsbilder velger fortsatt inntil 3 relevante referanser, med primary identity anchor når et helmotiv finnes.
 - 🎛️ **Variant oppgradert**: `Variant` har egen save-target-logikk, støtte for språkvarianter som nytt prosjekt, og samme låste profil-kontrakt som importert Story Engine-fil.
-- 🔍 **Final Review Memo**: Whole-document QA og final revision er strammet inn rundt `ai-final-review`, `services/finalReview/*` og review-progresjon på tvers av revision branches.
+- 🔍 **Final Revision / Review**: Seksjonsvis post-check er pensjonert. Whole-document Final Revision og QA Memo er samlet rundt `ai-final-review`, `services/finalReview/*` og review-progresjon på tvers av revision branches.
 - 🌐 **Oversettelsesflyt**: Nye edge functions `ai-translate-plan` og `ai-translate-markdown` gjør språkvarianter til en egen server-side flyt.
 - 🧭 **Projects UX**: Enkel prosjektvisning er komprimert og tydeliggjort med fargekodet status, bedre neste-steg-guidance og admin-skjult advanced mode.
 - 👥 **Admin Users Projects-tab**: Admin-brukerflaten viser nå også prosjektvolum, review health, revision branches og siste prosjektaktivitet via `ai-admin-user-projects`.
 - 🧠 **Suggest Settings**: Prompt- og heuristikkgrunnlaget er utvidet og dokumentert videre i egne planer under `docs/`.
-- 💳 **Deploy/ops**: `deploy:functions:noverify` dekker nå også `ai-final-review`, oversettelsesfunksjonene, `qr-login`, `ai-quota-sync` og `ai-admin-user-projects`.
+- 💳 **Deploy/ops**: `deploy:functions:noverify` dekker nå også `ai-final-review`, `ai-image`, `ai-plan`, `cleanup-project-visual-references`, oversettelsesfunksjonene, `qr-login`, `ai-quota-sync` og admin-/Stripe-funksjoner.
 
 > Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
@@ -1133,14 +1182,14 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 
 ## 🗺️ Veikart
 
-Vi bygger fremtidens publiseringsverktøy. Her er hva som er aktivt og planlagt:
+Vi bygger fremtidens publiseringsverktøy. Her er aktuelle oppfølgingsområder og videre planer:
 
-### Aktive planer (Q1-Q2 2026)
-*   🔁 **Multi-Round Final Review**: Bevaring av QA-memo historikk på tvers av revisjonsgrener, slik at AI-en husker tidligere revisjonsforslag og kan måle stagnasjon/regresjon. Se `docs/archived_plans/final-review-multi-round-strategy.md`.
+### Aktuelle oppfølgingsområder (Q2 2026)
+*   🔁 **Multi-Round Final Review**: QA-historikk, review-delta og stagnasjons-/regresjonssignaler er innført i flere prosjektflater. Videre arbeid handler om å gjøre historikken enda enklere å bruke operasjonelt. Historisk beslutningsgrunnlag: `docs/archived_plans/final-review-multi-round-strategy.md`.
 *   🔧 **Guided Patch Mode** (deferred): Fremtidig utvidelse der AI-en foreslår konkrete, seksjonsmålrettede tekstendringer basert på QA-memoet. Se `docs/archived_plans/final-review-guided-patch-decision-packet.md`.
-*   🎯 **Suggest Settings Rebalancing**: Dokumentert arbeid for å balansere bias mellom de 158 category/genre-kombinasjonene i prompt, heuristikker og normalisering. Se `docs/suggest-settings-architecture-plan.md` og `docs/suggest-settings-rebalancing-plan.md`.
+*   🎯 **Suggest Settings Rebalancing**: Dokumentert arbeid for å balansere bias mellom de 158 category/genre-kombinasjonene i prompt, heuristikker og normalisering. Se `docs/archived_plans/suggest-settings-architecture-plan.md` og `docs/archived_plans/suggest-settings-rebalancing-plan.md`.
 *   🌐 **Social Media Link Analysis**: Utvidelse av "Analyze Link" til YouTube-transkripter, X/Twitter-poster, Facebook/Instagram (oEmbed) og Gemini-basert videoanalyse. Se `docs/social-media-link-analysis-plan.md`.
-*   ☁️ **Vertex AI Phase 2 Migration**: Full migrering fra Gemini Developer API til Vertex AI for bedre kvoter, SLA og enterprise-features.
+*   ☁️ **Vertex AI Phase 2 Migration**: Bølgevis Vertex-migrering og canary-verifisering for planlegging, seksjonsgenerering, TTS og støtteflyter. Gemini Developer API beholdes som fallback der feature-flaggene ikke er aktivert.
 
 ### Fremtidige visjoner
 *   📰 **Integrasjon mot Retriever/Mediearkivet**: For dypere faktasjekk mot norske kilder.
