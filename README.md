@@ -6,8 +6,8 @@
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Gemini 3.1 Pro](https://img.shields.io/badge/Gemini_3.1_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 ![Vertex AI](https://img.shields.io/badge/Vertex_AI-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
-![OpenAI GPT-5.5](https://img.shields.io/badge/OpenAI_GPT--5.5-111827?style=for-the-badge&logo=openai&logoColor=white)
-![Made in Norway](https://img.shields.io/badge/Made_in_Norway-A63A3A?style=for-the-badge&logo=flag-icon&logoColor=white)
+![OpenAI GPT-5.5](https://img.shields.io/badge/OpenAI_GPT--5.5-10A37F?style=for-the-badge&logo=openai&logoColor=white)
+![Norway](https://img.shields.io/badge/Norway-A63A3A?style=for-the-badge&logo=flag-icon&logoColor=white)
 
 ![Story Engine Infographic](public/infographic.png)
 
