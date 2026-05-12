@@ -23,7 +23,7 @@
 
 *   📄 **Native Dokumentgenerering**: Skaper ekte PDF, DOCX og MP3-filer direkte i nettleseren uten eksterne konverteringstjenester.
 
-*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med mørkt tema, innholdsfortegnelse, og integrert lyd/bilde-avspilling. Åpnes enkelt direkte i nettleseren.
+*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med oppgradert design, mørkt/lyst tema, innholdsfortegnelse, integrert lyd/bilde-avspilling og egne nedlastingskort. Åpnes enkelt direkte i nettleseren.
 
 *   🎬 **Smart Video-produksjon**: Genererer videoer per kapittel med synkronisert lyd og tekst. Eksporterer som **MP4** (H.264/AAC) i **16:9** eller **9:16** (vertikal) format. Bruker "Smart Split"-teknologi for å sikre perfekt typografi.
 
@@ -33,7 +33,9 @@
 
 *   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. Core Idea kan i tillegg ha opptil 7 vedlegg, inkludert dokumenter og visuelle referanser, som analyseres før planlegging.
 
-*   🖼️ **Objektagnostiske visuelle referanser**: Opplastede Core Idea-bilder brukes som evidens og visuelle ankre, ikke som collage eller direkte kopi. Cover kan bruke hele referansepoolen, mens seksjonsbilder velger inntil 3 relevante referanser og markerer et primary identity anchor når et helmotiv finnes.
+*   🖼️ **Objektagnostiske visuelle referanser**: Opplastede Core Idea-bilder og kildehøstede produktbilder brukes som evidens og visuelle ankre, ikke som collage eller direkte kopi. Cover kan bruke hele referansepoolen, mens seksjonsbilder velger et begrenset, prioritert utvalg og markerer et primary identity anchor når et helmotiv finnes.
+
+*   🔒 **Strukturert fact-lock**: Brukeroppgitte Core Idea-URL-er, opplastede filer, Google Search-kilder og produkt-/konfiguratorlenker normaliseres til én intern kildepool. Fact-lock bygger strukturerte faktakandidater med kildeprioritet, konfliktløsing og autoriserte primary facts før tekst og bildeprompt får bruke tekniske hovedverdier.
 
 *   🛠️ **AI-verktøykasse for spesialoppgaver**: Utfør avanserte oppgaver med ett klikk – konverter lydfiler til undertekster (.srt), generer en komplett README.md fra et .zip-arkiv, eller trekk ut et profesjonelt sammendrag fra et langt dokument.
 
@@ -45,7 +47,7 @@
 
 *   🔁 **Samlet Revise-flyt**: `Revise` bruker lagret QA-memo når det finnes, prefiller revisjonsmål inn i arbeidsflaten, og lar deg enten oppdatere samme prosjekt eller lagre en ny revisjonsgren fra samme arbeidsflate.
 
-*   🎛️ **Variant / Regenerate Outputs**: `Variant` gjenbruker samme prosjektprofil for illustrasjoner, audio og språkbytte. Medie-only-varianter kan oppdatere samme prosjekt, mens språkbytte opprettes som nytt prosjekt.
+*   🎛️ **Variant / Regenerate Outputs**: `Variant` gjenbruker samme prosjektprofil for illustrasjoner, audio og språkbytte. Medie-only-varianter kan oppdatere samme prosjekt og bevare eksisterende bilder når bare audio regenereres, mens språkbytte opprettes som nytt prosjekt.
 
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 
@@ -76,22 +78,26 @@ Story Engine kan nå testes på midlertidig server her:
 👉 **[https://story.neoweb.no](https://story.neoweb.no)** 
 
 ### 🌐 Live demoer
-- **Story Engine showcase (landing/index.html):**  
-  [https://neoweb.no/se-walkthrough/index.html](https://neoweb.no/se-walkthrough/index.html)  
-  Viser leveranseuniverset med video, lyd og eksporteksempler.
+- **Mesterhus Form 1.0 demo (landing/index.html):**
+  [https://neoweb.no/mesterhus/index.html](https://neoweb.no/mesterhus/index.html)
+  Viser den oppgraderte nedlastbare nettsidepakken med video, lyd, eksportkort og lenke til interaktiv mikroside.
 
-- **Interaktiv nettside-eksport (website/index.html):**  
-  [https://neoweb.no/se-walkthrough/website/index.html](https://neoweb.no/se-walkthrough/website/index.html)  
-  Ferdig eksportert nettside generert fra Story Engine.
+- **Interaktiv Mesterhus-nettside (website/index.html):**
+  [https://neoweb.no/mesterhus/website/index.html](https://neoweb.no/mesterhus/website/index.html)
+  Ferdig eksportert mikroside generert fra et kildebasert Story Engine-prosjekt.
+
+- **Story Engine walkthrough (produktdemo):**
+  [https://neoweb.no/se-walkthrough/index.html](https://neoweb.no/se-walkthrough/index.html)
+  Eldre showcase som fortsatt viser leveranseuniverset og fireseksjons walkthrough.
 
 <p>
-  <a href="https://neoweb.no/se-walkthrough/website/index.html">
-    <img src="https://neoweb.no/se-walkthrough/infographic.png" width="900" alt="Story Engine Showcase"/>
+  <a href="https://neoweb.no/mesterhus/website/index.html">
+    <img src="https://neoweb.no/mesterhus/section-1.png" width="900" alt="Mesterhus Form 1.0 Story Engine Demo"/>
   </a>
   <br/>
-  <a href="https://neoweb.no/se-walkthrough/index.html"><strong>Åpne Showcase ➔</strong></a>
+  <a href="https://neoweb.no/mesterhus/index.html"><strong>Åpne Mesterhus-demo ➔</strong></a>
   &nbsp;|&nbsp;
-  <a href="https://neoweb.no/se-walkthrough/website/index.html"><strong>Åpne Nettside-eksport ➔</strong></a>
+  <a href="https://neoweb.no/mesterhus/website/index.html"><strong>Åpne Nettside-eksport ➔</strong></a>
 </p>
 
 ---
@@ -1036,17 +1042,17 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ```
 ### Nøkkelkomponenter forklart
 
-* `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker "Smart Chunking" for TTS/video, velger inntil 3 seksjonsbildereferanser fra Core Idea-poolen og prioriterer et primary identity anchor når et helmotiv er tilgjengelig.
-* `services/coreIdeaAttachments.ts` og `services/referenceEvidence.ts`: Klientlaget for Core Idea-vedlegg, visuell evidens og objektagnostiske referansepakker som sendes videre til planlegging og bildegenerering.
+* `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker "Smart Chunking" for TTS/video, bygger autoriserte bildepremisser fra fact-lock, velger relevante seksjonsbildereferanser og bevarer eksisterende bilder når medie-only-varianter bare regenererer lyd.
+* `services/coreIdeaAttachments.ts` og `services/referenceEvidence.ts`: Klientlaget for Core Idea-vedlegg, visuell evidens og objektagnostiske referansepakker. Faktakilder og visuelle referanser holdes adskilt, men sendes videre som en felles prosjektkontekst til planlegging, tekst og bildegenerering.
 * `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
-* `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt.
+* `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt, med oppgradert template, tema-toggle, media, kilder og nedlastingsflater.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
 * `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering, brukerflagg og en egen `Projects`-fane med per-bruker prosjektinnsikt.
 * `components/views/QuotaHealthView.tsx`: Dedikert dashboard for overvåking av Google Cloud API-kvoter med automatisk synkronisering og helseberegning.
 * `components/views/ProjectsViewSimple.tsx`: Standard prosjektoversikt med fargekodet status, komprimerte neste-steg-kort og handlingene `Open`, `Variant` og `Revise`.
 * `components/views/IntroView.tsx`: Samlet workspace for idéstart, importert Story Engine-fil, `Variant` og `Revise` med dynamiske save-targets.
 * `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, Final Review Memo, og inngang til `Variant` / `Revise`.
-* `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag.
+* `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag. Inneholder også fact-lock- og image-fact-lock-byggere som styrer hvilke fakta tekst og bilder får bruke.
 * `services/finalReview/*`: Logikken for whole-document Final Revision, review-progresjon, rewrite-styrke og QA-seedede revision briefs.
 * `shared/suggestSettings/*`: Felles heuristikker og normalisering for `Suggest Settings`, slik at frontend og edge holder samme tolkningsregler.
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
@@ -1057,6 +1063,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/_shared/imageReferences.ts`: Delt validering og normalisering av referansebilder. Core Idea kan analysere opptil 7 visuelle referanser, mens seksjonsbilder fortsatt får et begrenset utvalg.
 * `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
 * `supabase/functions/_shared/pricing.ts`: Server-side prismapping (`USD -> credits`) for konsistent kredittbelastning.
+* `supabase/functions/ai-plan/`: Planleggingsagenten som normaliserer brukeroppgitte kilder, opplastede dokumenter, Google Search-kilder og kildehøstede visuelle referanser til plan-, fact-lock- og bildegrunnlag.
 * `supabase/functions/ai-final-review/`: OpenAI Responses-basert kvalitetstrinn for både automatisk Final Revision og manuelt Final Review QA Memo. Standard runtime er GPT-5.5 med medium reasoning.
 * `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en lettvekts prosjektoversikt for valgt bruker.
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
@@ -1163,11 +1170,16 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 
 Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
 
-### Siste endringer (Mars-April 2026)
+### Siste endringer (April-Mai 2026)
+- 🔒 **Strukturert fact-lock**: `ai-plan` normaliserer Core Idea-URL-er, opplastede dokumenter, Google Search-kilder og produkt-/konfiguratorlenker til én kildepool, rangerer kilder og løser konflikter før primary facts sendes til tekst og bildeprompt.
+- 🧾 **Fact candidates og debug**: Story Engine-filen eksporterer nå kildepool, faktakandidater, primary facts, rejected/conflict facts og source-backed status i frontmatter når fact-lock er aktiv.
+- 🖼️ **Kildehøstede visuelle referanser**: Offisielle kildesider kan bidra med `source_visual_references` til cover og seksjonsbilder, med visual-kind, primary identity anchor og mer konservativ bruk av faktalåste labels.
+- 🌐 **Oppgradert nettside-eksport**: `websiteTemplate` og `landing/index.html` støtter en mer presentabel mikrosidepakke med mørkt/lyst tema, media, kilder, lyd og nedlastbare formater. Mesterhus Form 1.0-demoen viser den nye varianten.
+- 🎧 **Medie-only Variant**: Audio-varianter kan oppdatere samme prosjekt uten å regenerere eller miste eksisterende seksjonsbilder når `Illustrations` ikke er valgt.
 - 🔁 **Samlet revisjonsflyt**: `Revise` er nå hovedinngangen for tekstforbedring, med valg mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren.
 - 🧩 **Revise med lagret QA-kontekst**: `Revise` prefiller nå lagret QA-memo og prioriterte tiltak inn i arbeidsflaten når slikt review finnes.
 - 🧠 **GPT-5.5 for kvalitetstrinn**: Final Revision og Final Review bruker nå GPT-5.5 medium som standard, og Production Report har lokal GPT-5.5-prising i provider-estimatet.
-- 🖼️ **Core Idea referansebilder**: Core Idea støtter opptil 7 opplastede dokumenter/bilder. Seksjonsbilder velger fortsatt inntil 3 relevante referanser, med primary identity anchor når et helmotiv finnes.
+- 🖼️ **Core Idea referansebilder**: Core Idea støtter opptil 7 opplastede dokumenter/bilder. Seksjonsbilder velger et begrenset, prioritert referanseutvalg, med primary identity anchor når et helmotiv finnes.
 - 🎛️ **Variant oppgradert**: `Variant` har egen save-target-logikk, støtte for språkvarianter som nytt prosjekt, og samme låste profil-kontrakt som importert Story Engine-fil.
 - 🔍 **Final Revision / Review**: Seksjonsvis post-check er pensjonert. Whole-document Final Revision og QA Memo er samlet rundt `ai-final-review`, `services/finalReview/*` og review-progresjon på tvers av revision branches.
 - 🌐 **Oversettelsesflyt**: Nye edge functions `ai-translate-plan` og `ai-translate-markdown` gjør språkvarianter til en egen server-side flyt.
