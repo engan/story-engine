@@ -94,7 +94,7 @@ Story Engine kan nå testes på midlertidig server her:
 
 <p>
   <a href="https://neoweb.no/mesterhus/website/index.html">
-    <img src="https://neoweb.no/mesterhus/section-1.png" width="900" alt="Mesterhus Form 1.0 Story Engine Demo"/>
+    <img src="https://neoweb.no/mesterhus/website/assets/cover.png" width="900" alt="Mesterhus Form 1.0 Story Engine Demo"/>
   </a>
   <br/>
   <a href="https://neoweb.no/mesterhus/index.html"><strong>Åpne Mesterhus-demo ➔</strong></a>
