@@ -110,7 +110,7 @@ Story Engine kan nå testes på midlertidig server her:
 <table>
   <tr>
     <td>
-      <strong>Seksjon 1: Hva Story Engine er i dagens versjon</strong><br/>
+      <strong>Seksjon 1: Hva Story Engine er i dagens versjon</strong><br/><br/>
       <a href="https://neoweb.no/se-walkthrough/section-1.mp4">
         <img src="https://neoweb.no/se-walkthrough/section-1.png" width="420" alt="Seksjon 1"/>
       </a><br/>
@@ -126,7 +126,7 @@ Story Engine kan nå testes på midlertidig server her:
   </tr>
   <tr>
     <td>
-      <strong>Seksjon 3: Leveranser, add-ons og formatstrategi</strong><br/>
+      <strong>Seksjon 3: Leveranser, add-ons og formatstrategi</strong><br/><br/>
       <a href="https://neoweb.no/se-walkthrough/section-3.mp4">
         <img src="https://neoweb.no/se-walkthrough/section-3.png" width="420" alt="Seksjon 3"/>
       </a><br/>
