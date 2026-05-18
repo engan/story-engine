@@ -21,9 +21,11 @@
 
 *   ✨ **AI-anbefalte innstillinger**: Få forslag til kategori, sjanger/format (158 kombinasjoner), søk, kreativitet og diagram-frekvens - automatisk tilpasset din idé.
 
+*   🧭 **Simple / Custom startmodus**: Nye prosjekter starter i en ryddig `Simple`-modus der avanserte valg skjules, Final Revision er aktivert, og `Suggest Settings` kjøres automatisk når prosjektet opprettes. `Custom` beholder hele kontrollflaten for brukere som vil styre kategori, format, kreativitet, diagrammer, språk, research og add-ons selv.
+
 *   📄 **Native Dokumentgenerering**: Skaper ekte PDF, DOCX og MP3-filer direkte i nettleseren uten eksterne konverteringstjenester.
 
-*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med oppgradert design, mørkt/lyst tema, innholdsfortegnelse, integrert lyd/bilde-avspilling og egne nedlastingskort. Åpnes enkelt direkte i nettleseren.
+*   🌐 **Interaktiv Nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med oppgradert design, mørkt tema som standard, lys/mørk toggle, innholdsfortegnelse, integrert lyd/bilde-avspilling og egne nedlastingskort. Åpnes enkelt direkte i nettleseren.
 
 *   🎬 **Smart Video-produksjon**: Genererer videoer per kapittel med synkronisert lyd og tekst. Eksporterer som **MP4** (H.264/AAC) i **16:9** eller **9:16** (vertikal) format. Bruker "Smart Split"-teknologi for å sikre perfekt typografi.
 
@@ -51,7 +53,7 @@
 
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 
-*   🎙️ **Velg din stemmekvalitet**: Bytt mellom flere Text-to-Speech modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv), Gemini 2.5 Pro (maksimal kvalitet) eller Gemini 3.1 Flash TTS Preview.
+*   🎙️ **Velg din stemmekvalitet**: Bytt mellom flere Text-to-Speech modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv), Gemini 2.5 Pro (maksimal kvalitet) eller Gemini 3.1 Flash TTS Preview. I testfasen er Gemini 3.1 Flash TTS Preview satt som standardvalg for nye lydgenereringer.
 
 *   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
 
@@ -149,14 +151,19 @@ Møtet med brukeren – rent, moderne og inviterende.
 <summary><strong>Klikk for å se Workspace: app og startside</strong></summary>
 
 ### Startside app
-Etter landingssiden møter brukeren hovedarbeidsflaten i Story Engine: et rent og fokusert panel der nye prosjekter kan startes med en gang. Her skriver man inn idé, tema eller bestilling, får hjelp til å utvide prompten, og setter retning for genereringen gjennom språk, kategori, sjanger, kreativitet, add-ons og andre produksjonsvalg. Målet med startsiden er å gjøre veien fra første tanke til kjørbar prosjektprofil så kort som mulig, uten at brukeren mister kontroll over hvordan innholdet skal produseres.
+Etter landingssiden møter brukeren hovedarbeidsflaten i Story Engine. Den åpner nå i Simple-modus, der nye prosjekter kan startes med færre valg: brukeren skriver inn idé, tema eller bestilling, velger eventuelt bilder og lydopplesning, og kan deretter starte genereringen direkte.
+
+For brukere som ønsker mer kontroll, finnes alle avanserte produksjonsvalg fortsatt i Custom-modus. Der kan man justere språk, kategori, sjanger, kreativitet, researchnivå, add-ons og andre innstillinger før prosjektet kjøres.
+
+Målet med startsiden er å gjøre veien fra første tanke til ferdig prosjekt så kort som mulig, samtidig som mer erfarne brukere fortsatt kan styre hvordan innholdet skal produseres.
+
+### Simple-modus
+
+![Startside app Simple](public/story-engine-simple.png)
+
+### Custom-modus
 
 ![Startside app](public/story-engine.png)
-
-### Alternativt smal skjermbredde
-Skriv inn dine nye ideer umiddelbart på din telefon. 
-
-![Alternativt smal skjermbredde](public/story-engine-small.png)
 </details>
 
 <details>
@@ -800,6 +807,9 @@ sequenceDiagram
 
 ## 📂 Filstruktur & Modul-analyse
 
+<details>
+<summary><strong>Klikk for filstruktur</strong></summary>
+
 Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdbarhet og skalerbarhet. Vi bruker nå en tydelig domenestruktur under `services`, samt et delt prompt-lag i `shared/prompts` for å hindre prompt-drift mellom frontend og Edge Functions.
 
 ```text
@@ -1070,6 +1080,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
 * `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
 
+</details>
+
 ---
 
 ## 🚀 Tilgang & Installasjon
@@ -1171,10 +1183,12 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
 
 ### Siste endringer (April-Mai 2026)
+- 🧭 **Simple / Custom startmodus**: Startsiden har nå en enklere `Simple`-modus for førstegenerering, der avanserte kontroller skjules og `Suggest Settings` kjøres automatisk ved `Create Project`. `Custom` beholder full kontrollflate.
+- 🎙️ **3.1 Flash TTS som standard**: Standard Text-to-Speech-modell er nå `gemini-3.1-flash-tts-preview`, mens 2.5 Flash og 2.5 Pro fortsatt kan velges manuelt.
 - 🔒 **Strukturert fact-lock**: `ai-plan` normaliserer Core Idea-URL-er, opplastede dokumenter, Google Search-kilder og produkt-/konfiguratorlenker til én kildepool, rangerer kilder og løser konflikter før primary facts sendes til tekst og bildeprompt.
 - 🧾 **Fact candidates og debug**: Story Engine-filen eksporterer nå kildepool, faktakandidater, primary facts, rejected/conflict facts og source-backed status i frontmatter når fact-lock er aktiv.
 - 🖼️ **Kildehøstede visuelle referanser**: Offisielle kildesider kan bidra med `source_visual_references` til cover og seksjonsbilder, med visual-kind, primary identity anchor og mer konservativ bruk av faktalåste labels.
-- 🌐 **Oppgradert nettside-eksport**: `websiteTemplate` og `landing/index.html` støtter en mer presentabel mikrosidepakke med mørkt/lyst tema, media, kilder, lyd og nedlastbare formater. Mesterhus Form 1.0-demoen viser den nye varianten.
+- 🌐 **Oppgradert nettside-eksport**: `websiteTemplate` og `landing/index.html` støtter en mer presentabel mikrosidepakke med mørkt tema som standard, lys/mørk toggle, media, kilder, lyd og nedlastbare formater. Mesterhus Form 1.0-demoen viser den nye varianten.
 - 🎧 **Medie-only Variant**: Audio-varianter kan oppdatere samme prosjekt uten å regenerere eller miste eksisterende seksjonsbilder når `Illustrations` ikke er valgt.
 - 🔁 **Samlet revisjonsflyt**: `Revise` er nå hovedinngangen for tekstforbedring, med valg mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren.
 - 🧩 **Revise med lagret QA-kontekst**: `Revise` prefiller nå lagret QA-memo og prioriterte tiltak inn i arbeidsflaten når slikt review finnes.
