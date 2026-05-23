@@ -164,6 +164,12 @@ Målet med startsiden er å gjøre veien fra første tanke til ferdig prosjekt s
 ### Custom-modus
 
 ![Startside app](public/story-engine.png)
+
+### Simple-modus, mobile screen
+
+Den samme startsiden er også tilpasset mobil, slik at brukeren kan starte et prosjekt raskt fra en mindre skjerm uten å miste de viktigste valgene.
+
+![Startside app mobile](public/story-engine-mobile.png)
 </details>
 
 <details>
@@ -807,12 +813,16 @@ sequenceDiagram
 
 ## 📂 Filstruktur & Modul-analyse
 
+<details>
+<summary><strong>Klikk for filstruktur</strong></summary>
+
 Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdbarhet og skalerbarhet. Vi bruker nå en tydelig domenestruktur under `services`, samt et delt prompt-lag i `shared/prompts` for å hindre prompt-drift mellom frontend og Edge Functions.
 
 ```text
 .
 ├── App.tsx                                   # Global state, view-ruting og kostnadssporing
 ├── README.md                                 # Dokumentasjon
+├── AGENTS.md                                 # Agent-/Codex-regler for sikkerhet, deploy, billing og repo-hygiene
 ├── CHANGELOG.md                              # Endringslogg
 ├── ROADMAP.md                                # Veikart og fremtidsplaner
 ├── package.json                              # Scripts, avhengigheter og app-metadata
@@ -827,6 +837,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── languages.ts                              # Støttede språk for I/O
 ├── metadata.json                             # Statisk app-/modellmetadata
 ├── docs/                                     # Planer, eval-notater og operasjonell dokumentasjon
+├── .github/workflows/                        # CI guards for build, audit, Deno, prompts, billing og sanitizer
 ├── public/                                   # Bilder, screenshots og statiske assets
 ├── landing/                                  # Egen statisk showcase/landing
 ├── src/                                      # Global CSS + Vite typer
@@ -865,10 +876,23 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── CastingView.tsx                   # Karakteroversikt og stemmevalg
 │       ├── GenerationView.tsx                # Live streaming av innhold
 │       └── CompleteView.tsx                  # Ferdig resultat, Final Review Memo, Revise/Variant-entrypoints
+├── hooks/                                    # React hooks for auth, autosave, usage, navigation og workflows
+│   ├── useAutosave.ts                        # IndexedDB restore/autosave med debounce, media-bevaring og kvotevarsling
+│   ├── useAuthSession.ts                     # Supabase auth-session lifecycle
+│   ├── useGenerationWorkflow.ts              # Genereringsflyt og add-on koordinering
+│   └── useRevisionWorkflow.ts                # Revise/Variant workflow-koordinering
 ├── scripts/                                  # Verktøy og test-skript
 │   ├── audit-routing-coverage.ts             # Dekningssjekk for routing-regler mot katalogen
+│   ├── check-build-observability.mjs         # Guard for CI timeout og bundle-analyse
+│   ├── check-ci-completeness.mjs             # Guard for at sentrale checks er koblet i CI
+│   ├── check-local-persistence-hardening.ts  # Guard for lokal persistence-størrelse og kvote-feil
+│   ├── check-paid-ai-billing.mjs             # Guard mot credit charge før request-validering
 │   ├── check-prompt-drift.mjs                # CI-guard mot inline core-prompts i Edge Functions
+│   ├── check-security-definer-grants.mjs     # Guard for SECURITY DEFINER EXECUTE-herding
 │   ├── check-suggest-settings-plan.ts        # Parser-/integritetssjekk for suggest-settings testplan
+│   ├── check-supabase-function-auth.mjs      # Guard for protected/public Edge Function auth-konfig
+│   ├── check-supabase-functions.mjs          # Deno check for Supabase Edge Functions
+│   ├── check-svg-sanitizer.ts                # XSS-regresjonstester for SVG/Mermaid sanitizer
 │   ├── compare-suggest-settings-eval.ts      # Sammenligner to suggest-settings eval-rapporter
 │   ├── eval-human-nuance-ab.ts               # A/B-evaluering av prompt-kvalitet
 │   ├── eval-suggest-settings.ts              # Live/dry-run eval mot suggest-settings-matrisen
@@ -876,6 +900,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── smoke-human-nuance-modes.ts           # Test av human-nuance prompt-modi
 │   ├── smoke-mermaid-fixes.ts                # Smoke-test av mermaid sanitizer/fixer
 │   ├── smoke-prompt-builders.ts              # Smoke-test av shared prompt-builders
+│   ├── smoke-usage-metrics.ts                # Smoke-test av usage metrics/Production Report-data
 │   ├── smoke-routing-decision.ts             # Smoke-test av model routing-logikk
 │   ├── smoke-suggest-settings-heuristics.ts  # Test av suggest-settings heuristikker
 │   ├── summarize-suggest-settings-eval.ts    # Oppsummerer suggest-settings eval-rapporter
@@ -894,7 +919,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── auth.ts                               # Autentiseringslogikk
 │   ├── formatConstants.ts                    # Konstanter for overskriftsformater
 │   ├── geminiService.ts                      # Fasade for ai/index.ts
-│   ├── localStorageService.ts                # Klientlagring for drafts, settings og snapshots
+│   ├── localStorageService.ts                # IndexedDB full-session lagring med media, størrelsesestimat og kvotevarsling
 │   ├── modelPricing.ts                       # Lokale provider-estimater for Gemini, OpenAI, image og TTS
 │   ├── prompts.ts                            # Stabil offentlig entrypoint (barrel re-export)
 │   ├── referenceEvidence.ts                  # Bygger evidenspakke for visuelle Core Idea-referanser
@@ -933,7 +958,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── pptx.ts                           # PowerPoint-generering (Non-Fiction)
 │   │   ├── utils.ts                          # Delte eksport-hjelpere (Mermaid render)
 │   │   ├── video.ts                          # Videorendring (MP4 H.264/AAC, 16:9 / 9:16) med "Smart Split"
-│   │   └── website.ts                        # Interaktiv nettside-pakking (ZIP)
+│   │   └── website.ts                        # Interaktiv nettside-pakking (ZIP) med lokal Mermaid asset
 │   ├── format/                               # Tekstformatering
 │   │   └── sectionHeaders.ts                 # Håndtering av kapitteloverskrifter og språk
 │   ├── i18n/                                 # Internasjonalisering
@@ -1015,6 +1040,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-admin-user-projects/           # Admin: prosjektoversikt, review health og project rows per bruker
 │   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal)
 │   │   ├── ai-final-review/                  # Final Revision + QA Memo (whole-document)
+│   │   ├── ai-final-revision-billing/        # Reservasjon/commit/refund for Final Revision-kreditter
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
 │   │   ├── ai-image/                         # Bildegenerering (ChatGPT Images / Gemini / Imagen)
 │   │   ├── ai-mermaid-fix/                   # Mermaid-fiksing med AI
@@ -1035,6 +1061,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── cleanup-project-visual-references/ # Rydder midlertidige visuelle referanser for prosjekt
 │   │   ├── qr-login/                         # QR login (create/authorize/exchange)
 │   │   ├── url-analyze/                      # Analyse av nettsider (Scraping)
+│   │   ├── deno.json                         # Deno config for functions workspace
+│   │   ├── deno.lock                         # Låste Deno-avhengigheter
 │   │   └── deno.d.ts                         # Supplerende module declarations
 │   └── migrations/                           # Database-migrasjoner
 │       ├── 20260120000000_quota_system.sql                    # Kvote-system tabeller og RPC
@@ -1052,7 +1080,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker "Smart Chunking" for TTS/video, bygger autoriserte bildepremisser fra fact-lock, velger relevante seksjonsbildereferanser og bevarer eksisterende bilder når medie-only-varianter bare regenererer lyd.
 * `services/coreIdeaAttachments.ts` og `services/referenceEvidence.ts`: Klientlaget for Core Idea-vedlegg, visuell evidens og objektagnostiske referansepakker. Faktakilder og visuelle referanser holdes adskilt, men sendes videre som en felles prosjektkontekst til planlegging, tekst og bildegenerering.
 * `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
-* `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt, med oppgradert template, tema-toggle, media, kilder og nedlastingsflater.
+* `AGENTS.md`: Root-regler for Codex/agentarbeid, inkludert SECURITY DEFINER/RPC, Edge Function-auth, billing/credits, lokal persistence, build-hygiene og valideringskommandoer.
+* `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt, med oppgradert template, tema-toggle, media, kilder, nedlastingsflater og lokal, pinnet Mermaid asset i eksportpakken.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
 * `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering, brukerflagg og en egen `Projects`-fane med per-bruker prosjektinnsikt.
 * `components/views/QuotaHealthView.tsx`: Dedikert dashboard for overvåking av Google Cloud API-kvoter med automatisk synkronisering og helseberegning.
@@ -1064,8 +1093,10 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `shared/suggestSettings/*`: Felles heuristikker og normalisering for `Suggest Settings`, slik at frontend og edge holder samme tolkningsregler.
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
 * `shared/billing/*`: Produktpolicy og tier-presets (`productPolicy.ts`, `tierPresets.ts`) som definerer kredittregler, utløpspolicyer og tier-grenser.
+* `services/localStorageService.ts` og `hooks/useAutosave.ts`: Bevarer full lokal session i IndexedDB, inkludert chapter images, cover images og audio, med 5 sekunders debounce, størrelsesestimat og tydelig varsel ved lagringskvote-feil.
 * `services/modelPricing.ts`: Lokal prisestimatkonfigurasjon for Production Report, inkludert GPT-5.5 og long-context terskler der provider-prisingen skiller mellom normal og lang kontekst.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
+* `scripts/check-supabase-function-auth.mjs`, `check-security-definer-grants.mjs`, `check-paid-ai-billing.mjs`, `check-svg-sanitizer.ts`, `check-build-observability.mjs` og `check-local-persistence-hardening.ts`: Guard-skript for henholdsvis Edge Function auth, RPC EXECUTE-herding, billing-integritet, SVG/Mermaid XSS-regresjoner, build-observability og lokal persistence.
 * `supabase/functions/_shared/utils.ts`: Delt logikk for Edge Functions inkludert auth, allowlist, admin checks, kvote-reservering og brukslogging.
 * `supabase/functions/_shared/imageReferences.ts`: Delt validering og normalisering av referansebilder. Core Idea kan analysere opptil 7 visuelle referanser, mens seksjonsbilder fortsatt får et begrenset utvalg.
 * `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
@@ -1076,6 +1107,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
 * `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
+
+</details>
 
 ---
 
@@ -1088,7 +1121,7 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 ### 🛠️ Forutsetninger
 *   **Node.js**: v22+ anbefalt (dev/smoke-skript bruker moderne Node-runtime)
 *   **Deno**: v2.6.8+ (for Edge Functions)
-*   **Supabase CLI**: v2.75+ (nyere versjon anbefales ved Edge Function-deploy)
+*   **Supabase CLI**: v2.101.0+ anbefalt. Repoet har Supabase CLI som dev dependency, så bruk `npx supabase ...` for samme versjon som prosjektet.
 
 ### 🚀 Installasjon
 
@@ -1136,23 +1169,28 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     # supabase secrets set GOOGLE_SERVICE_ACCOUNT_JSON='<service-account-json>'
     ```
 
-    Whole-document Final Revision og Final Review bruker OpenAI Responses API. Hvis `FINAL_REVIEW_MODEL`
-    og `FINAL_REVIEW_REASONING_EFFORT` ikke settes som secrets, bruker koden standarden GPT-5.5 med
-    medium reasoning:
+    Whole-document Final Revision og Final Review bruker OpenAI Responses API. Hvis `FINAL_REVIEW_MODEL`,
+    `FINAL_REVISION_MODEL` og `FINAL_REVIEW_REASONING_EFFORT` ikke settes som secrets, bruker koden
+    GPT-5.5 til Final Review, GPT-5.4 til Final Revision og medium reasoning som standard i Edge Function:
     ```bash
     supabase secrets set OPENAI_API_KEY=sk-...
     # optional final review tuning:
     # supabase secrets set ENABLE_FINAL_REVIEW=true
     # supabase secrets set FINAL_REVIEW_MODE=qa_memo
     # supabase secrets set FINAL_REVIEW_MODEL=gpt-5.5
+    # supabase secrets set FINAL_REVISION_MODEL=gpt-5.4
     # supabase secrets set FINAL_REVIEW_REASONING_EFFORT=medium
     # hybrid pricing is now the recommended default:
     # supabase secrets set FINAL_REVIEW_PRICING_MODE=hybrid
     # supabase secrets set FINAL_REVIEW_BASE_CREDITS=4
     # supabase secrets set FINAL_REVIEW_EXTRA_BATCH_CREDITS=2
     # supabase secrets set FINAL_REVIEW_MIN_CREDITS=4
+    # supabase secrets set FINAL_REVISION_BASE_CREDITS=10
+    # supabase secrets set FINAL_REVISION_EXTRA_BATCH_CREDITS=5
+    # supabase secrets set FINAL_REVISION_MIN_CREDITS=10
     # legacy flat fallback:
     # supabase secrets set FINAL_REVIEW_CREDITS=3
+    # supabase secrets set FINAL_REVISION_CREDITS=10
     ```
 
 4.  **Start utviklingsserveren**
@@ -1168,9 +1206,9 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 
     Når du har endret edge-funksjoner, kan hele standardsuiten deployes med:
     ```bash
-    npm run deploy:functions:noverify
+    npm run deploy:functions
     ```
-    Scriptet deployer blant annet `ai-final-review`, `ai-image`, `ai-plan`, `cleanup-project-visual-references`, `ai-translate-plan`, `ai-translate-markdown`, `qr-login`, `ai-quota-sync`, admin-/Stripe-funksjonene og de øvrige kjernefunksjonene i `supabase/functions/`.
+    Scriptet kjører auth/security/function checks først og bruker deretter delt deploy: beskyttede funksjoner deployes med `verify_jwt = true`, mens de eksplisitte public-unntakene (`cleanup-project-visual-references`, `qr-login`, `ai-stripe-webhook`) deployes med `--no-verify-jwt`.
 ---
 
 ## 📝 Endringslogg
@@ -1195,7 +1233,7 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 - 🧭 **Projects UX**: Enkel prosjektvisning er komprimert og tydeliggjort med fargekodet status, bedre neste-steg-guidance og admin-skjult advanced mode.
 - 👥 **Admin Users Projects-tab**: Admin-brukerflaten viser nå også prosjektvolum, review health, revision branches og siste prosjektaktivitet via `ai-admin-user-projects`.
 - 🧠 **Suggest Settings**: Prompt- og heuristikkgrunnlaget er utvidet og dokumentert videre i egne planer under `docs/`.
-- 💳 **Deploy/ops**: `deploy:functions:noverify` dekker nå også `ai-final-review`, `ai-image`, `ai-plan`, `cleanup-project-visual-references`, oversettelsesfunksjonene, `qr-login`, `ai-quota-sync` og admin-/Stripe-funksjoner.
+- 💳 **Deploy/ops**: `deploy:functions` kjører function-auth, SECURITY DEFINER, paid-AI billing og Deno checks før split deploy av protected/public Edge Functions. CI kjører også audit, SVG-sanitizer, build-observability, local-persistence og prompt/routing/usage smoke checks.
 
 > Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
