@@ -165,7 +165,7 @@ Målet med startsiden er å gjøre veien fra første tanke til ferdig prosjekt s
 
 ![Startside app](public/story-engine.png)
 
-### Simple-modus, mobile screen
+### Simple-modus, mobilskjerm
 
 Den samme startsiden er også tilpasset mobil, slik at brukeren kan starte et prosjekt raskt fra en mindre skjerm uten å miste de viktigste valgene.
 
@@ -813,9 +813,6 @@ sequenceDiagram
 
 ## 📂 Filstruktur & Modul-analyse
 
-<details>
-<summary><strong>Klikk for filstruktur</strong></summary>
-
 Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdbarhet og skalerbarhet. Vi bruker nå en tydelig domenestruktur under `services`, samt et delt prompt-lag i `shared/prompts` for å hindre prompt-drift mellom frontend og Edge Functions.
 
 ```text
@@ -1107,8 +1104,6 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
 * `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
-
-</details>
 
 ---
 
