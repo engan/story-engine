@@ -21,7 +21,7 @@
 
 *   ✨ **AI-anbefalte innstillinger**: Få forslag til kategori, sjanger/format (158 kombinasjoner), søk, kreativitet og diagram-frekvens - automatisk tilpasset din idé.
 
-*   🧭 **Simple / Custom startmodus**: Nye prosjekter starter i en ryddig `Simple`-modus der avanserte valg skjules, Final Revision er aktivert, og `Suggest Settings` kjøres automatisk når prosjektet opprettes. `Custom` beholder hele kontrollflaten for brukere som vil styre kategori, format, kreativitet, diagrammer, språk, research og add-ons selv.
+*   🧭 **Simple / Custom startmodus**: Nye prosjekter starter i en ryddig `Simple`-modus der avanserte valg skjules, `Final Quality Pass` er aktivert, og `Suggest Settings` kjøres automatisk når prosjektet opprettes. `Custom` beholder hele kontrollflaten for brukere som vil styre kategori, format, kreativitet, diagrammer, språk, research og add-ons selv.
 
 *   📄 **Native Dokumentgenerering**: Skaper ekte PDF, DOCX og MP3-filer direkte i nettleseren uten eksterne konverteringstjenester.
 
@@ -59,15 +59,17 @@
 
 *   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning. "Self-healing" Mermaid-diagrammer som fikser syntaksfeil automatisk.
 
-*   🔍 **Final Revision + Final Review**: Etter førstegenerering kan Story Engine kjøre en whole-document Final Revision med GPT-5.5 medium før dokumentet lagres. Final Review er QA-memoet som leser ferdig dokument og returnerer verdict (`strong` / `needs_revision` / `high_risk`), prioriterte forbedringsforslag og seksjonsspesifikke issues uten å endre dokumentet.
+*   🔍 **Final Quality Pass + Final Review**: Etter førstegenerering kan Story Engine kjøre en review-first kvalitetskjede med OpenAI Responses: først et QA Review med `gpt-5.5`, deretter automatisk stopp hvis utkastet allerede er `strong`, eller målrettet `Revise` med `gpt-5.4` når memoet finner reelle problemer. Etter automatisk revisjon kjøres et nytt QA Review, og quality-chain metadata lagres i prosjektet. Manuelt Final Review Memo kan fortsatt kjøres uten å endre dokumentet.
 
 *   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Routing-logikken lever i `shared/routing/` og brukes av alle Edge Functions.
 
 *   📊 **Quota Health Monitoring**: Sanntids-dashboard for Google Cloud API-kvoter (Gemini, Imagen, Vertex AI) med automatisk synkronisering, helseberegning, og trendvisning. Eget admin-view (`QuotaHealthView`).
 
+*   🧾 **Model Pricing Console**: Egen admin-side som sammenholder routing-metadata, edge-defaults, overrides, runtime evidence og kundepolicy for tekst-, bilde- og TTS-flyt. Gjør modell- og prisdrift synlig uten å endre live routing eller billing.
+
 *   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Aktive tier-nivåer er `pilot`, `pro` og `elite` med ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg. Eldre `enterprise`-verdier normaliseres til `elite`. Konfigurert i `shared/billing/`.
 
-*   📈 **Production Report og runtime ledger**: Eksportert Story Engine-fil viser både klientbasert provider-estimat og faktisk server-side kredittbruk når ledger-data er fanget, inkludert GPT-5.5, bildeoperasjoner, referanse-surcharge og Final Revision/Review.
+*   📈 **Production Report og runtime ledger**: Eksportert Story Engine-fil viser både klientbasert provider-estimat og faktisk server-side kredittbruk når ledger-data er fanget, inkludert `gpt-5.5` review, `gpt-5.4` revision, bildeoperasjoner, referanse-surcharge og quality-chain metadata når automatisk kvalitetskjede er brukt.
 
 *   👥 **Admin Users med prosjektinnsikt**: Admin-flaten viser nå ikke bare tier, kreditter og aktivitet, men også en egen `Projects`-fane per bruker med prosjektantall, review health, revision branches og siste prosjektaktivitet.
 
@@ -87,6 +89,14 @@ Story Engine kan nå testes på midlertidig server her:
 - **Interaktiv Mesterhus-nettside (website/index.html):**
   [https://neoweb.no/mesterhus/website/index.html](https://neoweb.no/mesterhus/website/index.html)
   Ferdig eksportert mikroside generert fra et kildebasert Story Engine-prosjekt.
+
+- **Arbeidsflyt formatdemo (landing/index.html):**
+  [https://neoweb.no/arbeidsflyt/index.html](https://neoweb.no/arbeidsflyt/index.html)
+  Viser en samlet oversikt over leveranseformatene og peker videre til den interaktive nettside-eksporten.
+
+- **Interaktiv Arbeidsflyt-nettside (website/index.html):**
+  [https://neoweb.no/arbeidsflyt/website/index.html](https://neoweb.no/arbeidsflyt/website/index.html)
+  Ferdig eksportert mikroside koblet til Arbeidsflyt-demoen.
 
 - **Story Engine walkthrough (produktdemo):**
   [https://neoweb.no/se-walkthrough/index.html](https://neoweb.no/se-walkthrough/index.html)
@@ -188,7 +198,7 @@ Her kan man følge skrivingen seksjon for seksjon etter hvert som den skrives.
 
 ![Generation Progress](public/generation-progress-2.png)
 
-Når førsteutkastet er skrevet ferdig, går flyten videre til behandling av revisjon og sluttkontroll. Her ser brukeren at systemet ikke bare produserer tekst, men også jobber videre med kvalitetssikring før prosjektet avsluttes.
+Når førsteutkastet er skrevet ferdig, går flyten videre til `Final Quality Pass`. Her kan Story Engine først kjøre et QA Review, stoppe direkte hvis utkastet allerede er sterkt nok, eller gjøre en målrettet revisjon før en ny sluttkontroll. Brukeren ser dermed at systemet ikke bare produserer tekst, men også jobber videre med kvalitetssikring før prosjektet avsluttes.
 
 ![Processing Revise](public/processing-revise.png)
 
@@ -517,12 +527,12 @@ graph TD
     UserEnd -.->|"Ser lagrede prosjekter"| ProjectsUI
     UserEnd -->|"Last Ned"| DownloadBtn --> FormatChoice
 
-    subgraph FinalReviewFlow ["🔍 FINAL REVISION / REVIEW"]
+    subgraph FinalReviewFlow ["🔍 FINAL QUALITY PASS / REVIEW"]
         direction TB
-        ReviewDecision{"🔍 Kjør Final Revision / Review?"}
+        ReviewDecision{"🔍 Kjør Final Quality Pass?"}
         EdgeFinalReview["⚙️ ai-final-review"]
-        ReviewModel["🧠 OpenAI Responses<br/><i>GPT-5.5 medium</i>"]
-        QAMemo["📋 Revised document / QA Memo<br/><i>final text eller verdict + issues</i>"]
+        ReviewModel["🧠 OpenAI Responses<br/><i>GPT-5.5 review / GPT-5.4 revise</i>"]
+        QAMemo["📋 Quality chain result / QA Memo<br/><i>strong stop, revise eller verdict + issues</i>"]
     end
 
     AppState -->|"Ferdig dokument"| ReviewDecision
@@ -690,7 +700,7 @@ sequenceDiagram
     
     box rgba(245, 158, 11, 0.1) 🧠 MODELLER
         participant Gemini as ⚡ Gemini API
-        participant OpenAI as 🧠 OpenAI Responses (GPT-5.5 medium)
+        participant OpenAI as 🧠 OpenAI Responses (GPT-5.5 review / GPT-5.4 revise)
         participant Search as 🔍 Google Search
         participant Imagen as 🎨 Image Models (ChatGPT Images/Gemini/Imagen)
     end
@@ -772,14 +782,14 @@ sequenceDiagram
         Edge-->>-FE: Audio chunks
     end
 
-    Note over User,OpenAI: 🔍 FASE 5: Final Revision + Final Review
-    opt Auto Final Revision / Final Review aktivert
+    Note over User,OpenAI: 🔍 FASE 5: Final Quality Pass
+    opt Auto Final Quality Pass aktivert
         FE->>+Edge: POST ai-final-review (final_revision / qa_memo)
-        Note over Edge: Hele dokumentet sendes til OpenAI Responses
-        Edge->>+OpenAI: Whole-document final revision eller QA memo
+        Note over Edge: review-first chain: initial qa_memo, eventuell revise, fresh qa_memo
+        Edge->>+OpenAI: QA Review eller målrettet Final Revision
         OpenAI-->>-Edge: QA Memo JSON eller revised sections
-        Edge-->>-FE: verdict + issues + priority actions
-        FE-->>User: Viser revidert dokument eller QA Memo i CompleteView
+        Edge-->>-FE: quality chain status + verdict + issues + revised sections
+        FE-->>User: Viser Final Quality Pass / QA Memo i CompleteView
     end
 
     Note over User,DL: 🔁 FASE 6: Revise / Variant / Save target
@@ -1084,22 +1094,24 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `components/views/QuotaHealthView.tsx`: Dedikert dashboard for overvåking av Google Cloud API-kvoter med automatisk synkronisering og helseberegning.
 * `components/views/ProjectsViewSimple.tsx`: Standard prosjektoversikt med fargekodet status, komprimerte neste-steg-kort og handlingene `Open`, `Variant` og `Revise`.
 * `components/views/IntroView.tsx`: Samlet workspace for idéstart, importert Story Engine-fil, `Variant` og `Revise` med dynamiske save-targets.
-* `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, Final Review Memo, og inngang til `Variant` / `Revise`.
+* `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, `Final Quality Pass`, Final Review Memo, quality-chain-oppsummering og inngang til `Variant` / `Revise`.
 * `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag. Inneholder også fact-lock- og image-fact-lock-byggere som styrer hvilke fakta tekst og bilder får bruke.
-* `services/finalReview/*`: Logikken for whole-document Final Revision, review-progresjon, rewrite-styrke og QA-seedede revision briefs.
+* `hooks/useAutoQualityGate.ts`: Review-first orkestrering etter førstegenerering med `strong_stop`, scoped revise, broad fallback, post-review og quality-chain metadata.
+* `services/finalReview/*`: Logikken for `Final Quality Pass`, targeted/broad Final Revision, review-progresjon, rewrite-styrke og QA-seedede revision briefs.
 * `shared/suggestSettings/*`: Felles heuristikker og normalisering for `Suggest Settings`, slik at frontend og edge holder samme tolkningsregler.
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
 * `shared/billing/*`: Produktpolicy og tier-presets (`productPolicy.ts`, `tierPresets.ts`) som definerer kredittregler, utløpspolicyer og tier-grenser.
 * `services/localStorageService.ts` og `hooks/useAutosave.ts`: Bevarer full lokal session i IndexedDB, inkludert chapter images, cover images og audio, med 5 sekunders debounce, størrelsesestimat og tydelig varsel ved lagringskvote-feil.
-* `services/modelPricing.ts`: Lokal prisestimatkonfigurasjon for Production Report, inkludert GPT-5.5 og long-context terskler der provider-prisingen skiller mellom normal og lang kontekst.
+* `services/modelPricing.ts`: Lokal prisestimatkonfigurasjon for Production Report, inkludert `gpt-5.5` review, `gpt-5.4` revision og long-context terskler der provider-prisingen skiller mellom normal og lang kontekst.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
 * `scripts/check-supabase-function-auth.mjs`, `check-security-definer-grants.mjs`, `check-paid-ai-billing.mjs`, `check-svg-sanitizer.ts`, `check-build-observability.mjs` og `check-local-persistence-hardening.ts`: Guard-skript for henholdsvis Edge Function auth, RPC EXECUTE-herding, billing-integritet, SVG/Mermaid XSS-regresjoner, build-observability og lokal persistence.
+* `components/views/ModelPricingConsoleView.tsx`: Read-only admin-side for mismatch-panel, routing/prising-matrise og runtime evidence på tvers av tekst, bilde og TTS.
 * `supabase/functions/_shared/utils.ts`: Delt logikk for Edge Functions inkludert auth, allowlist, admin checks, kvote-reservering og brukslogging.
 * `supabase/functions/_shared/imageReferences.ts`: Delt validering og normalisering av referansebilder. Core Idea kan analysere opptil 7 visuelle referanser, mens seksjonsbilder fortsatt får et begrenset utvalg.
 * `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
 * `supabase/functions/_shared/pricing.ts`: Server-side prismapping (`USD -> credits`) for konsistent kredittbelastning.
 * `supabase/functions/ai-plan/`: Planleggingsagenten som normaliserer brukeroppgitte kilder, opplastede dokumenter, Google Search-kilder og kildehøstede visuelle referanser til plan-, fact-lock- og bildegrunnlag.
-* `supabase/functions/ai-final-review/`: OpenAI Responses-basert kvalitetstrinn for både automatisk Final Revision og manuelt Final Review QA Memo. Standard runtime er GPT-5.5 med medium reasoning.
+* `supabase/functions/ai-final-review/`: OpenAI Responses-basert kvalitetstrinn for review-first `Final Quality Pass` og manuelt Final Review QA Memo. Standard runtime er `gpt-5.5` for review og `gpt-5.4` for revision.
 * `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en lettvekts prosjektoversikt for valgt bruker.
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
@@ -1193,7 +1205,18 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
     npm run dev
     ```
 
-5.  **Deploy Supabase DB-migrasjoner og Edge Functions**
+5.  **Kjør lokale kvalitetssjekker ved behov**
+    ```bash
+    npm run typecheck
+    npm run check:functions
+    npm run lint:functions
+    npm run smoke:auto-quality-gate
+    npm run build
+    # optional when npm registry is reachable:
+    # npm run audit:high
+    ```
+
+6.  **Deploy Supabase DB-migrasjoner og Edge Functions**
     Når du har endret `supabase/migrations/`, push migrasjonene først:
     ```bash
     npx supabase db push
@@ -1220,13 +1243,15 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 - 🎧 **Medie-only Variant**: Audio-varianter kan oppdatere samme prosjekt uten å regenerere eller miste eksisterende seksjonsbilder når `Illustrations` ikke er valgt.
 - 🔁 **Samlet revisjonsflyt**: `Revise` er nå hovedinngangen for tekstforbedring, med valg mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren.
 - 🧩 **Revise med lagret QA-kontekst**: `Revise` prefiller nå lagret QA-memo og prioriterte tiltak inn i arbeidsflaten når slikt review finnes.
-- 🧠 **GPT-5.5 for kvalitetstrinn**: Final Revision og Final Review bruker nå GPT-5.5 medium som standard, og Production Report har lokal GPT-5.5-prising i provider-estimatet.
+- ✅ **Final Quality Pass**: Førstegenerering kan nå følge en review-first kvalitetskjede med `strong_stop`, scoped revise, broad fallback og post-review. Resultatet lagres med `qualityChain`-metadata og vises i ferdigvisningen.
+- 🧠 **Oppdatert modellvalg i kvalitetstrinn**: Final Review bruker nå `gpt-5.5` som standard, mens Final Revision fortsatt kjører `gpt-5.4`. Production Report estimerer nå lokal provider-prising for begge modellene.
 - 🖼️ **Core Idea referansebilder**: Core Idea støtter opptil 7 opplastede dokumenter/bilder. Seksjonsbilder velger et begrenset, prioritert referanseutvalg, med primary identity anchor når et helmotiv finnes.
 - 🎛️ **Variant oppgradert**: `Variant` har egen save-target-logikk, støtte for språkvarianter som nytt prosjekt, og samme låste profil-kontrakt som importert Story Engine-fil.
-- 🔍 **Final Revision / Review**: Seksjonsvis post-check er pensjonert. Whole-document Final Revision og QA Memo er samlet rundt `ai-final-review`, `services/finalReview/*` og review-progresjon på tvers av revision branches.
+- 🔍 **Final Quality Pass / Review**: Seksjonsvis post-check er pensjonert. Review-first quality gate, targeted/broad revision og QA Memo er samlet rundt `ai-final-review`, `hooks/useAutoQualityGate.ts`, `services/finalReview/*` og review-progresjon på tvers av revision branches.
 - 🌐 **Oversettelsesflyt**: Nye edge functions `ai-translate-plan` og `ai-translate-markdown` gjør språkvarianter til en egen server-side flyt.
 - 🧭 **Projects UX**: Enkel prosjektvisning er komprimert og tydeliggjort med fargekodet status, bedre neste-steg-guidance og admin-skjult advanced mode.
 - 👥 **Admin Users Projects-tab**: Admin-brukerflaten viser nå også prosjektvolum, review health, revision branches og siste prosjektaktivitet via `ai-admin-user-projects`.
+- 🧾 **Model Pricing Console**: Ny admin-side viser mismatch-panel, routing/prising-matrise og runtime evidence for tekst-, bilde- og TTS-flyt via `ai-quota-sync`.
 - 🧠 **Suggest Settings**: Prompt- og heuristikkgrunnlaget er utvidet og dokumentert videre i egne planer under `docs/`.
 - 💳 **Deploy/ops**: `deploy:functions` kjører function-auth, SECURITY DEFINER, paid-AI billing og Deno checks før split deploy av protected/public Edge Functions. CI kjører også audit, SVG-sanitizer, build-observability, local-persistence og prompt/routing/usage smoke checks.
 
@@ -1239,9 +1264,9 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 Vi bygger fremtidens publiseringsverktøy. Her er aktuelle oppfølgingsområder og videre planer:
 
 ### Aktuelle oppfølgingsområder (Q2 2026)
-*   🔁 **Multi-Round Final Review**: QA-historikk, review-delta og stagnasjons-/regresjonssignaler er innført i flere prosjektflater. Videre arbeid handler om å gjøre historikken enda enklere å bruke operasjonelt. Historisk beslutningsgrunnlag: `docs/archived_plans/final-review-multi-round-strategy.md`.
-*   🔧 **Guided Patch Mode** (deferred): Fremtidig utvidelse der AI-en foreslår konkrete, seksjonsmålrettede tekstendringer basert på QA-memoet. Se `docs/archived_plans/final-review-guided-patch-decision-packet.md`.
-*   🎯 **Suggest Settings Rebalancing**: Dokumentert arbeid for å balansere bias mellom de 158 category/genre-kombinasjonene i prompt, heuristikker og normalisering. Se `docs/archived_plans/suggest-settings-architecture-plan.md` og `docs/archived_plans/suggest-settings-rebalancing-plan.md`.
+*   🔁 **Multi-Round Final Review**: QA-historikk, review-delta og stagnasjons-/regresjonssignaler er nå i aktiv bruk på tvers av review-, revision- og prosjektflater. Videre arbeid handler primært om operatørflyt, sortering og tydeligere oppfølging av review-helse. Historisk beslutningsgrunnlag: `docs/archived_plans/final-review-multi-round-strategy.md`.
+*   🔧 **Guided Patch Preview**: QA-memoet brukes nå til å bygge seksjonsnære patch-kandidater, scope-planlegging og revise-briefs for lokale forbedringer. Full auto-patching er fortsatt ikke hovedflyten; bredere og høy-risiko issues forblir memo-drevne. Se `docs/archived_plans/final-review-guided-patch-decision-packet.md`.
+*   🎯 **Suggest Settings Rebalancing**: Suggest Settings har nå delt heuristikk- og normaliseringslag med fast-path, fallback og strengere genre-/opsjonsnormalisering. Videre arbeid handler om finjustering av bias og routing på tvers av category/genre-kombinasjonene. Se `docs/archived_plans/suggest-settings-architecture-plan.md` og `docs/archived_plans/suggest-settings-rebalancing-plan.md`.
 *   🌐 **Social Media Link Analysis**: Utvidelse av "Analyze Link" til YouTube-transkripter, X/Twitter-poster, Facebook/Instagram (oEmbed) og Gemini-basert videoanalyse. Se `docs/social-media-link-analysis-plan.md`.
 *   ☁️ **Vertex AI Phase 2 Migration**: Bølgevis Vertex-migrering og canary-verifisering for planlegging, seksjonsgenerering, TTS og støtteflyter. Gemini Developer API beholdes som fallback der feature-flaggene ikke er aktivert.
 
