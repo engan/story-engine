@@ -856,6 +856,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── landing/                                  # Egen statisk showcase/landing
 ├── src/                                      # Global CSS + Vite typer
 ├── components/
+│   ├── AppHeader.tsx                        # Toppnavigasjon for workspace, prosjekter, dashboard, billing og admin
+│   ├── AppWorkspaceBranding.tsx             # Branding-/hero-blokk for workspace-layouten
 │   ├── Icons.tsx                             # Ikoner (SVG)
 │   ├── MermaidDebugPage.tsx                  # Debug side for Mermaid
 │   ├── OnboardingModal.tsx                   # Førstegangs onboarding
@@ -865,11 +867,15 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── landing/                              # Landingsside komponenter
 │   │   └── LandingPage.tsx                   # Hovedinngang / Hero-seksjon
 │   ├── ui/                                   # Gjenbrukbare UI-komponenter
+│   │   ├── AppMessage.tsx                    # Inline meldingsbanner med tone-/alert-varianter
+│   │   ├── AppUiNoticeToast.tsx              # Flytende UI-toast for korte notices og feil
 │   │   ├── ContentRenderer.tsx               # Markdown/Mermaid renderer (ReactMarkdown)
 │   │   ├── DownloadModal.tsx                 # Modal for valg av eksportformat
 │   │   ├── ErrorBoundary.tsx                 # Feilhåndtering
+│   │   ├── LazyRouteFallback.tsx             # Suspense-fallback ved lazy lasting av views
 │   │   ├── LoadingView.tsx                   # Animerte laste-steg (Analyzing -> Finalizing)
 │   │   ├── LogViewer.tsx                     # Debug-konsoll i UI
+│   │   ├── ManualScopePromptModal.tsx        # Bekreftelsesdialog når revise ikke kan scopes trygt automatisk
 │   │   ├── Mermaid.tsx                       # Wrapper for Mermaid-diagrammer
 │   │   ├── PlanningStepper.tsx               # Visuell fremdriftsindikator
 │   │   ├── ResearchSourcesBox.tsx            # Tier-aware visning av forskningskilder + debuglogg
@@ -877,19 +883,71 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   └── views/                                # Hovedvisninger (States)
 │       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring + projects/credits/activity tabs
 │       ├── BillingView.tsx                   # Abonnement, kreditter og Stripe-portal
+│       ├── CastingView.tsx                   # Karakter- og stemmeoppsett for prosjektets roller
+│       ├── CompleteView.tsx                  # Ferdig resultat, Final Review Memo, Revise/Variant-entrypoints
+│       ├── complete/                         # Paneler, helpers og hooks for ferdigvisningen
+│       │   ├── AdvancedReviewToggle.tsx      # Toggle for å vise/skjule quality details
+│       │   ├── CompletionHero.tsx            # Hero-område med Download / Start New Project
+│       │   ├── ConfirmResetModal.tsx         # Modal som bekrefter reset/start-new fra CompleteView
+│       │   ├── DocumentPreviewPanel.tsx      # Full dokumentpreview med kapitler, cover, audio og kilder
+│       │   ├── DocumentPreviewToggle.tsx     # Toggle for å åpne/lukke dokumentpreview
+│       │   ├── FinalReviewAdvancedOverview.tsx # Operatørflate for memo-type, same-draft variance og saved-state-kontekst
+│       │   ├── finalReviewComparison.ts      # Sammenligner review-runder og beregner issue-delta
+│       │   ├── finalReviewDecision.ts        # Avleder enkel review-status og neste anbefalte handling
+│       │   ├── FinalReviewMemoSummaryPanel.tsx # Kort oppsummering av verdict, summary, delta og priority actions
+│       │   ├── FinalReviewMessages.tsx       # Inline success/error-meldinger for review-flyten
+│       │   ├── finalReviewPersistence.ts     # Hydrering og persistering av lagrede review-snapshots
+│       │   ├── finalReviewPresentation.ts    # Labels, tone-klasser og freshness/trend-formattering
+│       │   ├── FinalReviewRoundTrackerPanel.tsx # Historikk for review-runder, trend og issue-progresjon
+│       │   ├── FinalReviewStatusPanel.tsx    # Primær statusflate med review-/revise-/baseline-handlinger
+│       │   ├── GuidedPatchCandidatesPanel.tsx # Lokale, memo-avledede patch-kandidater med risikomerking
+│       │   ├── mermaidRepair.ts              # Ekstraherer, validerer og patcher Mermaid-blokker i draftet
+│       │   ├── MermaidRepairPanel.tsx        # UI for preview/apply av Mermaid-reparasjoner
+│       │   ├── ProjectStateDetailsPanel.tsx  # Routing-, review- og saved-state-kontekst for prosjektet
+│       │   ├── QualityDetailsSection.tsx     # Gjenbrukbar kollapsbar seksjon for quality details
+│       │   ├── QualityGateSummaryPanel.tsx   # Oppsummerer quality-chain, revision scope og integrity check
+│       │   ├── RawMemoIssuesPanel.tsx        # Full strukturert liste over QA-issues og anbefalte fixes
+│       │   ├── resetConfirmation.ts          # Bygger forklarende reset-tekst ut fra lagret prosjekt/media-state
+│       │   ├── RevisionRunSummaryPanel.tsx   # Oppsummerer siste revise-run, save target og rewrite strength
+│       │   ├── RoutingSnapshotPanel.tsx      # Viser lagret routing snapshot for ferdig draft
+│       │   ├── useChapterAudioUrls.ts        # Konverterer kapittel-audio til midlertidige WAV-URL-er
+│       │   ├── useFinalReviewDocumentHashes.ts # Beregner document hashes for review freshness og sammenligning
+│       │   └── useMermaidRepairWorkflow.ts   # Koordinerer Mermaid preflight, preview og apply-workflow
 │       ├── DashboardView.tsx                 # Brukerdashboard og prosjektoversikt
+│       ├── GenerationView.tsx                # Live streaming av tekst, add-ons og genereringsstatus
+│       ├── IntroView.tsx                     # Input, filanalyse, Revise/Variant/import-workflows
+│       ├── intro/                            # Paneler, helpers og delvis workflow-UI for startskjermen
+│       │   ├── AddOnsPanel.tsx               # Add-ons, Google Search, audio/bildevalg og seksjonskontroll
+│       │   ├── CoreIdeaAttachmentTray.tsx    # Kompakt tray for vedlagte dokument- og bilde-referanser
+│       │   ├── CoreIdeaInputPanel.tsx        # Hovedfelt for idé, enhance, suggest settings og vedleggsopplasting
+│       │   ├── CreationModeControl.tsx       # Simple / Custom-modusbryter
+│       │   ├── GenreSelectionPanel.tsx       # Category, genre og sub-option-velgere
+│       │   ├── ImageGenerationModelsPanel.tsx # Valg av modeller for cover- og seksjonsillustrasjoner
+│       │   ├── InputSourceSelector.tsx       # Velger start fra idé, referanse eller Story Engine-fil
+│       │   ├── IntroSettingsPanel.tsx        # Kreativitet, diagrammer, språk og TTS-relaterte innstillinger
+│       │   ├── LoadedWorkflowModeBanner.tsx  # Banner som forklarer variant-/revise-modus og save-kontrakt
+│       │   ├── LoadedWorkflowSourcePanel.tsx # Snapshot av importert kildeprosjekt, routing og workflow-opphav
+│       │   ├── NarratorVoicePanel.tsx        # Valg av fortellerstemme, stil og betalt voice preview
+│       │   ├── PromptQualityTestOverridePanel.tsx # Lokale/admin-overrides for prompt quality A/B-tester
+│       │   ├── ReferenceFileInput.tsx        # Drag-and-drop for referansefiler med analysehandlinger
+│       │   ├── ReferenceInputModeTabs.tsx    # Tabs mellom filopplasting og Analyze Link
+│       │   ├── ReferenceUrlInput.tsx         # URL-felt og hintbadge for Analyze Link
+│       │   ├── referenceInputs.ts            # Filtypekart, analysemodi og labels for referanseanalyse
+│       │   ├── RevisionBriefPanel.tsx        # Fri eller QA-seedet revisjonsbrief før Revise
+│       │   ├── RevisionOptionsPanel.tsx      # Save target, rewrite strength, QA guidance og scope-preview
+│       │   ├── RoutingPreviewPanel.tsx       # Lokal/admin routing preview av gjeldende beslutning
+│       │   ├── routingLabels.ts              # Formattering av routing-mode, profile og flag labels
+│       │   ├── StoryEngineFileInput.tsx      # Opplasting av lagret Story Engine-prosjektfil (.txt)
+│       │   ├── SupportedReferenceFilesTooltip.tsx # Tooltip for støttede referansefiltyper
+│       │   └── VariantSaveTargetPanel.tsx    # Valg av same project vs new project for variant-kjøringer
+│       ├── LoginView.tsx                     # Innlogging og autentisering
+│       ├── pageShell.ts                      # Delt shell-layout for admin-sider
 │       ├── ProjectsView.tsx                  # Avansert prosjektfamilievisning / lineage / QA-detaljer
 │       ├── ProjectsViewSimple.tsx            # Standard prosjektliste med Open / Variant / Revise
+│       ├── QrAuthorizeView.tsx               # Mobil autorisering for QR-login
 │       ├── QuotaHealthView.tsx               # Monitoring: quota health, runtime/config, Model & Pricing og risks
 │       ├── quotaHealthPlanData.ts            # Plan-data for fase 2 quota readiness
-│       ├── pageShell.ts                      # Delt shell-layout for admin-sider
-│       ├── LoginView.tsx                     # Innlogging og autentisering
-│       ├── QrAuthorizeView.tsx               # Mobil autorisering for QR-login
-│       ├── WaitlistView.tsx                  # Venteliste og early access
-│       ├── IntroView.tsx                     # Input, filanalyse, Revise/Variant/import-workflows
-│       ├── CastingView.tsx                   # Karakteroversikt og stemmevalg
-│       ├── GenerationView.tsx                # Live streaming av innhold
-│       └── CompleteView.tsx                  # Ferdig resultat, Final Review Memo, Revise/Variant-entrypoints
+│       └── WaitlistView.tsx                  # Venteliste og early access
 ├── hooks/                                    # React hooks for auth, autosave, usage, navigation og workflows
 │   ├── useAutosave.ts                        # IndexedDB restore/autosave med debounce, media-bevaring og kvotevarsling
 │   ├── useAuthSession.ts                     # Supabase auth-session lifecycle
@@ -1070,7 +1128,70 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-mermaid-fix/                   # Mermaid-fiksing med AI
 │   │   ├── ai-model-registry-config/         # Admin: draft/publish/rollback for modellregister
 │   │   ├── ai-plan/                          # Planleggings-agent med Google Search, fact-lock og verified sources
+│   │   │   ├── access.ts                     # Auth, allowlist, rate-limit og kredittflyt for ai-plan
+│   │   │   ├── coverImageRuntime.ts          # Edge-budsjett, deferral og recovery-logikk for cover-bilder
+│   │   │   ├── index.ts                      # Hovedfunksjon for grounding, source harvest, fact-lock, source visuals og planrespons
+│   │   │   ├── jsonParsing.test.ts           # Deno-tester for fenced JSON extraction og reparasjon
+│   │   │   ├── jsonParsing.ts                # Stripper fences, finner JSON-objekt og normaliserer kandidattekst
+│   │   │   ├── modelRouting.ts               # Velger Vertex vs Generative Language for plan-tekst og fallback-meta
+│   │   │   ├── promptAssembly.ts             # Bygger planprompt og avleder premise anchor for fiction
+│   │   │   ├── request.test.ts               # Tester payload-normalisering, tuning og referansedokumenter
+│   │   │   ├── request.ts                    # Normaliserer request-shape, tuning-budsjetter og vedlagte dokumenter
+│   │   │   ├── responseNormalization.test.ts # Tester normalisering av legacy-/rå planrespons
+│   │   │   ├── responseNormalization.ts      # Normaliserer plan JSON til stabil chapters/citations/story-bible-shape
+│   │   │   ├── responses.ts                  # HTTP-responshelpers for success, timeout og parse-/AI-feil
+│   │   │   ├── runtimeTypes.ts               # Runtime-typer for plan, citations, verifiedCitations og imageFactLock-status
+│   │   │   ├── sourceFactLockConflicts.test.ts # Tester konfliktlogikk mellom exactFacts og avoidFacts
+│   │   │   ├── sourceFactLockConflicts.ts    # Oppdager kollisjon mellom exactFacts og avoidFacts
+│   │   │   ├── sourceFactLockMatching.test.ts # Tester variant-token, source-match og URL-/alias-hjelpere
+│   │   │   ├── sourceFactLockMatching.ts     # Tekst-/URL-matching, aliaser og variant-sensitive token-hjelpere
+│   │   │   ├── sourceFactLockParsing.test.ts # Tester fact-lock parsing, citations og snippet-cleanup
+│   │   │   ├── sourceFactLockParsing.ts      # Parser og renser fact-lock JSON, citations og HTML-fragmenter
+│   │   │   ├── sourceFactLockPdf.test.ts     # Tester PDF-tekstuttrekk og cleanup for fact-lock
+│   │   │   ├── sourceFactLockPdf.ts          # Lettvekts PDF-tekstuttrekk for source-backed fact-lock
+│   │   │   ├── sourceFactLockPlan.test.ts    # Tester stripping av unsupported specs og fact-lock-apply
+│   │   │   ├── sourceFactLockPlan.ts         # Påfører source-backed exactFacts/avoidFacts på summary og chapters
+│   │   │   ├── sourceFactLockSnippets.test.ts # Tester kompakte, evidence-tunge snippets fra lange kilder
+│   │   │   ├── sourceFactLockSnippets.ts     # Ekstraherer relevante snippets til fact-lock-prompts
+│   │   │   ├── sourceFactLockSourcePool.test.ts # Tester dedupe, rank og direct-source-detection i source pool
+│   │   │   ├── sourceFactLockSourcePool.ts   # Slår sammen citations, user URLs og dokumenter til ranked source pool
+│   │   │   ├── sourceFactLockSources.test.ts # Tester kildeklassifisering, scoring og direkte spec-dokumentfunn
+│   │   │   ├── sourceFactLockSources.ts      # Klassifiserer og scorer kilder, kuraterer citations og finner direkte spec-kilder
+│   │   │   ├── sourceFactLockStructuredFacts.test.ts # Tester atomic structured fact extraction og labels
+│   │   │   ├── sourceFactLockStructuredFacts.ts # Utleder navngitte, atomiske facts fra HTML og snippets
+│   │   │   ├── sourceFactLockValues.test.ts  # Tester canonical values, kategorier og evidence overlap
+│   │   │   ├── sourceFactLockValues.ts       # Kanoniserer fact values, kategorier og evidence windows
+│   │   │   ├── sourceHarvestHints.test.ts    # Tester researchDepth/articleAngle og source-harvest-hints
+│   │   │   ├── sourceHarvestHints.ts         # Bygger grounding-/harvest-hints og formatterer grounded sources for prompt
+│   │   │   ├── sourceUrlUtils.test.ts        # Tester URL-cleaning, redirect-unwrapping og citation title-formattering
+│   │   │   ├── sourceUrlUtils.ts             # URL-normalisering, redirect-cleaning og bruker-URL-ekstraksjon
+│   │   │   ├── sourceVerification.test.ts    # Tester safe fetch, redirect-håndtering og soft404/dead-link-regler
+│   │   │   ├── sourceVerification.ts         # Safe-fetch, bounded reads, redirect-resolve og kildeverifisering
+│   │   │   ├── sourceVisualCandidates.test.ts # Tester HTML-bildekandidater, dedupe og diversity ordering
+│   │   │   ├── sourceVisualCandidates.ts     # Ekstraherer og rangerer visuelle kandidater fra HTML-kilder
+│   │   │   ├── sourceVisualPersistence.ts    # Validerer, laster ned og persisterer source visuals til storage
+│   │   │   ├── sourceVisualPlanPersistence.test.ts # Tester attach av source visuals til plan
+│   │   │   ├── sourceVisualPlanPersistence.ts # Fester innsamlede source visuals til plan innen edge-budsjett
+│   │   │   ├── sourceVisualReferences.test.ts # Tester fetch/rank/persist-flyten for source visuals
+│   │   │   ├── sourceVisualReferences.ts     # Orkestrerer sidefetch, kandidatranking og persistence av source visuals
+│   │   │   ├── sourceVisualSourcePages.test.ts # Tester prioritering av sider for visual-reference scraping
+│   │   │   ├── sourceVisualSourcePages.ts    # Velger hvilke kilde-sider som skal inspiseres for visuelle referanser
+│   │   │   ├── sourceVisualTypes.ts          # URL-sikkerhet, candidate kinds og low-value filtre for source visuals
+│   │   │   ├── usageLogging.test.ts          # Tester usageOperations for plan + optional cover image
+│   │   │   ├── usageLogging.ts               # finalizeUsage-logging for suksess, feil og fact-lock-runtime metadata
+│   │   │   ├── usageOperations.ts            # Bygger usage ledger-operasjoner for plan-generering og cover image
+│   │   │   ├── variantPrecisionGate.test.ts  # Tester variant-sensitive detection og precision stripping
+│   │   │   └── variantPrecisionGate.ts       # Guard for variant-sensitive requests og stripping av ubekreftede presise specs
 │   │   ├── ai-quota-sync/                    # Google Cloud kvote-synkronisering
+│   │   │   ├── alerts.ts                     # Bygger quota health-alerts og sender webhook-varsler
+│   │   │   ├── config.ts                     # Målmodeller, env-nøkler, vinduer og canary-thresholds
+│   │   │   ├── helpers.ts                    # Felles quota/text-canary-hjelpere for metrics, timing og parsing
+│   │   │   ├── index.ts                      # Admin-endepunkt for read/sync, snapshots, alerts, canaries og Model & Pricing
+│   │   │   ├── modelPricingControl.ts        # Bygger Model & Pricing-snapshot, mismatch-funn og runtime evidence
+│   │   │   ├── quotaMetrics.ts               # Regner ut limits, usage, remaining og health cards fra quota-data
+│   │   │   ├── quotaStorage.ts               # Leser usage events/text canary rows og persisterer quota snapshots
+│   │   │   ├── textCanarySummary.ts          # Oppsummerer ai-plan/ai-generate-section canary health, fallback og latency
+│   │   │   └── types.ts                      # Typer for quota cards, alerts, canaries og Model & Pricing-respons
 │   │   ├── ai-script-convert/                # Konvertering til filmmanus
 │   │   ├── ai-stripe-checkout/               # Oppretter Stripe Checkout for kredittkjøp
 │   │   ├── ai-stripe-portal/                 # Stripe Customer Portal (abonnement)
@@ -1111,10 +1232,13 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
 * `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering, brukerflagg og en egen `Projects`-fane med per-bruker prosjektinnsikt.
 * `components/views/QuotaHealthView.tsx`: Dedikert Monitoring-dashboard for quota health, runtime/config, Model & Pricing, Phase 2 Readiness og Operational Risks.
+* `components/ui/AppMessage.tsx` og `components/ui/AppUiNoticeToast.tsx`: Delte meldingsflater for inline alerts, statusbannere og flytende notices slik at review-, billing- og workflow-feil presenteres konsekvent.
 * `components/ui/ResearchSourcesBox.tsx`: Viser forskningskilder i tiers (`FACT_EVIDENCE`, `VERIFIED_RELEVANT`, `REACHABLE_ONLY` og debug/avvist), med trygg fallback til gammel citation-liste når rik metadata mangler.
 * `components/views/ProjectsViewSimple.tsx`: Standard prosjektoversikt med fargekodet status, komprimerte neste-steg-kort og handlingene `Open`, `Variant` og `Revise`.
 * `components/views/IntroView.tsx`: Samlet workspace for idéstart, importert Story Engine-fil, `Variant` og `Revise` med dynamiske save-targets.
+* `components/views/intro/*`: Deler opp startskjermen i fokuserte paneler for inputkilde, Core Idea, referanseanalyse, add-ons, routing preview, variant-/revise-kontrakt og revisionsbrief. Dette er grunnen til at `IntroView` kan bære både Simple, Custom, Variant og Revise uten å bli én stor fil.
 * `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, `Final Quality Pass`, Final Review Memo, quality-chain-oppsummering og inngang til `Variant` / `Revise`.
+* `components/views/complete/*`: Modulært lag rundt `CompleteView` som skiller statuspaneler, quality-chain-oppsummering, rå QA-issues, routing snapshot, Mermaid-reparasjon, preview og saved-state/logikk i egne paneler og helpers.
 * `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag. Inneholder også fact-lock- og image-fact-lock-byggere som styrer hvilke fakta tekst og bilder får bruke.
 * `hooks/useAutoQualityGate.ts`: Review-first orkestrering etter førstegenerering med `strong_stop`, scoped revise, broad fallback, post-review og quality-chain metadata.
 * `services/finalReview/*`: Logikken for `Final Quality Pass`, targeted/broad Final Revision, review-progresjon, rewrite-styrke og QA-seedede revision briefs.
@@ -1134,10 +1258,18 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/_shared/paidOperationGate.ts`: Operation-gate helper som stopper replay før nye provider-kall der en betalt operasjon allerede kjører, er fullført eller har ukjent providerutfall.
 * `supabase/functions/_shared/ttsDuration.ts`: Server-side TTS-varighetsberegning med provider metadata, WAV/PCM-observasjon og eksplisitt fallback til `character_proxy`.
 * `supabase/functions/ai-plan/`: Planleggingsagenten som normaliserer brukeroppgitte kilder, opplastede dokumenter, Google Search-kilder og kildehøstede visuelle referanser til plan-, fact-lock- og bildegrunnlag. Inneholder Verified Research Sources v2 med safe-fetch/SSRF-beskyttelse, bounded reads, source tiers og `verifiedCitations`.
+* `supabase/functions/ai-plan/request.ts`, `promptAssembly.ts`, `modelRouting.ts`, `responses.ts` og `responseNormalization.ts`: Fronten av planmotoren. Her normaliseres innkommende payload, prompten bygges, riktig Google-rute velges, rå AI-respons tolkes og sluttformatet presses tilbake til en stabil plan-shape.
+* `supabase/functions/ai-plan/sourceFactLock*.ts`: Fact-lock-laget. Disse filene bygger source pool, parser PDF/HTML/snippets, trekker ut strukturerte fakta, matcher varianter og påfører `exactFacts`/`avoidFacts` på summary og kapitler uten å slippe inn ubekreftede presise spesifikasjoner.
+* `supabase/functions/ai-plan/sourceVerification.ts`, `sourceUrlUtils.ts` og `sourceHarvestHints.ts`: Research-verifisering og URL-hygiene. Dette er laget som vasker redirect-lenker, bounded-fetcher sider trygt, vurderer om kilder er brukbare og styrer hvordan grounding/source-harvest skal beskrives til modellen.
+* `supabase/functions/ai-plan/sourceVisual*.ts` og `coverImageRuntime.ts`: Visuell kildeinnhenting for planfasen. De prioriterer hvilke sider som skal sjekkes, henter ut og rangerer bilde-kandidater, persisterer valgte visuals og håndterer edge-budsjett/deferral for cover-bilder.
+* `supabase/functions/ai-plan/usageOperations.ts`, `usageLogging.ts` og `variantPrecisionGate.ts`: Observability- og guard-laget for planmotoren. Her bygges ledger-operasjoner, runtime/fact-lock-metadata logges og variant-sensitive forespørsler mister presise påstander som ikke er kildestøttet.
 * `supabase/functions/ai-final-review/`: OpenAI Responses-basert kvalitetstrinn for review-first `Final Quality Pass` og manuelt Final Review QA Memo. Standard runtime er `gpt-5.5` for review og `gpt-5.4` for revision.
 * `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en lettvekts prosjektoversikt for valgt bruker.
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
+* `supabase/functions/ai-quota-sync/quotaStorage.ts`, `quotaMetrics.ts` og `helpers.ts`: Datagrunnlaget bak Quota Health. De leser usage events og snapshot-tabeller, normaliserer rå leverandørdata og regner ut limits, remaining, burn og health cards som dashboardet viser.
+* `supabase/functions/ai-quota-sync/modelPricingControl.ts`: Motoren bak `Model & Pricing > Monitoring`. Den samler configured/effective model paths, siste observerte runtime-modeller, kundeprisregler, provider-estimater og mismatch-funn i ett admin-snapshot.
+* `supabase/functions/ai-quota-sync/textCanarySummary.ts`, `alerts.ts`, `config.ts` og `types.ts`: Canary- og operasjonslaget for overvåking. Her defineres terskler, canary-oppsummeringer, varselbygging og API-typene som brukes av Monitoring, webhook-varsler og Phase 2 Readiness.
 * `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
 
 ---
