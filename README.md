@@ -830,6 +830,9 @@ sequenceDiagram
 
 ## 📂 Filstruktur & Modul-analyse
 
+<details>
+<summary><strong>Klikk for filstruktur</strong></summary>
+
 Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdbarhet og skalerbarhet. Vi bruker nå en tydelig domenestruktur under `services`, samt et delt prompt-lag i `shared/prompts` for å hindre prompt-drift mellom frontend og Edge Functions.
 
 ```text
@@ -949,10 +952,18 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── quotaHealthPlanData.ts            # Plan-data for fase 2 quota readiness
 │       └── WaitlistView.tsx                  # Venteliste og early access
 ├── hooks/                                    # React hooks for auth, autosave, usage, navigation og workflows
+│   ├── useAdminRole.ts                       # Henter adminrolle og tier fra profil/local mode
+│   ├── useAppLogs.ts                         # Lokal debug-logg med filtrering, clearing og nedlasting
+│   ├── useAppNavigation.ts                   # Toppnavigasjon mellom workspace, projects, dashboard, billing og adminflater
+│   ├── useAuthSession.ts                     # Supabase auth-session lifecycle og allowlist-status
+│   ├── useAutoQualityGate.ts                 # Review-first auto quality gate etter førstegenerering
 │   ├── useAutosave.ts                        # IndexedDB restore/autosave med debounce, media-bevaring og kvotevarsling
-│   ├── useAuthSession.ts                     # Supabase auth-session lifecycle
-│   ├── useGenerationWorkflow.ts              # Genereringsflyt og add-on koordinering
-│   └── useRevisionWorkflow.ts                # Revise/Variant workflow-koordinering
+│   ├── useGenerationWorkflow.ts              # Genereringsflyt, streaming/add-ons og finalisering
+│   ├── useManualStoryUnitClamp.ts            # Tvinger manuelt seksjonsantall innen tier-/formatgrenser
+│   ├── useRevisionWorkflow.ts                # Revise/Variant workflow-koordinering
+│   ├── useUrlViewNavigation.ts               # Åpner views fra `?view=`-queryparam etter innlogging
+│   ├── useUsageMetrics.ts                    # Klientside samling, dedupe og merging av usage metrics
+│   └── useVoicePreview.ts                    # TTS voice preview med sample-tekst og lokal avspilling
 ├── scripts/                                  # Verktøy og test-skript
 │   ├── audit-routing-coverage.ts             # Dekningssjekk for routing-regler mot katalogen
 │   ├── check-build-observability.mjs         # Guard for CI timeout og bundle-analyse
@@ -1131,56 +1142,34 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   │   ├── access.ts                     # Auth, allowlist, rate-limit og kredittflyt for ai-plan
 │   │   │   ├── coverImageRuntime.ts          # Edge-budsjett, deferral og recovery-logikk for cover-bilder
 │   │   │   ├── index.ts                      # Hovedfunksjon for grounding, source harvest, fact-lock, source visuals og planrespons
-│   │   │   ├── jsonParsing.test.ts           # Deno-tester for fenced JSON extraction og reparasjon
 │   │   │   ├── jsonParsing.ts                # Stripper fences, finner JSON-objekt og normaliserer kandidattekst
 │   │   │   ├── modelRouting.ts               # Velger Vertex vs Generative Language for plan-tekst og fallback-meta
 │   │   │   ├── promptAssembly.ts             # Bygger planprompt og avleder premise anchor for fiction
-│   │   │   ├── request.test.ts               # Tester payload-normalisering, tuning og referansedokumenter
 │   │   │   ├── request.ts                    # Normaliserer request-shape, tuning-budsjetter og vedlagte dokumenter
-│   │   │   ├── responseNormalization.test.ts # Tester normalisering av legacy-/rå planrespons
 │   │   │   ├── responseNormalization.ts      # Normaliserer plan JSON til stabil chapters/citations/story-bible-shape
 │   │   │   ├── responses.ts                  # HTTP-responshelpers for success, timeout og parse-/AI-feil
 │   │   │   ├── runtimeTypes.ts               # Runtime-typer for plan, citations, verifiedCitations og imageFactLock-status
-│   │   │   ├── sourceFactLockConflicts.test.ts # Tester konfliktlogikk mellom exactFacts og avoidFacts
 │   │   │   ├── sourceFactLockConflicts.ts    # Oppdager kollisjon mellom exactFacts og avoidFacts
-│   │   │   ├── sourceFactLockMatching.test.ts # Tester variant-token, source-match og URL-/alias-hjelpere
 │   │   │   ├── sourceFactLockMatching.ts     # Tekst-/URL-matching, aliaser og variant-sensitive token-hjelpere
-│   │   │   ├── sourceFactLockParsing.test.ts # Tester fact-lock parsing, citations og snippet-cleanup
 │   │   │   ├── sourceFactLockParsing.ts      # Parser og renser fact-lock JSON, citations og HTML-fragmenter
-│   │   │   ├── sourceFactLockPdf.test.ts     # Tester PDF-tekstuttrekk og cleanup for fact-lock
 │   │   │   ├── sourceFactLockPdf.ts          # Lettvekts PDF-tekstuttrekk for source-backed fact-lock
-│   │   │   ├── sourceFactLockPlan.test.ts    # Tester stripping av unsupported specs og fact-lock-apply
 │   │   │   ├── sourceFactLockPlan.ts         # Påfører source-backed exactFacts/avoidFacts på summary og chapters
-│   │   │   ├── sourceFactLockSnippets.test.ts # Tester kompakte, evidence-tunge snippets fra lange kilder
 │   │   │   ├── sourceFactLockSnippets.ts     # Ekstraherer relevante snippets til fact-lock-prompts
-│   │   │   ├── sourceFactLockSourcePool.test.ts # Tester dedupe, rank og direct-source-detection i source pool
 │   │   │   ├── sourceFactLockSourcePool.ts   # Slår sammen citations, user URLs og dokumenter til ranked source pool
-│   │   │   ├── sourceFactLockSources.test.ts # Tester kildeklassifisering, scoring og direkte spec-dokumentfunn
 │   │   │   ├── sourceFactLockSources.ts      # Klassifiserer og scorer kilder, kuraterer citations og finner direkte spec-kilder
-│   │   │   ├── sourceFactLockStructuredFacts.test.ts # Tester atomic structured fact extraction og labels
 │   │   │   ├── sourceFactLockStructuredFacts.ts # Utleder navngitte, atomiske facts fra HTML og snippets
-│   │   │   ├── sourceFactLockValues.test.ts  # Tester canonical values, kategorier og evidence overlap
 │   │   │   ├── sourceFactLockValues.ts       # Kanoniserer fact values, kategorier og evidence windows
-│   │   │   ├── sourceHarvestHints.test.ts    # Tester researchDepth/articleAngle og source-harvest-hints
 │   │   │   ├── sourceHarvestHints.ts         # Bygger grounding-/harvest-hints og formatterer grounded sources for prompt
-│   │   │   ├── sourceUrlUtils.test.ts        # Tester URL-cleaning, redirect-unwrapping og citation title-formattering
 │   │   │   ├── sourceUrlUtils.ts             # URL-normalisering, redirect-cleaning og bruker-URL-ekstraksjon
-│   │   │   ├── sourceVerification.test.ts    # Tester safe fetch, redirect-håndtering og soft404/dead-link-regler
 │   │   │   ├── sourceVerification.ts         # Safe-fetch, bounded reads, redirect-resolve og kildeverifisering
-│   │   │   ├── sourceVisualCandidates.test.ts # Tester HTML-bildekandidater, dedupe og diversity ordering
 │   │   │   ├── sourceVisualCandidates.ts     # Ekstraherer og rangerer visuelle kandidater fra HTML-kilder
 │   │   │   ├── sourceVisualPersistence.ts    # Validerer, laster ned og persisterer source visuals til storage
-│   │   │   ├── sourceVisualPlanPersistence.test.ts # Tester attach av source visuals til plan
 │   │   │   ├── sourceVisualPlanPersistence.ts # Fester innsamlede source visuals til plan innen edge-budsjett
-│   │   │   ├── sourceVisualReferences.test.ts # Tester fetch/rank/persist-flyten for source visuals
 │   │   │   ├── sourceVisualReferences.ts     # Orkestrerer sidefetch, kandidatranking og persistence av source visuals
-│   │   │   ├── sourceVisualSourcePages.test.ts # Tester prioritering av sider for visual-reference scraping
 │   │   │   ├── sourceVisualSourcePages.ts    # Velger hvilke kilde-sider som skal inspiseres for visuelle referanser
 │   │   │   ├── sourceVisualTypes.ts          # URL-sikkerhet, candidate kinds og low-value filtre for source visuals
-│   │   │   ├── usageLogging.test.ts          # Tester usageOperations for plan + optional cover image
 │   │   │   ├── usageLogging.ts               # finalizeUsage-logging for suksess, feil og fact-lock-runtime metadata
 │   │   │   ├── usageOperations.ts            # Bygger usage ledger-operasjoner for plan-generering og cover image
-│   │   │   ├── variantPrecisionGate.test.ts  # Tester variant-sensitive detection og precision stripping
 │   │   │   └── variantPrecisionGate.ts       # Guard for variant-sensitive requests og stripping av ubekreftede presise specs
 │   │   ├── ai-quota-sync/                    # Google Cloud kvote-synkronisering
 │   │   │   ├── alerts.ts                     # Bygger quota health-alerts og sender webhook-varsler
@@ -1211,11 +1200,33 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── deno.lock                         # Låste Deno-avhengigheter
 │   │   └── deno.d.ts                         # Supplerende module declarations
 │   └── migrations/                           # Database-migrasjoner
-│       ├── 20260120000000_quota_system.sql                    # Kvote-system tabeller og RPC
-│       ├── 20260129000000_add_credits_columns.sql             # Credits-kolonner og flyt
-│       ├── 20260216160000_fix_credit_idempotency_by_type.sql  # Idempotens-fiks for kreditt-trekk
-│       ├── 20260216173000_create_admin_users_table.sql        # Admin-brukere tabell
-│       └── ...                               # Videre fixes/cleanup migrasjoner
+│       ├── 20260120000000_quota_system.sql                    # Kvote-system, entitlements, usage events og grunn-RPC-er
+│       ├── 20260129000000_add_credits_columns.sql             # Legger til manglende credits-kolonner på entitlements/usage events
+│       ├── 20260129120000_fix_rpc.sql                         # Re-definerer get_user_entitlements RPC for credits-feltene
+│       ├── 20260129180000_create_projects_table.sql           # Cloud Save-prosjekter med RLS og dashboard-indekser
+│       ├── 20260201120000_ensure_charge_credits_rpc.sql       # Sikrer at charge_credits RPC finnes
+│       ├── 20260201130000_fix_credits_insert.sql              # Hardener charge_credits og oppgraderer credits_cost til BIGINT
+│       ├── 20260201133000_add_request_id.sql                  # Legger til request_id og idempotensindeks på usage_events
+│       ├── 20260201140000_cleanup_events.sql                  # Rydder targeted null/0-cost usage events
+│       ├── 20260201143000_cleanup_all_failed.sql              # Rydder mislykkede og gratis test-events fra usage_events
+│       ├── 20260201150000_wipe_history.sql                    # Tømmer gammel usage-history fra tidlig testperiode
+│       ├── 20260216160000_fix_credit_idempotency_by_type.sql  # Gjør kreditt-idempotens type-aware per request
+│       ├── 20260216173000_create_admin_users_table.sql        # Admin-brukere for server-side admin-tilgang
+│       ├── 20260217120000_create_billing_tables.sql           # Billing packages og subscription-tabeller
+│       ├── 20260218183000_create_user_flags_table.sql         # Admin-opererbare brukerflagg med severity/status
+│       ├── 20260220145500_qr_auth_sessions.sql                # QR login-sesjoner mellom desktop og mobil
+│       ├── 20260220193000_add_new_credit_package_tiers.sql    # Legger inn nye credit-pakker 120/500/1300
+│       ├── 20260220201000_split_credit_buckets.sql            # Deler inkluderte og kjøpte credits i separate buckets
+│       ├── 20260303203000_create_google_quota_snapshots.sql   # Quota snapshots for Google/Vertex-modeller
+│       ├── 20260309173500_lock_billing_v1_package_lineup.sql  # Låser godkjent v1-lineup for top-up packages
+│       ├── 20260325140000_create_quota_health_alert_logs.sql  # Alert-logg for Quota Health throttling/dedupe
+│       ├── 20260424190000_create_credit_reservations.sql      # Kredittreservasjoner før kostbare provider-kall
+│       ├── 20260426190000_create_project_visual_references_bucket.sql # Privat storage-bucket for visuelle prosjektreferanser
+│       ├── 20260520120000_harden_qr_auth_sessions.sql         # Herder QR auth-sesjoner og fjerner rå verifier-data
+│       ├── 20260523020000_harden_security_definer_rpc_execute.sql # Revoke EXECUTE på sensitive SECURITY DEFINER RPC-er
+│       ├── 20260528120000_create_model_registry_config_tables.sql # Modellregister releases og audit-logg
+│       ├── 20260528153000_create_paid_operation_runs.sql      # Operation-gate-tabell for replay/idempotency før provider-kall
+│       └── 20260529103000_add_adjusted_credit_reservation_commit.sql # Tillater justert commit av reserverte credits
 └── utils/                                    # Generelle hjelpefunksjoner
     ├── audio.ts                              # PCM/WAV-hjelpere (lavnivå)
     ├── dom.ts                                # DOM-manipulasjon
@@ -1271,6 +1282,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/ai-quota-sync/modelPricingControl.ts`: Motoren bak `Model & Pricing > Monitoring`. Den samler configured/effective model paths, siste observerte runtime-modeller, kundeprisregler, provider-estimater og mismatch-funn i ett admin-snapshot.
 * `supabase/functions/ai-quota-sync/textCanarySummary.ts`, `alerts.ts`, `config.ts` og `types.ts`: Canary- og operasjonslaget for overvåking. Her defineres terskler, canary-oppsummeringer, varselbygging og API-typene som brukes av Monitoring, webhook-varsler og Phase 2 Readiness.
 * `supabase/migrations/20260120000000_quota_system.sql`: Database-migrasjon med tabeller for `entitlements`, `usage_counters`, `usage_events` og atomiske RPC-funksjoner.
+
+</details>
 
 ---
 
