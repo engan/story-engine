@@ -33,7 +33,7 @@
 
 *   📚 **EPUB E-bok**: Eksporter som universell e-bok med cover, kapittelnavigasjon og bilder – klar for Apple Books, Kobo, Kindle og andre e-lesere.
 
-*   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. Core Idea kan i tillegg ha opptil 7 vedlegg, inkludert dokumenter og visuelle referanser, som analyseres før planlegging.
+*   📂 **Analyser hva som helst**: Start prosjektet ditt med en lydfil, video, bilde, dokument, kodefil eller et helt .zip-arkiv. Core Idea kan i tillegg ha opptil 7 vedlegg, inkludert dokumenter og visuelle referanser, som analyseres før planlegging. Opplastet bilde/lyd/video kalibreres med en generell high-stakes media guard: systemet kan beskrive observerbare trekk, men skal ikke gi definitive medisinske, juridiske, sikkerhetskritiske eller lignende handlingsråd fra media alene.
 
 *   🖼️ **Objektagnostiske visuelle referanser**: Opplastede Core Idea-bilder og kildehøstede produktbilder brukes som evidens og visuelle ankre, ikke som collage eller direkte kopi. Cover kan bruke hele referansepoolen, mens seksjonsbilder velger et begrenset, prioritert utvalg og markerer et primary identity anchor når et helmotiv finnes.
 
@@ -63,17 +63,19 @@
 
 *   🔍 **Final Quality Pass + Final Review**: Etter førstegenerering kan Story Engine kjøre en review-first kvalitetskjede med OpenAI Responses: først et QA Review med `gpt-5.5`, deretter automatisk stopp hvis utkastet allerede er `strong`, eller målrettet `Revise` med `gpt-5.4` når memoet finner reelle problemer. Etter automatisk revisjon kjøres et nytt QA Review, og quality-chain metadata lagres i prosjektet. Manuelt Final Review Memo kan fortsatt kjøres uten å endre dokumentet.
 
+*   💬 **Kontekstuelle hjelpetekster**: Startskjermen viser korte hjelpetekster for `Upload Files`, `Final Quality Pass` og kredittestimat/balanse i både Simple og Custom, inkludert kostnads-/kvalitetsavveiing og sikkerhetsforbehold for opplastet media.
+
 *   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Routing-logikken lever i `shared/routing/` og brukes av alle Edge Functions.
 
-*   📊 **Monitoring**: Sanntids-dashboard for Google Cloud API-kvoter, Vertex/Gemini-helse, runtime-flagg, readiness, operative risikoer og Model & Pricing-status. Eget admin-view (`QuotaHealthView`) samler både kvoter og modell-/prisingsovervåkning.
+*   📊 **Monitoring**: Sanntids-dashboard for Google Cloud API-kvoter, Vertex/Gemini-helse, runtime-flagg, readiness, operative risikoer, Model & Pricing-status og en read-only Quality Queue V1 for admin-triage av prosjekter med høy kvalitetsrisiko.
 
 *   🧾 **Model & Pricing**: Monitoring-fanen sammenholder server registry, provider-katalog, customer billing policy, credit value, runtime evidence og mismatch findings for tekst-, bilde- og TTS-flyt. Dette gjør modell- og prisdrift synlig uten å endre live routing eller billing.
 
 *   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Aktive tier-nivåer er `pilot`, `pro` og `elite` med ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg. Eldre `enterprise`-verdier normaliseres til `elite`. Konfigurert i `shared/billing/`.
 
-*   📈 **Production Report og runtime ledger**: Eksportert Story Engine-fil viser både klientbasert provider-estimat og faktisk server-side kredittbruk når ledger-data er fanget, inkludert `gpt-5.5` review, `gpt-5.4` revision, bildeoperasjoner, referanse-surcharge, TTS-varighetsmetadata, operation-gate status og quality-chain metadata når automatisk kvalitetskjede er brukt.
+*   📈 **Production Report og runtime ledger**: Eksportert Story Engine-fil viser kundevendt faktisk server-side kredittbruk når ledger-data er fanget. Admin kan i tillegg eksportere intern rapport med klientbasert provider-estimat, modell-/tokenkostnader, bildeoperasjoner, TTS-varighetsmetadata, operation-gate status og quality-chain metadata når automatisk kvalitetskjede er brukt.
 
-*   👥 **Admin Users med prosjektinnsikt**: Admin-flaten viser nå ikke bare tier, kreditter og aktivitet, men også en egen `Projects`-fane per bruker med prosjektantall, review health, revision branches og siste prosjektaktivitet.
+*   👥 **Admin Users med prosjektinnsikt**: Admin-flaten viser nå ikke bare tier, kreditter og aktivitet, men også en paginert `Projects`-fane per bruker med prosjektantall, review health, revision branches og siste prosjektaktivitet.
 
 ---
 
@@ -287,6 +289,11 @@ Her vises hvilke runtime-flagg og fallback-mekanismer som faktisk er aktive. Det
 
 ### Model & Pricing
 Model & Pricing-fanen viser provider-katalog, server registry, credit value, runtime match, registry publish control, pricing simulator, model catalog, mismatch findings og flow-matrise. Dette er nå hovedflaten for å oppdage modell-/prisdrift, pensjonerte modeller og manglende runtime evidence uten å endre billing eller routing direkte.
+
+> Skjermbildet av denne fanen mangler foreløpig i README og bør legges til når den nye Monitoring-runden med oppdaterte bilder tas.
+
+### Quality Queue
+Quality Queue V1 er en admin-only, read-only triageflate for prosjekter som kan trenge kvalitetssjekk. Den bruker et deterministisk `risk_score`, bounded vindu, sidebasert lasting og lette `projects.stats`-signaler slik at admin kan finne aktuelle kandidater uten å skanne tunge prosjektdata i tabellvisningen.
 
 > Skjermbildet av denne fanen mangler foreløpig i README og bør legges til når den nye Monitoring-runden med oppdaterte bilder tas.
 
@@ -717,6 +724,7 @@ sequenceDiagram
     User->>+FE: 📝 Input: idé, fil eller URL
     alt Filanalyse
         FE->>+Edge: POST ai-analyze-file
+        Note over Edge: High-stakes media guard for image/audio/video analysis
         Edge->>+Gemini: Multimodal analyse
         Gemini-->>-Edge: Analyse-resultat
         Edge-->>-FE: Core Idea / sammendrag
@@ -948,7 +956,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── ProjectsView.tsx                  # Avansert prosjektfamilievisning / lineage / QA-detaljer
 │       ├── ProjectsViewSimple.tsx            # Standard prosjektliste med Open / Variant / Revise
 │       ├── QrAuthorizeView.tsx               # Mobil autorisering for QR-login
-│       ├── QuotaHealthView.tsx               # Monitoring: quota health, runtime/config, Model & Pricing og risks
+│       ├── QuotaHealthView.tsx               # Monitoring: quota health, Quality Queue, runtime/config, Model & Pricing og risks
 │       ├── quotaHealthPlanData.ts            # Plan-data for fase 2 quota readiness
 │       └── WaitlistView.tsx                  # Venteliste og early access
 ├── hooks/                                    # React hooks for auth, autosave, usage, navigation og workflows
@@ -1128,10 +1136,11 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-admin-delete-user/             # Admin: slett bruker, entitlements og historikk
 │   │   ├── ai-admin-list-users/              # Admin: brukerliste/status/tier/limits
 │   │   ├── ai-admin-manage-flags/            # Admin: legg til/løs opp brukerflagg
+│   │   ├── ai-admin-quality-control/         # Admin: Quality Queue V1 og kvalitetstrisiko-triage
 │   │   ├── ai-admin-update-user/             # Admin: allowlist + tier-endring
 │   │   ├── ai-admin-user-activity/           # Admin: aktivitet/ledger for valgt bruker
-│   │   ├── ai-admin-user-projects/           # Admin: prosjektoversikt, review health og project rows per bruker
-│   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal)
+│   │   ├── ai-admin-user-projects/           # Admin: paginert prosjektoversikt, review health og project rows per bruker
+│   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal + high-stakes media guard)
 │   │   ├── ai-final-review/                  # Final Revision + QA Memo (whole-document)
 │   │   ├── ai-final-revision-billing/        # Reservasjon/commit/refund for Final Revision-kreditter
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
@@ -1236,13 +1245,14 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 
 * `services/ai/chapters.ts`: Kjernen i innholdsgenereringen. Bruker "Smart Chunking" for TTS/video, bygger autoriserte bildepremisser fra fact-lock, velger relevante seksjonsbildereferanser og bevarer eksisterende bilder når medie-only-varianter bare regenererer lyd.
 * `services/coreIdeaAttachments.ts` og `services/referenceEvidence.ts`: Klientlaget for Core Idea-vedlegg, visuell evidens og objektagnostiske referansepakker. Faktakilder og visuelle referanser holdes adskilt, men sendes videre som en felles prosjektkontekst til planlegging, tekst og bildegenerering.
+* `supabase/functions/ai-analyze-file/`: Multimodal analyse av opplastede filer. For opplastet bilde/lyd/video prependes en generell high-stakes media guard som hindrer definitive identifikasjoner, sikkerhetsvurderinger, diagnoser, juridiske/finansielle konklusjoner eller handlingsråd fra media alene. Rene transcript/SRT-filer holdes utenfor denne media-guard-teksten.
 * `services/export/video.ts`: Videomotor som bruker Canvas API og WebCodecs. Har innebygd logikk for å splitte lange overskrifter fra brødtekst visuelt.
 * `AGENTS.md`: Root-regler for Codex/agentarbeid, inkludert SECURITY DEFINER/RPC, Edge Function-auth, billing/credits, lokal persistence, build-hygiene og valideringskommandoer.
 * `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt, med oppgradert template, tema-toggle, media, kilder, nedlastingsflater og lokale, pinnede Mermaid- og KaTeX-assets i eksportpakken.
 * `services/export/katexAssets.ts`: Henter appens bundlete KaTeX CSS/JS/font-manifest fra `vendor/katex/` og skriver stabile assetnavn, fontfiler og lisensnotis inn i website-zipen.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
-* `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering, brukerflagg og en egen `Projects`-fane med per-bruker prosjektinnsikt.
-* `components/views/QuotaHealthView.tsx`: Dedikert Monitoring-dashboard for quota health, runtime/config, Model & Pricing, Phase 2 Readiness og Operational Risks.
+* `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering, brukerflagg og en paginert `Projects`-fane med per-bruker prosjektinnsikt.
+* `components/views/QuotaHealthView.tsx`: Dedikert Monitoring-dashboard for quota health, Quality Queue V1, runtime/config, Model & Pricing, Phase 2 Readiness og Operational Risks.
 * `components/ui/AppMessage.tsx` og `components/ui/AppUiNoticeToast.tsx`: Delte meldingsflater for inline alerts, statusbannere og flytende notices slik at review-, billing- og workflow-feil presenteres konsekvent.
 * `components/ui/ResearchSourcesBox.tsx`: Viser forskningskilder i tiers (`FACT_EVIDENCE`, `VERIFIED_RELEVANT`, `REACHABLE_ONLY` og debug/avvist), med trygg fallback til gammel citation-liste når rik metadata mangler.
 * `components/views/ProjectsViewSimple.tsx`: Standard prosjektoversikt med fargekodet status, komprimerte neste-steg-kort og handlingene `Open`, `Variant` og `Revise`.
@@ -1257,7 +1267,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
 * `shared/modelRegistry.ts` og `supabase/functions/ai-model-registry-config/`: Modellregister og admin-kontroll for draft/publish/rollback av server-side modellkonfigurasjon.
 * `shared/billing/*`: Produktpolicy og tier-presets (`productPolicy.ts`, `tierPresets.ts`) som definerer kredittregler, utløpspolicyer og tier-grenser.
-* `services/pricing/*`: Skiller provider-kostnad, customer billing policy, modellnormalisering og modellvisning slik at Production Report/audit ikke blander provider-estimat med kundepris.
+* `services/pricing/*`: Skiller provider-kostnad, customer billing policy, modellnormalisering og modellvisning slik at Production Report/audit ikke blander intern provider-estimat med kundevendt kredittbruk.
 * `services/localStorageService.ts` og `hooks/useAutosave.ts`: Bevarer full lokal session i IndexedDB, inkludert chapter images, cover images og audio, med 5 sekunders debounce, størrelsesestimat og tydelig varsel ved lagringskvote-feil.
 * `services/modelPricing.ts`: Lokal prisestimatkonfigurasjon for Production Report, inkludert `gpt-5.5` review, `gpt-5.4` revision og long-context terskler der provider-prisingen skiller mellom normal og lang kontekst.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
@@ -1275,7 +1285,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/ai-plan/sourceVisual*.ts` og `coverImageRuntime.ts`: Visuell kildeinnhenting for planfasen. De prioriterer hvilke sider som skal sjekkes, henter ut og rangerer bilde-kandidater, persisterer valgte visuals og håndterer edge-budsjett/deferral for cover-bilder.
 * `supabase/functions/ai-plan/usageOperations.ts`, `usageLogging.ts` og `variantPrecisionGate.ts`: Observability- og guard-laget for planmotoren. Her bygges ledger-operasjoner, runtime/fact-lock-metadata logges og variant-sensitive forespørsler mister presise påstander som ikke er kildestøttet.
 * `supabase/functions/ai-final-review/`: OpenAI Responses-basert kvalitetstrinn for review-first `Final Quality Pass` og manuelt Final Review QA Memo. Standard runtime er `gpt-5.5` for review og `gpt-5.4` for revision.
-* `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en lettvekts prosjektoversikt for valgt bruker.
+* `supabase/functions/ai-admin-quality-control/`: Admin-endepunkt for read-only Quality Queue V1. `fetch_queue` returnerer bounded, paginerte prosjektkandidater med deterministisk `risk_score`, forklaringsfelt og observability uten brede `projects.data`-reads i tabellradene.
+* `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en paginert lettvekts prosjektoversikt for valgt bruker.
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
 * `supabase/functions/ai-quota-sync/quotaStorage.ts`, `quotaMetrics.ts` og `helpers.ts`: Datagrunnlaget bak Quota Health. De leser usage events og snapshot-tabeller, normaliserer rå leverandørdata og regner ut limits, remaining, burn og health cards som dashboardet viser.
@@ -1297,6 +1308,18 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 *   **Node.js**: v22+ anbefalt (dev/smoke-skript bruker moderne Node-runtime)
 *   **Deno**: v2.6.8+ (for Edge Functions)
 *   **Supabase CLI**: v2.101.0+ anbefalt. Repoet har Supabase CLI som dev dependency, så bruk `npx supabase ...` for samme versjon som prosjektet.
+
+### 🧭 Lokal WSL/Codex-kommandokjøring
+
+Repoet ligger i WSL. Når kommandoer kjøres fra Codex, PowerShell eller andre Windows-initierte skall, kan Windows `node`/`npm` havne først i `PATH` og prøve å bruke Linux `node_modules`. Det kan gi Rollup/Vite optional dependency-feil.
+
+Kjør validering og deploy gjennom WSL og last `nvm` eksplisitt:
+
+```bash
+wsl -e bash -lc 'cd /home/chieftec/google/story-engine && export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && npm run typecheck'
+```
+
+Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run check:functions`, `npm run lint:functions` eller `npm run deploy:functions:protected`. Dette er samme mønster som er dokumentert i `.agent/rules/deployment-rules.md`.
 
 ### 🚀 Installasjon
 
@@ -1409,8 +1432,10 @@ For investorer, partnere eller utviklere som har fått tildelt tilgangsrettighet
 
 Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
 
-### Siste endringer (April-Mai 2026)
+### Siste endringer (April-Juni 2026)
 - 🧭 **Simple / Custom startmodus**: Startsiden har nå en enklere `Simple`-modus for førstegenerering, der avanserte kontroller skjules og `Suggest Settings` kjøres automatisk ved `Create Project`. `Custom` beholder full kontrollflate.
+- 💬 **Startskjerm-hjelpetekster**: `Upload Files`, `Final Quality Pass` og kreditt-preflight har kortere, mer lesbare hjelpetekster i Simple og Custom, med tydeligere kostnads-/kvalitetsforklaring og safety-forbehold for opplastet media.
+- 🛡️ **Opplastet media-sikkerhet**: `ai-analyze-file` legger nå inn en generell high-stakes media guard for bilde/lyd/video slik at analyser beskriver observerbare trekk, markerer usikkerhet og anbefaler kvalifisert verifisering i risikobærende temaer. Transcript/SRT-analyse holdes uendret.
 - 🎙️ **3.1 Flash TTS som standard**: Standard Text-to-Speech-modell er nå `gemini-3.1-flash-tts-preview`, mens 2.5 Flash og 2.5 Pro fortsatt kan velges manuelt.
 - 🔒 **Strukturert fact-lock**: `ai-plan` normaliserer Core Idea-URL-er, opplastede dokumenter, Google Search-kilder og produkt-/konfiguratorlenker til én kildepool, rangerer kilder og løser konflikter før primary facts sendes til tekst og bildeprompt.
 - 🔎 **Verified Research Sources v2**: `ai-plan` produserer rik `verifiedCitations`-metadata med source tiers, safe-fetch/SSRF-beskyttelse, bounded reads, soft404/mismatch-signaler og fallback til enkel citation-kontrakt. `ResearchSourcesBox` kan vise primære faktakilder, øvrige relevante kilder og debug/avviste kilder adskilt.
@@ -1429,8 +1454,10 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 - 🔍 **Final Quality Pass / Review**: Seksjonsvis post-check er pensjonert. Review-first quality gate, targeted/broad revision og QA Memo er samlet rundt `ai-final-review`, `hooks/useAutoQualityGate.ts`, `services/finalReview/*` og review-progresjon på tvers av revision branches.
 - 🌐 **Oversettelsesflyt**: Nye edge functions `ai-translate-plan` og `ai-translate-markdown` gjør språkvarianter til en egen server-side flyt.
 - 🧭 **Projects UX**: Enkel prosjektvisning er komprimert og tydeliggjort med fargekodet status, bedre neste-steg-guidance og admin-skjult advanced mode.
-- 👥 **Admin Users Projects-tab**: Admin-brukerflaten viser nå også prosjektvolum, review health, revision branches og siste prosjektaktivitet via `ai-admin-user-projects`.
+- 👥 **Admin Users Projects-tab**: Admin-brukerflaten viser nå også prosjektvolum, review health, revision branches og siste prosjektaktivitet via paginert `ai-admin-user-projects`.
 - 🧾 **Model & Pricing i Monitoring**: Monitoring har nå fanen `Model & Pricing` med provider-katalog, server registry, credit value, registry publish control, pricing simulator, model catalog, mismatch findings og flow-matrise for tekst-, bilde- og TTS-flyt via `ai-quota-sync`.
+- 📊 **Quality Queue V1 i Monitoring**: Admin har nå en sjette, lazy-loaded Monitoring-fane som viser read-only kvalitetskandidater på tvers av prosjekter med deterministisk `risk_score`, bounded vindu, paginering og observability via `ai-admin-quality-control`.
+- 📈 **Kundevendt vs intern Production Report**: TXT-eksporten skiller nå mellom kundevendt kreditt-/ledger-rapport og admin-only intern produksjonsrapport med provider-estimater. Admin kan midlertidig bytte rapportaudience i Download-dialogen for Plain Text.
 - 🧠 **Suggest Settings**: Prompt- og heuristikkgrunnlaget er utvidet og dokumentert videre i egne planer under `docs/`.
 - 💳 **Deploy/ops**: `deploy:functions` kjører function-auth, SECURITY DEFINER, paid-AI billing og Deno checks før split deploy av protected/public Edge Functions. CI kjører også audit, SVG-sanitizer, model-registry, app-shell-preload, build-observability, local-persistence, website-export-KaTeX og prompt/routing/usage smoke checks.
 
