@@ -1505,3 +1505,4 @@ Fordi en multimodal AI-plattform fortjener sitt eget lydspor. Tekst og melodi er
   <p>Utviklet med ❤️ i Norge</p>
   <p>© 2025-2026 Story Engine</p>
 </div>
+
