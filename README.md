@@ -41,6 +41,8 @@
 
 *   🔎 **Verifiserte forskningskilder v2**: Planleggingen skiller nå mellom kildestøttet fakta, verifisert relevante kilder, kun reachable kilder og avviste/ikke-verifiserte treff. Server-side kildeverifisering bruker safe-fetch, redirect-vask, bounded reads, soft404-/mismatch-sjekker og rik `verifiedCitations`-metadata, slik at topplisten under `Forskningskilder` ikke fylles med svake lenker bare for å nå et antall.
 
+*   🧭 **Trusted source authority registry**: En liten, objektagnostisk bootstrap-registry hjelper source ranking og fact-lock med offisielle/statistiske/helse-/standard-/fact-check-kilder på tvers av land og språk. Registry-treff er bare authority metadata; de erstatter ikke direkte kildeverifisering, ferskhet eller gap-matching.
+
 *   🛡️ **Evidence safety og kildestatus**: High-assurance og publiseringsfølsomme dokumenter får tydelig kildestatus når review/evidence ikke er lukket. Den samme lokaliserte draft-advarselen kan vises i workspace preview og følger eksportene der det er relevant, blant annet TXT, PDF, DOCX, EPUB og website.
 
 *   🛠️ **AI-verktøykasse for spesialoppgaver**: Utfør avanserte oppgaver med ett klikk – konverter lydfiler til undertekster (.srt), generer en komplett README.md fra et .zip-arkiv, eller trekk ut et profesjonelt sammendrag fra et langt dokument.
@@ -53,19 +55,19 @@
 
 *   🔁 **Samlet Revise-flyt**: `Revise` bruker lagret QA-memo når det finnes, prefiller revisjonsmål inn i arbeidsflaten, og lar deg enten oppdatere samme prosjekt eller lagre en ny revisjonsgren fra samme arbeidsflate.
 
-*   🔧 **Repair Sources / kildeforbedring**: Når QA finner kildegap kan Story Engine forsøke målrettet kildeforbedring før revisjon. Hvis sterke nok kilder ikke finnes, stopper flyten uten å belaste kilde-repair-add-onen videre og ber heller brukeren laste opp eller angi bedre primærkilder.
+*   🔧 **Repair Sources / kildeforbedring**: Når QA finner kildegap kan Story Engine forsøke målrettet kildeforbedring før revisjon. Flyten mapper kilder til konkrete gap, bærer ulukkede gap inn i revision-briefen og stopper uten videre source-repair-belastning når sterke nok kilder ikke finnes.
 
 *   🎛️ **Variant / Regenerate Outputs**: `Variant` gjenbruker samme prosjektprofil for illustrasjoner, audio og språkbytte. Medie-only-varianter kan oppdatere samme prosjekt og bevare eksisterende bilder når bare audio regenereres, mens språkbytte opprettes som nytt prosjekt.
 
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 
-*   🎙️ **Velg din stemmekvalitet**: Bytt mellom flere Text-to-Speech modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv), Gemini 2.5 Pro (maksimal kvalitet) eller Gemini 3.1 Flash TTS Preview. I testfasen er Gemini 3.1 Flash TTS Preview satt som standardvalg for nye lydgenereringer. Billing bruker server-observert varighet når format/metadata er trygt verifisert, og faller ellers tilbake til konservativ tegnproxy.
+*   🎙️ **Velg din stemmekvalitet**: Bytt mellom flere Text-to-Speech modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv), Gemini 2.5 Pro (maksimal kvalitet) eller Gemini 3.1 Flash TTS Preview. I testfasen er Gemini 3.1 Flash TTS Preview satt som standardvalg for nye lydgenereringer. Initial audio/radio-generering kjører nå text-first `Final Quality Pass` før media bygges, og billing bruker server-observert varighet når format/metadata er trygt verifisert eller konservativ tegnproxy ellers.
 
 *   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
 
 *   🧼 **Vaskemaskinen (Sanitizer)**: Automatisk rensing og validering av kode, Markdown og Mermaid-diagrammer før visning. "Self-healing" Mermaid-diagrammer som fikser syntaksfeil automatisk.
 
-*   🔍 **Final Quality Pass + Final Review**: Etter førstegenerering kan Story Engine kjøre en review-first kvalitetskjede med OpenAI Responses: først et QA Review med `gpt-5.5`, deretter automatisk stopp hvis utkastet allerede er `strong`, eller målrettet `Revise` med `gpt-5.4` når memoet finner reelle problemer. Etter automatisk revisjon kjøres et nytt QA Review, og quality-chain metadata lagres i prosjektet. Manuelt Final Review Memo kan fortsatt kjøres uten å endre dokumentet.
+*   🔍 **Final Quality Pass + Final Review**: Etter førstegenerering kan Story Engine kjøre en review-first kvalitetskjede med OpenAI Responses: først et QA Review med `gpt-5.5`, deretter automatisk stopp hvis utkastet allerede er `strong`, eller målrettet `Revise` med `gpt-5.4` når memoet finner reelle problemer. For lange dokumenter kan Quality Autopilot kjøre et kontrollert staged pass med owner-godkjente caps, prioriterte issue clusters, målrettet source repair/revision og tydelige stop reasons uten å gjøre Repair/Prune/Broad til normalbrukerens primærvalg.
 
 *   💬 **Kontekstuelle hjelpetekster**: Startskjermen viser korte hjelpetekster for `Upload Files`, `Final Quality Pass` og kredittestimat/balanse i både Simple og Custom, inkludert kostnads-/kvalitetsavveiing og sikkerhetsforbehold for opplastet media.
 
@@ -1272,9 +1274,9 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, `Final Quality Pass`, Final Review Memo, quality-chain-oppsummering og inngang til `Variant` / `Revise`.
 * `components/views/complete/*`: Modulært lag rundt `CompleteView` som skiller statuspaneler, quality-chain-oppsummering, rå QA-issues, routing snapshot, Mermaid-reparasjon, preview og saved-state/logikk i egne paneler og helpers.
 * `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag. Inneholder også fact-lock- og image-fact-lock-byggere som styrer hvilke fakta tekst og bilder får bruke.
-* `hooks/useAutoQualityGate.ts`: Review-first orkestrering etter førstegenerering med `strong_stop`, scoped revise, broad fallback, post-review og quality-chain metadata.
-* `services/finalReview/*`: Logikken for `Final Quality Pass`, targeted/broad Final Revision, review-progresjon, rewrite-styrke og QA-seedede revision briefs.
-* `supabase/functions/ai-source-repair/`: Målrettet kilde-repair før revisjon. Funksjonen søker etter sterkere kilder for QA-gap, men kan returnere `no_sufficient_sources` slik at draftet heller bevares uendret og brukeren får tydelig beskjed om manglende primærkilder.
+* `hooks/useAutoQualityGate.ts`: Review-first orkestrering etter førstegenerering med `strong_stop`, scoped revise, staged long-document execution, broad fallback, post-review og quality-chain metadata.
+* `services/finalReview/*`: Logikken for `Final Quality Pass`, targeted/broad Final Revision, staged quality policy, review-progresjon, rewrite-styrke og QA-/source-repair-seedede revision briefs.
+* `supabase/functions/ai-source-repair/`: Målrettet kilde-repair før revisjon. Funksjonen søker etter sterkere kilder for QA-gap, registrerer per-gap coverage og kan returnere `no_sufficient_sources` slik at draftet heller bevares uendret eller revideres med tydelig kvalifisering/pruning av ulukkede gap.
 * `shared/suggestSettings/*`: Felles heuristikker og normalisering for `Suggest Settings`, slik at frontend og edge holder samme tolkningsregler.
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
 * `shared/modelRegistry.ts` og `supabase/functions/ai-model-registry-config/`: Modellregister og admin-kontroll for draft/publish/rollback av server-side modellkonfigurasjon.
@@ -1283,7 +1285,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `services/localStorageService.ts` og `hooks/useAutosave.ts`: Bevarer full lokal session i IndexedDB, inkludert chapter images, cover images og audio, med 5 sekunders debounce, størrelsesestimat og tydelig varsel ved lagringskvote-feil.
 * `services/modelPricing.ts`: Lokal prisestimatkonfigurasjon for Production Report, inkludert `gpt-5.5` review, `gpt-5.4` revision og long-context terskler der provider-prisingen skiller mellom normal og lang kontekst.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
-* `scripts/check-supabase-function-auth.mjs`, `check-security-definer-grants.mjs`, `check-paid-ai-billing.mjs`, `check-model-registry.ts`, `check-app-shell-preloads.mjs`, `check-svg-sanitizer.ts`, `check-build-observability.mjs`, `check-local-persistence-hardening.ts`, `smoke-export-evidence-safety.ts`, `smoke-source-repair-flow.ts` og `smoke-website-export-katex.mjs`: Guard-skript for Edge Function auth, RPC EXECUTE-herding, billing-integritet, modell/pricing-katalog, app-shell preloads, SVG/Mermaid XSS-regresjoner, evidence-safety/export-varsel, source-repair flyt, build-observability, lokal persistence og offline website-export assets.
+* `scripts/check-supabase-function-auth.mjs`, `check-security-definer-grants.mjs`, `check-paid-ai-billing.mjs`, `check-model-registry.ts`, `check-app-shell-preloads.mjs`, `check-svg-sanitizer.ts`, `check-build-observability.mjs`, `check-local-persistence-hardening.ts`, `check-staged-auto-quality-readiness.ts`, `check-quality-autopilot-ui.ts`, `smoke-export-evidence-safety.ts`, `smoke-source-repair-flow.ts`, `smoke-source-verification-policy.ts`, `smoke-source-authority-registry-phase-d.ts`, `smoke-media-quality-pass-policy.ts`, `smoke-media-lineage.ts` og `smoke-website-export-katex.mjs`: Guard-skript for Edge Function auth, RPC EXECUTE-herding, billing-integritet, modell/pricing-katalog, app-shell preloads, SVG/Mermaid XSS-regresjoner, evidence-safety/export-varsel, source-repair, source authority, staged quality, media lineage, build-observability, lokal persistence og offline website-export assets.
 * `supabase/functions/_shared/utils.ts`: Delt logikk for Edge Functions inkludert auth, allowlist, admin checks, kvote-reservering og brukslogging.
 * `supabase/functions/_shared/imageReferences.ts`: Delt validering og normalisering av referansebilder. Core Idea kan analysere opptil 7 visuelle referanser, mens seksjonsbilder fortsatt får et begrenset utvalg.
 * `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
@@ -1293,6 +1295,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/ai-plan/`: Planleggingsagenten som normaliserer brukeroppgitte kilder, opplastede dokumenter, Google Search-kilder og kildehøstede visuelle referanser til plan-, fact-lock- og bildegrunnlag. Inneholder Verified Research Sources v2 med safe-fetch/SSRF-beskyttelse, bounded reads, source tiers og `verifiedCitations`.
 * `supabase/functions/ai-plan/request.ts`, `promptAssembly.ts`, `modelRouting.ts`, `responses.ts` og `responseNormalization.ts`: Fronten av planmotoren. Her normaliseres innkommende payload, prompten bygges, riktig Google-rute velges, rå AI-respons tolkes og sluttformatet presses tilbake til en stabil plan-shape.
 * `supabase/functions/ai-plan/sourceFactLock*.ts`: Fact-lock-laget. Disse filene bygger source pool, parser PDF/HTML/snippets, trekker ut strukturerte fakta, matcher varianter og påfører `exactFacts`/`avoidFacts` på summary og kapitler uten å slippe inn ubekreftede presise spesifikasjoner.
+* `shared/sourceAuthorityRegistry.ts` og `supabase/functions/ai-plan/sourceAuthoritySignals.ts`: Trusted-source registry og authority metadata. Dette laget hjelper ranking og diagnostics, men kan ikke lukke et gap uten relevant, fersk og verifisert kildestøtte.
 * `supabase/functions/ai-plan/sourceVerification.ts`, `sourceUrlUtils.ts` og `sourceHarvestHints.ts`: Research-verifisering og URL-hygiene. Dette er laget som vasker redirect-lenker, bounded-fetcher sider trygt, vurderer om kilder er brukbare og styrer hvordan grounding/source-harvest skal beskrives til modellen.
 * `supabase/functions/ai-plan/sourceVisual*.ts` og `coverImageRuntime.ts`: Visuell kildeinnhenting for planfasen. De prioriterer hvilke sider som skal sjekkes, henter ut og rangerer bilde-kandidater, persisterer valgte visuals og håndterer edge-budsjett/deferral for cover-bilder.
 * `supabase/functions/ai-plan/usageOperations.ts`, `usageLogging.ts` og `variantPrecisionGate.ts`: Observability- og guard-laget for planmotoren. Her bygges ledger-operasjoner, runtime/fact-lock-metadata logges og variant-sensitive forespørsler mister presise påstander som ikke er kildestøttet.
@@ -1420,7 +1423,15 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
     npm run check:paid-ai-billing
     npm run check:functions
     npm run lint:functions
+    npm run check:staged-auto-quality-readiness
+    npm run check:quality-autopilot-ui
     npm run smoke:auto-quality-gate
+    npm run smoke:staged-auto-quality-shadow
+    npm run smoke:source-verification-policy
+    npm run smoke:source-authority-registry
+    npm run smoke:source-repair-flow
+    npm run smoke:media-quality-pass-policy
+    npm run smoke:media-lineage
     npm run smoke:website-export-katex
     npm run build
     # optional when npm registry is reachable:
@@ -1450,9 +1461,9 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 - 🛡️ **Opplastet media-sikkerhet**: `ai-analyze-file` legger nå inn en generell high-stakes media guard for bilde/lyd/video slik at analyser beskriver observerbare trekk, markerer usikkerhet og anbefaler kvalifisert verifisering i risikobærende temaer. Transcript/SRT-analyse holdes uendret.
 - 🎙️ **3.1 Flash TTS som standard**: Standard Text-to-Speech-modell er nå `gemini-3.1-flash-tts-preview`, mens 2.5 Flash og 2.5 Pro fortsatt kan velges manuelt.
 - 🔒 **Strukturert fact-lock**: `ai-plan` normaliserer Core Idea-URL-er, opplastede dokumenter, Google Search-kilder og produkt-/konfiguratorlenker til én kildepool, rangerer kilder og løser konflikter før primary facts sendes til tekst og bildeprompt.
-- 🔎 **Verified Research Sources v2**: `ai-plan` produserer rik `verifiedCitations`-metadata med source tiers, safe-fetch/SSRF-beskyttelse, bounded reads, soft404/mismatch-signaler og fallback til enkel citation-kontrakt. `ResearchSourcesBox` kan vise primære faktakilder, øvrige relevante kilder og debug/avviste kilder adskilt.
+- 🔎 **Verified Research Sources v2 + trusted authority registry**: `ai-plan` produserer rik `verifiedCitations`-metadata med source tiers, safe-fetch/SSRF-beskyttelse, bounded reads, soft404/mismatch-signaler og fallback til enkel citation-kontrakt. En bootstrap registry for offisielle, statistiske, helse-, standard- og fact-check-kilder bidrar til ranking/diagnostics uten å erstatte claim/source alignment.
 - 🛡️ **Evidence safety i preview og eksport**: Utkast med ulukket kildestatus kan nå vise samme lokaliserte kildestatus-varsel i workspace preview og eksporterte formater. Export warning-tekstene er flyttet til delt i18n-lag slik at nye språk følger samme kontrakt.
-- 🔧 **Source Repair flyt**: `Repair Sources` kan forsøke å finne sterkere kilder for QA-gap før revisjon. Hvis sterke kilder mangler, stoppes add-onen uten videre kilde-repair-belastning, source-repair-blokkeringen bæres inn i revisjonsflyten, og brukeren får beskjed om å laste opp eller angi bedre kildemateriale.
+- 🔧 **Source Repair flyt**: `Repair Sources` kan forsøke å finne sterkere kilder for QA-gap før revisjon. Gap coverage regnes per mål, source-repair-blokkeringen bæres inn i revisjonsflyten, og ulukkede gap skal kildebelegges, kvalifiseres som unresolved/requires-user-source eller prunes før review kjøres på nytt.
 - 🧾 **Fact candidates og debug**: Story Engine-filen eksporterer nå kildepool, faktakandidater, primary facts, rejected/conflict facts og source-backed status i frontmatter når fact-lock er aktiv.
 - 🖼️ **GPT Image 2 som standard bildevalg**: Bildekatalogen bruker nå `gpt-image-2` og `gpt-image-2-hd` som hovedvalg, med Gemini 3.1 Flash Image og Imagen 4 Ultra som eksplisitte alternativer. Pensjonert Imagen 4 Standard er fjernet fra aktiv modellkatalog.
 - 🖼️ **Kildehøstede visuelle referanser**: Offisielle kildesider kan bidra med `source_visual_references` til cover og seksjonsbilder, med visual-kind, primary identity anchor og mer konservativ bruk av faktalåste labels.
@@ -1460,7 +1471,8 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 - 🎧 **Medie-only Variant**: Audio-varianter kan oppdatere samme prosjekt uten å regenerere eller miste eksisterende seksjonsbilder når `Illustrations` ikke er valgt.
 - 🔁 **Samlet revisjonsflyt**: `Revise` er nå hovedinngangen for tekstforbedring, med valg mellom å oppdatere samme prosjekt eller lagre en ny revisjonsgren.
 - 🧩 **Revise med lagret QA-kontekst**: `Revise` prefiller nå lagret QA-memo og prioriterte tiltak inn i arbeidsflaten når slikt review finnes.
-- ✅ **Final Quality Pass**: Førstegenerering kan nå følge en review-first kvalitetskjede med `strong_stop`, scoped revise, broad fallback og post-review. Resultatet lagres med `qualityChain`-metadata og vises i ferdigvisningen.
+- ✅ **Final Quality Pass / Quality Autopilot**: Førstegenerering kan nå følge en review-first kvalitetskjede med `strong_stop`, scoped revise, staged long-document execution, guarded broad fallback og post-review. Resultatet lagres med `qualityChain`-metadata, strategy telemetry, source-repair coverage og eksplisitte stop reasons.
+- 🎧 **Text-first media quality pass**: Audio/radio-prosjekter kjører nå initial Final Quality Pass før TTS/radio-medier bygges, med media lineage og idempotent billing-guard slik at ferdig lyd følger ferdig tekst.
 - 🧠 **Oppdatert modellvalg i kvalitetstrinn**: Final Review bruker nå `gpt-5.5` som standard, mens Final Revision fortsatt kjører `gpt-5.4`. Production Report estimerer nå lokal provider-prising for begge modellene.
 - 💳 **Billing hardening**: Betalte AI-flyter bruker reserve/commit/cancel, pricing snapshots, operation-gate metadata og replay-beskyttelse mot doble provider-kall. TTS-billing lagrer usage source, observert varighet der det er trygt, billed minutes og fallback til `character_proxy`.
 - 🖼️ **Core Idea referansebilder**: Core Idea støtter opptil 7 opplastede dokumenter/bilder. Seksjonsbilder velger et begrenset, prioritert referanseutvalg, med primary identity anchor når et helmotiv finnes.
@@ -1474,7 +1486,7 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 - 📊 **Quality Queue V1 i Monitoring**: Admin har nå en sjette, lazy-loaded Monitoring-fane som viser read-only kvalitetskandidater på tvers av prosjekter med deterministisk `risk_score`, bounded vindu, paginering og observability via `ai-admin-quality-control`.
 - 📈 **Kundevendt vs intern Production Report**: TXT-eksporten skiller nå mellom kundevendt kreditt-/ledger-rapport og admin-only intern produksjonsrapport med provider-estimater. Admin kan midlertidig bytte rapportaudience i Download-dialogen for Plain Text.
 - 🧠 **Suggest Settings**: Prompt- og heuristikkgrunnlaget er utvidet og dokumentert videre i egne planer under `docs/`.
-- 💳 **Deploy/ops**: `deploy:functions` kjører function-auth, SECURITY DEFINER, paid-AI billing og Deno checks før split deploy av protected/public Edge Functions. CI kjører også audit, SVG-sanitizer, model-registry, app-shell-preload, build-observability, local-persistence, website-export-KaTeX og prompt/routing/usage smoke checks.
+- 💳 **Deploy/ops**: `deploy:functions` kjører function-auth, SECURITY DEFINER, paid-AI billing og Deno checks før split deploy av protected/public Edge Functions. CI kjører også audit, SVG-sanitizer, model-registry, app-shell-preload, staged-quality readiness, Quality Autopilot UI guard, media-quality/media-lineage smokes, source-authority/source-repair smokes, build-observability, local-persistence, website-export-KaTeX og prompt/routing/usage smoke checks.
 
 > Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
@@ -1487,10 +1499,10 @@ Vi bygger fremtidens publiseringsverktøy. Her er aktuelle oppfølgingsområder 
 ### Aktuelle oppfølgingsområder (Q2 2026)
 *   🔁 **Multi-Round Final Review**: QA-historikk, review-delta og stagnasjons-/regresjonssignaler er nå i aktiv bruk på tvers av review-, revision- og prosjektflater. Videre arbeid handler primært om operatørflyt, sortering og tydeligere oppfølging av review-helse. Historisk beslutningsgrunnlag: `docs/plans/archived/final-review-multi-round-strategy.md`.
 *   🔧 **Guided Patch Preview**: QA-memoet brukes nå til å bygge seksjonsnære patch-kandidater, scope-planlegging og revise-briefs for lokale forbedringer. Full auto-patching er fortsatt ikke hovedflyten; bredere og høy-risiko issues forblir memo-drevne. Se `docs/plans/archived/final-review-guided-patch-decision-packet.md`.
-*   🔎 **Verified Sources rollout**: Videre tuning handler om terskler, shadow/primary-display flagg, norsk soft404-/mismatch-dekning og eval-data for hvor mange kilder som demotes fra topplisten uten å svekke brukeropplevelsen.
+*   🔎 **Verified Sources rollout**: Verified Sources v2 og trusted source authority registry er nå i bruk som source ranking/diagnostic-lag. Videre tuning handler om terskler, registry-pack vedlikehold, shadow/primary-display flagg, norsk soft404-/mismatch-dekning og eval-data for hvor mange kilder som demotes fra topplisten uten å svekke brukeropplevelsen.
 *   🎯 **Suggest Settings Rebalancing**: Suggest Settings har nå delt heuristikk- og normaliseringslag med fast-path, fallback og strengere genre-/opsjonsnormalisering. Videre arbeid handler om finjustering av bias og routing på tvers av category/genre-kombinasjonene. Se `docs/plans/archived/suggest-settings-architecture-plan.md` og `docs/plans/archived/suggest-settings-rebalancing-plan.md`.
 *   🌐 **Social Media Link Analysis**: Utvidelse av "Analyze Link" til YouTube-transkripter, X/Twitter-poster, Facebook/Instagram (oEmbed) og Gemini-basert videoanalyse. Se `docs/plans/social-media-link-analysis-plan.md`.
-*   ☁️ **Vertex AI Phase 2 Migration**: Bølgevis Vertex-migrering og canary-verifisering for planlegging, seksjonsgenerering, TTS og støtteflyter. Gemini Developer API beholdes som fallback der feature-flaggene ikke er aktivert.
+*   ☁️ **Vertex AI / Gemini API hardening**: Planlegging, seksjonsgenerering og TTS har nå service-account/Vertex-ruter i produksjonskonfig. Videre arbeid handler om å rydde bort de siste direkte Gemini API-key-avhengighetene i source-repair, image, suggest/analyze og enkelte grounding-hjelpeflyter.
 
 ### Fremtidige visjoner
 *   📰 **Integrasjon mot Retriever/Mediearkivet**: For dypere faktasjekk mot norske kilder.
