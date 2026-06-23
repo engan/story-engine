@@ -851,22 +851,31 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 
 ```text
 .
+├── .gitignore                                # Git ignore-regler for lokale artefakter og build-output
+├── .nvmrc                                    # Node-versjon for lokal utvikling/CI
 ├── App.tsx                                   # Global state, view-ruting og kostnadssporing
 ├── README.md                                 # Dokumentasjon
 ├── AGENTS.md                                 # Agent-/Codex-regler for sikkerhet, deploy, billing og repo-hygiene
 ├── CHANGELOG.md                              # Endringslogg
-├── ROADMAP.md                                # Veikart og fremtidsplaner
-├── package.json                              # Scripts, avhengigheter og app-metadata
-├── vite.config.ts                            # Vite bygg/dev-konfigurasjon
-├── tailwind.config.js                        # Tailwind tema og scanning
-├── postcss.config.js                         # PostCSS pipeline
+├── LICENSE                                   # Lisens
 ├── constants.ts                              # Globale konstanter (stemmer, stiler)
-├── types.ts                                  # TypeScript definisjoner for hele applikasjonen
 ├── genres.ts                                 # Definisjoner av hovedsjangre og kategorier
 ├── genreOptions.ts                           # Kontekstuelle sub-options (faktasjekk, lengde, etc.)
 ├── genreUtils.ts                             # Delte sjanger-hjelpere (fiction/non-fiction checks)
 ├── languages.ts                              # Støttede språk for I/O
 ├── metadata.json                             # Statisk app-/modellmetadata
+├── ROADMAP.md                                # Veikart og fremtidsplaner
+├── deno.lock                                 # Låste Deno-avhengigheter
+├── index.html                                # Vite HTML-entrypoint
+├── index.tsx                                 # React/Vite bootstrap
+├── package.json                              # Scripts, avhengigheter og app-metadata
+├── package-lock.json                         # Låste npm-avhengigheter
+├── vite.config.ts                            # Vite bygg/dev-konfigurasjon
+├── tailwind.config.js                        # Tailwind tema og scanning
+├── postcss.config.js                         # PostCSS pipeline
+├── tsconfig.json                             # TypeScript-konfigurasjon
+├── types.ts                                  # TypeScript definisjoner for hele applikasjonen
+├── verify_credits.sql                        # Manuell SQL-verifisering av credits/RPC
 ├── docs/                                     # Planer, eval-notater og operasjonell dokumentasjon
 │   ├── plans/                                # Planbibliotek
 │   │   ├── active/                           # Aktive eller startklare planer
@@ -879,8 +888,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── landing/                                  # Egen statisk showcase/landing
 ├── src/                                      # Global CSS + Vite typer
 ├── components/
-│   ├── AppHeader.tsx                        # Toppnavigasjon for workspace, prosjekter, dashboard, billing og admin
-│   ├── AppWorkspaceBranding.tsx             # Branding-/hero-blokk for workspace-layouten
+│   ├── AppHeader.tsx                         # Toppnavigasjon for workspace, prosjekter, dashboard, billing og admin
+│   ├── AppWorkspaceBranding.tsx              # Branding-/hero-blokk for workspace-layouten
 │   ├── Icons.tsx                             # Ikoner (SVG)
 │   ├── MermaidDebugPage.tsx                  # Debug side for Mermaid
 │   ├── OnboardingModal.tsx                   # Førstegangs onboarding
@@ -902,7 +911,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── Mermaid.tsx                       # Wrapper for Mermaid-diagrammer
 │   │   ├── PlanningStepper.tsx               # Visuell fremdriftsindikator
 │   │   ├── ResearchSourcesBox.tsx            # Tier-aware visning av forskningskilder + debuglogg
-│   │   └── SettingsModal.tsx                 # Avanserte innstillinger (Logger, Terskelverdier)
+│   │   ├── SettingsModal.tsx                 # Avanserte innstillinger (Logger, Terskelverdier)
+│   │   └── SourceReadinessPromptModal.tsx    # Modal for kilde-readiness før kvalitet/revisjon
 │   └── views/                                # Hovedvisninger (States)
 │       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring + projects/credits/activity tabs
 │       ├── BillingView.tsx                   # Abonnement, kreditter og Stripe-portal
@@ -986,14 +996,20 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   └── useVoicePreview.ts                    # TTS voice preview med sample-tekst og lokal avspilling
 ├── scripts/                                  # Verktøy og test-skript
 │   ├── audit-routing-coverage.ts             # Dekningssjekk for routing-regler mot katalogen
+│   ├── check-admin-quality-queue-readonly.mjs # Guard for read-only admin quality queue
+│   ├── check-app-shell-preloads.mjs          # Guard mot tunge modulepreloads i app-shell
 │   ├── check-build-observability.mjs         # Guard for CI timeout og bundle-analyse
 │   ├── check-ci-completeness.mjs             # Guard for at sentrale checks er koblet i CI
+│   ├── check-final-quality-plan-open-items.ts # Plan-integritet for final-quality open items
 │   ├── check-local-persistence-hardening.ts  # Guard for lokal persistence-størrelse og kvote-feil
 │   ├── check-model-registry.ts               # Guard for modellregister, pricing og runtime-katalog
-│   ├── check-app-shell-preloads.mjs          # Guard mot tunge modulepreloads i app-shell
 │   ├── check-paid-ai-billing.mjs             # Guard mot credit charge før request-validering
+│   ├── check-production-report-audience.ts   # Guard for Production Report-audience og cost labels
 │   ├── check-prompt-drift.mjs                # CI-guard mot inline core-prompts i Edge Functions
+│   ├── check-quality-autopilot-ui.ts         # Guard for quality autopilot UI-kontrakt
 │   ├── check-security-definer-grants.mjs     # Guard for SECURITY DEFINER EXECUTE-herding
+│   ├── check-source-authority-query-planning.ts # Guard for trusted-source query planning
+│   ├── check-staged-auto-quality-readiness.ts # Guard for staged quality readiness
 │   ├── check-suggest-settings-plan.ts        # Parser-/integritetssjekk for suggest-settings testplan
 │   ├── check-supabase-function-auth.mjs      # Guard for protected/public Edge Function auth-konfig
 │   ├── check-supabase-functions.mjs          # Deno check for Supabase Edge Functions
@@ -1001,147 +1017,296 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── compare-suggest-settings-eval.ts      # Sammenligner to suggest-settings eval-rapporter
 │   ├── eval-human-nuance-ab.ts               # A/B-evaluering av prompt-kvalitet
 │   ├── eval-suggest-settings.ts              # Live/dry-run eval mot suggest-settings-matrisen
+│   ├── probe-vertex-text-models.ts           # Probe for Vertex text model readiness
+│   ├── report-staged-auto-quality-shadow.ts  # Rapport for staged quality shadow-runs
+│   ├── smoke-auto-quality-gate-policy.ts     # Smoke-test av auto quality gate-policy
+│   ├── smoke-evidence-export-warning.ts      # Smoke-test av evidence warning i eksport
+│   ├── smoke-evidence-policy-metadata.ts     # Smoke-test av evidence policy metadata
+│   ├── smoke-evidence-review-guard.ts        # Smoke-test av evidence review guard
+│   ├── smoke-export-evidence-safety.ts       # Smoke-test av export-safety kontrakt
+│   ├── smoke-final-quality-flat-regression.ts # Regresjonstest for flat final-quality flyt
+│   ├── smoke-final-review-decision.ts        # Smoke-test av final-review decision helpers
+│   ├── smoke-final-review-prompt-contract.ts # Smoke-test av final-review prompt-kontrakt
+│   ├── smoke-focused-quality-scenarios.ts    # Focused quality scenario-røykprøver
 │   ├── smoke-human-nuance-default-matrix.ts  # Default-matrise for human-nuance
 │   ├── smoke-human-nuance-modes.ts           # Test av human-nuance prompt-modi
+│   ├── smoke-language-detection.ts           # Smoke-test av språkdeteksjon
+│   ├── smoke-media-lineage.ts                # Smoke-test av media lineage
+│   ├── smoke-media-quality-pass-policy.ts    # Smoke-test av media quality pass-policy
+│   ├── smoke-media-reference-sanitizer.ts    # Smoke-test av media reference-sanitizer
 │   ├── smoke-mermaid-fixes.ts                # Smoke-test av mermaid sanitizer/fixer
 │   ├── smoke-prompt-builders.ts              # Smoke-test av shared prompt-builders
-│   ├── smoke-usage-metrics.ts                # Smoke-test av usage metrics/Production Report-data
+│   ├── smoke-review-progress.ts              # Smoke-test av review-progress heuristikk
+│   ├── smoke-revision-progress-commit.ts     # Smoke-test av revision progress commit
+│   ├── smoke-revision-workflow-defaults.ts   # Smoke-test av revision workflow defaults
 │   ├── smoke-routing-decision.ts             # Smoke-test av model routing-logikk
+│   ├── smoke-source-authority-registry-phase-d.ts # Smoke-test av source authority registry
+│   ├── smoke-source-display.ts               # Smoke-test av source/citation display
+│   ├── smoke-source-readiness.ts             # Smoke-test av source readiness-policy
+│   ├── smoke-source-repair-flow.ts           # Smoke-test av source repair-flyt
+│   ├── smoke-source-verification-policy.ts   # Smoke-test av source verification-policy
+│   ├── smoke-staged-auto-quality-shadow.ts   # Smoke-test av staged auto quality shadow
+│   ├── smoke-stale-asset-reload.ts           # Smoke-test av stale asset reload
 │   ├── smoke-suggest-settings-heuristics.ts  # Test av suggest-settings heuristikker
+│   ├── smoke-tts-cache-key.ts                # Smoke-test av TTS cache keys
+│   ├── smoke-usage-metrics.ts                # Smoke-test av usage metrics/Production Report-data
 │   ├── smoke-website-export-katex.mjs        # Smoke-test for lokale KaTeX-assets i website-eksport
 │   ├── summarize-suggest-settings-eval.ts    # Oppsummerer suggest-settings eval-rapporter
 │   ├── lib/                                  # Hjelpere for eval/testskript
+│   │   ├── staged-auto-quality-shadow-fixtures.ts # Fixtures for quality shadow-runs
 │   │   └── suggest-settings-plan.ts          # Parser for suggest-settings rebalanseringsplanen
 │   └── archive/                              # Arkiverte/utdaterte skript
+│       ├── test-gemini-3-tts.ts              # Arkivert TTS-probe
+│       ├── test-tts-models.js                # Arkivert TTS-modelltest
+│       ├── verify_quotas.js                  # Arkivert quota-verifisering
+│       └── verify_quotas.ts                  # Arkivert quota-verifisering
 ├── services/                                 # FORRETNINGSLOGIKK (MODULÆR)
-│   ├── ContentParser.ts                      # AST-parser som konverterer MD til blokker
-│   ├── ContentSanitizer.ts                   # "Vaskemaskinen" (Regex-rensing, header-fiks)
-│   ├── cloudSave.ts                          # Prosjektpersistens, load/save/delete og lineage
-│   ├── coreIdeaAttachmentRecords.ts          # Normaliserer Core Idea vedlegg for prosjektlagring/eksport
+│   ├── ContentParser.ts                      # AST-parser som konverterer Markdown til blokker
+│   ├── ContentSanitizer.ts                   # Regex-rensing, spacing, header-fiks og duplikatrydding
+│   ├── aiHybrid.ts                           # Edge-first orkestrering for plan/settings-generering
+│   ├── aiPlanTuning.ts                       # Klientnære tuning-defaults for planbudsjetter og runtime
+│   ├── api.ts                                # URL-analyse og ekstern API-kommunikasjon
+│   ├── auth.ts                               # Autentiseringslogikk og session-hjelpere
+│   ├── cloudSave.read.ts                     # Lesing/hydrering av cloud projects med evidence-policy normalisering
+│   ├── cloudSave.ts                          # Prosjektpersistens, save/delete, metadata og lineage
+│   ├── coreIdeaAttachmentContext.ts          # Bygger samlet kontekst fra Core Idea-vedlegg
+│   ├── coreIdeaAttachmentLimits.ts           # Grenser og policy for Core Idea-filer/bilder
+│   ├── coreIdeaAttachmentRecords.ts          # Normaliserer Core Idea-vedlegg for prosjektlagring/eksport
 │   ├── coreIdeaAttachments.ts                # Klientflyt for Core Idea fil- og bildereferanser
+│   ├── coverImageRecovery.ts                 # Recovery/fallback for cover-bildegenerering
 │   ├── documentStyles.ts                     # Fasade for styles/index.ts
 │   ├── downloadService.ts                    # Fasade for export/index.ts
-│   ├── api.ts                                # URL-analyse og ekstern API-kommunikasjon
-│   ├── auth.ts                               # Autentiseringslogikk
+│   ├── evidenceExportWarning.ts              # UI-logikk for evidence/export-advarsler
+│   ├── evidenceGuardConfig.ts                # Feature flags og konfig for evidence guards
+│   ├── evidencePolicy.ts                     # Evidence-state, source-set versioning og export-safety metadata
 │   ├── formatConstants.ts                    # Konstanter for overskriftsformater
 │   ├── geminiService.ts                      # Fasade for ai/index.ts
+│   ├── generationCredits.ts                  # Estimat av kredittbehov før generering
+│   ├── genreSubOptions.ts                    # Sjangeravhengige sub-option defaults og helpers
+│   ├── localChapterMedia.ts                  # Lokal chapter media-lagring og restore-hjelpere
 │   ├── localStorageService.ts                # IndexedDB full-session lagring med media, størrelsesestimat og kvotevarsling
 │   ├── modelPricing.ts                       # Lokale provider-estimater for Production Report
-│   ├── prompts.ts                            # Stabil offentlig entrypoint (barrel re-export)
+│   ├── planCitations.ts                      # Normalisering og visning av plan-/source-citations
+│   ├── prompts.ts                            # Stabil offentlig entrypoint for lokale prompt-moduler
+│   ├── qualityStrategySelector.ts            # Velger quality/revision-strategi fra evidence og review-state
+│   ├── referenceAnalysisUi.ts                # UI-presentasjon av referanseanalyse og readiness
+│   ├── referenceEvidence.ts                  # Bygger evidenspakke for visuelle Core Idea-referanser
+│   ├── sourceDisplay.ts                      # Formatering av source/citation-visning
+│   ├── sourceEvidenceMetadata.ts             # Source-backed metadata, gaps og unsupported-claim signaler
+│   ├── sourcePromptPersistence.ts            # Lagrer og gjenbruker source prompt-kontekst
+│   ├── sourceReadiness.ts                    # Readiness-policy og autopilot-beslutninger for kilder
+│   ├── suggestSettingsCoachMark.ts           # Lokal state for suggest-settings coach mark
+│   ├── supabaseApi.ts                        # Legacy/aggregert klient for Supabase Edge Functions
+│   ├── supabaseClient.ts                     # Supabase autentisering og oppsett
+│   ├── usageMetrics.ts                       # Runtime usage ledger og Production Report-grunnlag
+│   ├── voiceSampleText.ts                    # Eksempeltekster for TTS-stemmer
+│   ├── workflowDrafts.ts                     # Midlertidige workflow drafts og restore-state
+│   ├── ai/                                   # AI-orkestrering via Supabase, Google, OpenAI og image providers
+│   │   ├── audioHelpers.ts                   # PCM/Base64 hjelpere
+│   │   ├── chapters.ts                       # Hovedorkestrering for seksjonsgenerering og add-ons
+│   │   ├── config.ts                         # Konfigurasjon, tokens og sikkerhetsgrenser
+│   │   ├── fileExtract.ts                    # Filanalyse (DOCX, PDF, code og bilder)
+│   │   ├── imageGenerator.ts                 # Bildegenerering via Supabase/API-lag
+│   │   ├── imagen.ts                         # Legacy client-fasade for image generation
+│   │   ├── index.ts                          # Eksportør
+│   │   ├── mediaLineage.ts                   # Media lineage og variant-/remake-sporing
+│   │   ├── retry.ts                          # Feilhåndtering og retry-logikk
+│   │   ├── schemas.ts                        # JSON schemas for AI output
+│   │   ├── summarize.ts                      # AI-oppsummering for PPTX bullet points
+│   │   ├── tts.ts                            # Tekst-til-tale logikk
+│   │   ├── utils.ts                          # Delte AI-hjelpere
+│   │   └── chapters/                         # Delmoduler for seksjonsgenerering og media add-ons
+│   │       ├── addOns.ts                     # Orkestrerer bilde-/lyd-add-ons per seksjon
+│   │       ├── audioAddOns.ts                # TTS/audio add-on-flyt for kapitler
+│   │       ├── callbacks.ts                  # Progress-, logging- og usage-callback typer
+│   │       ├── imageAddOns.ts                # Kapittelbildegenerering, retries og referansebilder
+│   │       ├── sectionGeneration.ts          # Selve seksjons-/chapter-genereringen
+│   │       ├── sourceBackedFacts.ts          # Source-backed fact lock-kontekst inn i kapittelprompt
+│   │       ├── ttsCacheKey.ts                # Cache keys for TTS-generering
+│   │       ├── ttsRecovery.ts                # Chunking/recovery for TTS og video frames
+│   │       └── visualReferences.ts           # Utvalg og formattering av visuelle referanser
+│   ├── api/                                  # Tynne Edge Function-klienter
+│   │   ├── edgeFetch.ts                      # Felles fetch-wrapper med auth headers og retry
+│   │   ├── mermaidFix.ts                     # Klient for ai-mermaid-fix
+│   │   ├── scriptConvert.ts                  # Klient for ai-script-convert
+│   │   ├── summarize.ts                      # Klient for ai-summarize
+│   │   └── tts.ts                            # Klient for ai-tts
+│   ├── export/                               # Eksport-moduler
+│   │   ├── docx.ts                           # DOCX-generering
+│   │   ├── docxHelpers.ts                    # Delte DOCX-hjelpere
+│   │   ├── epub.ts                           # EPUB 3 e-bok generering (XHTML + cover)
+│   │   ├── evidenceNotice.ts                 # Evidence/advarselstekster i eksport
+│   │   ├── imageUtils.ts                     # Image sizing, MIME og data URL-hjelpere
+│   │   ├── index.ts                          # Eksportør
+│   │   ├── katexAssets.ts                    # Pakker lokale KaTeX-assets inn i website-export
+│   │   ├── latexRenderToPng.ts               # Renderer LaTeX/KaTeX til PNG for eksport
+│   │   ├── markdown.ts                       # Markdown-generering
+│   │   ├── markdownDownload.ts               # Markdown-nedlasting og filnavn
+│   │   ├── mermaidRenderToPng.ts             # Renderer Mermaid SVG/PNG for eksport
+│   │   ├── mp3.ts                            # Lyd-sammenstilling (MP3/WAV)
+│   │   ├── pdf.ts                            # PDF-generering med avansert formatering
+│   │   ├── pptx.ts                           # PowerPoint-generering
+│   │   ├── qualityStamp.ts                   # Export quality/evidence-stempel
+│   │   ├── reportCostUtils.ts                # Production Report-kostnad, usage og modellmetadata
+│   │   ├── textUtils.ts                      # Tekstformattering for eksport
+│   │   ├── utils.ts                          # Delte eksport-hjelpere
+│   │   ├── video.ts                          # Videorendring (MP4 H.264/AAC, 16:9 / 9:16)
+│   │   ├── website.ts                        # Interaktiv nettside-pakking (ZIP)
+│   │   ├── videoParts/                       # Delmoduler for videoexport
+│   │   │   ├── download.ts                   # Video download/build wrappers
+│   │   │   ├── frameNormalization.ts         # Markdown/tabell-normalisering til frames
+│   │   │   ├── frameRenderer.ts              # Canvas-rendering av videoframes
+│   │   │   └── preview.ts                    # Preview-rendering for video
+│   │   └── websiteTemplate/                  # Runtime assets for website-export
+│   │       ├── reader.css                    # Reader CSS for eksportert nettside
+│   │       └── reader.js                     # Reader JS for navigasjon, tema og interaksjon
+│   ├── finalReview/                          # Whole-document review, revision guidance og rewrite-styrke
+│   │   ├── autoQualityGatePolicy.ts          # Policy for staged/auto quality gate
+│   │   ├── bookPackageRevision.ts            # Book/package-level revision helpers
+│   │   ├── documentHash.ts                   # Fingerprinting av dokumentutkast for review-sammenligning
+│   │   ├── evidenceGaps.ts                   # Evidence gap extraction, clustering og repair targets
+│   │   ├── finalRevision.ts                  # Whole-document final revision
+│   │   ├── guidedPatch.ts                    # QA-ledet brief-seeding og patch-kandidater
+│   │   ├── initialRevisionGuidance.ts        # Førstepass-guidance for finale revisjoner
+│   │   ├── logicalRunId.ts                   # Stabile logical run IDs for review/revision
+│   │   ├── manualScopeAutopilot.ts           # Autopilot-anbefalinger for manuell scope
+│   │   ├── mediaQualityPassPolicy.ts         # Media quality-pass og deferred media-regler
+│   │   ├── repairHistory.ts                  # Historikk og dedupe for repair attempts
+│   │   ├── reviewCache.ts                    # Review cache keys og matching mot dokument/config
+│   │   ├── reviewCanon.ts                    # Normalisering av lagret review-state
+│   │   ├── reviewProgress.ts                 # Review-delta, stagnasjon og progress verdict
+│   │   ├── revisionBatchPlanning.ts          # Batch-planlegging for store final revisions
+│   │   ├── revisionProgressCommit.ts         # Persist av post-revision review-progress metadata
+│   │   ├── revisionQaMemo.ts                 # QA memo-kontekst og revision guidance
+│   │   ├── revisionRunPlanning.ts            # Planlegger revision runs, save mode og lineage
+│   │   ├── revisionTitle.ts                  # Titler/labels for revision artifacts
+│   │   ├── revisionWorkflowDefaults.ts       # Defaults for revision workflow og save mode
+│   │   ├── rewriteStrength.ts                # Light / Medium / Heavy defaults per workflow
+│   │   ├── runtime.ts                        # Runtime helpers for final review/revision
+│   │   ├── snapshots.ts                      # Persist av final review snapshots og history
+│   │   ├── sourceRepairCoverage.ts           # Coverage-metrikker for source repair targets
+│   │   ├── sourceRepairOutcome.ts            # Normaliserer source repair-resultater
+│   │   ├── sourceRepairRevision.ts           # Revision-briefs etter source repair
+│   │   └── sourceVerificationPolicy.ts       # Policy for source verification og closing evidence
+│   ├── format/                               # Tekstformatering
+│   │   └── sectionHeaders.ts                 # Håndtering av kapitteloverskrifter og språk
+│   ├── i18n/                                 # Internasjonalisering
+│   │   └── translations.ts                   # Oversettelser for UI og eksport
+│   ├── mermaid/                              # Mermaid runtime, styling og layout
+│   │   ├── loadMermaid.ts                    # Lazy-loader Mermaid runtime
+│   │   ├── styleConfig.ts                    # Mermaid theme/style defaults
+│   │   └── svgLayout.ts                      # SVG layout, wrapping og kontrastnormalisering
 │   ├── pricing/                              # Provider-katalog, customer billing policy og modellnormalisering
 │   │   ├── customerBillingPolicy.ts          # Kundepris/kredittpolicy per betalt flyt og modell
 │   │   ├── modelDisplayCatalog.ts            # Visningsnavn og badges for modellvalg
 │   │   ├── modelNormalization.ts             # Normaliserer runtime model IDs til kjente katalogmodeller
 │   │   └── providerPricingCatalog.ts         # Provider-kostnadskatalog for audit/Production Report
-│   ├── referenceEvidence.ts                  # Bygger evidenspakke for visuelle Core Idea-referanser
-│   ├── supabaseApi.ts                        # Klient for Supabase Edge Functions
-│   ├── supabaseClient.ts                     # Supabase autentisering og oppsett
-│   ├── usageMetrics.ts                       # Runtime usage ledger og Production Report-grunnlag
-│   ├── ai/                                   # AI-orkestrering via Supabase, Google, OpenAI og image providers
-│   │   ├── audioHelpers.ts                   # PCM/Base64 hjelpere
-│   │   ├── chapters.ts                       # Generering av kapitler (tekst + add-ons)
-│   │   ├── config.ts                         # Konfigurasjon (tokens, sikkerhet)
-│   │   ├── fileExtract.ts                    # Filanalyse (DOCX, PDF, Code, Images)
-│   │   ├── imageGenerator.ts                 # Bildegenerering via Supabase/API-lag
-│   │   ├── imagen.ts                         # Bildegenerering (Gemini Image / Imagen Ultra-kompatibilitet)
-│   │   ├── index.ts                          # Eksportør
-│   │   ├── retry.ts                          # Feilhåndtering og retry-logikk
-│   │   ├── schemas.ts                        # JSON schemas for AI output
-│   │   ├── summarize.ts                      # AI-oppsummering for PPTX bullet points
-│   │   ├── tts.ts                            # Tekst-til-tale logikk (Gemini)
-│   │   └── utils.ts                          # Delte AI-hjelpere
-│   ├── aiHybrid.ts                           # Edge-first orkestrering (lokal fallback fjernet)
-│   ├── finalReview/                          # Whole-document review, revision guidance og rewrite-styrke
-│   │   ├── documentHash.ts                   # Fingerprinting av dokumentutkast for review-sammenligning
-│   │   ├── finalRevision.ts                  # Whole-document final revision
-│   │   ├── guidedPatch.ts                    # QA-ledet brief-seeding og patch-kandidater
-│   │   ├── initialRevisionGuidance.ts        # Førstepass-guidance for finale revisjoner
-│   │   ├── reviewCanon.ts                    # Normalisering av lagret review-state
-│   │   ├── reviewProgress.ts                 # Review-delta / stagnasjon / anbefalt neste steg
-│   │   └── rewriteStrength.ts                # Light / Medium / Heavy defaults per workflow
-│   ├── export/                               # Eksport-moduler
-│   │   ├── docx.ts                           # DOCX-generering
-│   │   ├── epub.ts                           # EPUB 3 e-bok generering (XHTML + Cover)
-│   │   ├── index.ts                          # Eksportør
-│   │   ├── markdown.ts                       # Markdown-generering
-│   │   ├── mp3.ts                            # Lyd-sammenstilling (MP3 64kbps / WAV)
-│   │   ├── pdf.ts                            # PDF-generering med avansert formatering
-│   │   ├── pptx.ts                           # PowerPoint-generering (Non-Fiction)
-│   │   ├── utils.ts                          # Delte eksport-hjelpere (Mermaid render)
-│   │   ├── video.ts                          # Videorendring (MP4 H.264/AAC, 16:9 / 9:16) med "Smart Split"
-│   │   └── website.ts                        # Interaktiv nettside-pakking (ZIP) med lokale Mermaid- og KaTeX-assets
-│   ├── format/                               # Tekstformatering
-│   │   └── sectionHeaders.ts                 # Håndtering av kapitteloverskrifter og språk
-│   ├── i18n/                                 # Internasjonalisering
-│   │   └── translations.ts                   # Oversettelser (14 språk) for UI og eksport
 │   ├── prompts/                              # Lokale prompt-moduler (split refaktor)
 │   │   ├── README.md                         # Modulgrense + safe refactor-regler
+│   │   ├── chapterPrompts.ts                 # Chapter/section + export/QA/TTS prompts
 │   │   ├── core.ts                           # Delte lokale prompt-konstanter/hjelpere
 │   │   ├── referencePrompts.ts               # Fil-/media-analyse prompts
 │   │   ├── settingsPrompts.ts                # Settings + enhance-idea prompts
-│   │   ├── chapterPrompts.ts                 # Chapter/section + export/QA/TTS prompts
 │   │   └── fragments/                        # Re-export av shared fragments
 │   │       ├── markdownRules.ts              # MD-regler (fra shared/prompts)
 │   │       ├── mermaidRules.ts               # Mermaid-regler (fra shared/prompts)
 │   │       ├── mermaidSyntaxV11.ts           # Mermaid v11 syntaks (shared)
 │   │       └── professionalVisualization.ts  # Visualiseringsstrategi (shared)
+│   ├── runtime/                              # Browser/runtime hardening
+│   │   └── staleAssetReload.ts               # Håndterer stale frontend-assets etter deploy
 │   ├── sanitize/                             # Rens og validering
-│   │   └── mermaidFixer.ts                   # Self-healing Mermaid logikk
-│   └── styles/                               # Stildefinisjoner
-│       ├── config.ts                         # Globale stilvariabler
-│       ├── docx.ts                           # DOCX-spesifikke stiler
-│       ├── helpers.ts                        # Hjelpefunksjoner for farger/størrelser
-│       ├── index.ts                          # Eksportør
-│       ├── pdf.ts                            # PDF-spesifikke stiler
-│       ├── types.ts                          # Type-definisjoner for stiler
-│       └── units.ts                          # Enhetskonvertering (mm, px, pt)
+│   │   ├── mermaidFixer.ts                   # Self-healing Mermaid logikk
+│   │   └── svgSanitizer.ts                   # SVG-sanitizer og XSS-sperrer
+│   ├── styles/                               # Stildefinisjoner
+│   │   ├── config.ts                         # Globale stilvariabler
+│   │   ├── docx.ts                           # DOCX-spesifikke stiler
+│   │   ├── helpers.ts                        # Hjelpefunksjoner for farger/størrelser
+│   │   ├── index.ts                          # Eksportør
+│   │   ├── pdf.ts                            # PDF-spesifikke stiler
+│   │   ├── types.ts                          # Type-definisjoner for stiler
+│   │   └── units.ts                          # Enhetskonvertering (mm, px, pt)
+│   ├── supabase/                             # Typed klienter for Supabase Edge Functions
+│   │   ├── adminQualityQueueApi.ts           # Admin Quality Queue API-klient
+│   │   ├── adminUsersApi.ts                  # Admin users/projects/activity API-klient
+│   │   ├── edgeClient.ts                     # Felles Edge Function fetch/auth/retry wrapper
+│   │   ├── exportSafetyApi.ts                # Export-safety preflight API-klient
+│   │   ├── finalReviewApi.ts                 # Final review/revision API-klient
+│   │   ├── imageApi.ts                       # ai-image API-klient
+│   │   ├── modelRegistryConfigApi.ts         # Admin modellregister config API-klient
+│   │   ├── planApi.ts                        # ai-plan API-klient
+│   │   ├── qrLoginClient.ts                  # QR login create/authorize/exchange klient
+│   │   ├── quotaHealthApi.ts                 # Quota Health API-klient
+│   │   ├── retryHelpers.ts                   # Retry/backoff-hjelpere for Supabase-kall
+│   │   ├── sectionApi.ts                     # ai-generate-section streaming API-klient
+│   │   ├── sourceRepairApi.ts                # ai-source-repair API-klient
+│   │   ├── suggestApi.ts                     # ai-suggest-settings / prompt API-klient
+│   │   ├── translationApi.ts                 # Oversettelses-API-klient
+│   │   └── userProfileApi.ts                 # Brukerprofil, entitlements og usage API-klient
+│   └── translation/                          # Oversettelsesflyter
+│       └── markdownTranslation.ts            # Markdown-oversettelse og chunking
 ├── shared/                                   # Delt kode mellom frontend og Edge Functions
 │   ├── billing/                              # Abonnement- og tier-konfigurasjon
 │   │   ├── presentation.ts                   # UI-presentasjonstekster, feature-kort og notices
 │   │   ├── productPolicy.ts                  # Produktpolicy (kreditt-utløp, top-up regler)
 │   │   └── tierPresets.ts                    # Tier-definisjoner (pilot/pro/elite)
+│   ├── diagramIntent.ts                      # Delt diagram-intent og Mermaid-policy
+│   ├── export/                               # Delte eksportkontrakter
+│   │   └── evidenceSafety.ts                 # Evidence-safety kontrakt for eksport/preview
 │   ├── fiction/                              # Fiction-spesifikk logikk
 │   │   └── premiseAnchor.ts                  # Premissforankring / continuity-hjelper for fiction
-│   ├── routing/                              # Intelligent model routing
-│   │   ├── decision.ts                       # Routing-beslutningsmotor
-│   │   ├── mapping.ts                        # Modell-til-oppgave mapping
-│   │   ├── types.ts                          # Routing-types
-│   │   └── index.ts                          # Eksportør
+│   ├── finalReview/                          # Delte final-review guards
+│   │   └── evidenceReviewGuard.ts            # Evidence guard for review/revision
 │   ├── modelRegistry.ts                      # Server-/client-synlig modellregister og runtime metadata
 │   ├── paidFlowModelDefaults.ts              # Standardmodeller for betalte bilde-, tekst- og TTS-flyter
+│   ├── prompts/                              # Prompt source-of-truth (core generation flows)
+│   │   ├── builders/                         # Prompt-builders for Edge flows
+│   │   │   ├── coverImagePrompt.ts           # ai-image / cover-art prompt-bygging
+│   │   │   ├── imageFactLock.ts              # Fact-lock kontrakt for bildeprompts
+│   │   │   ├── imagePromptGuidance.ts        # Bildeprompt-policy og visuell guidance
+│   │   │   ├── mermaidFixPrompt.ts           # ai-mermaid-fix
+│   │   │   ├── planPrompt.ts                 # ai-plan
+│   │   │   ├── sectionPrompt.ts              # ai-generate-section
+│   │   │   ├── suggestPrompt.ts              # ai-suggest-prompt
+│   │   │   ├── suggestSettingsPrompt.ts      # ai-suggest-settings
+│   │   │   ├── translateMarkdownPrompt.ts    # ai-translate-markdown
+│   │   │   └── translatePlanPrompt.ts        # ai-translate-plan
+│   │   ├── fragments/                        # Delte prompt-fragmenter
+│   │   │   ├── humanNuance.ts                # Human-nuance stilmodi og skrivestyring
+│   │   │   ├── markdownRules.ts              # Markdown-regler
+│   │   │   ├── mermaidRules.ts               # Mermaid-regler
+│   │   │   ├── mermaidSyntaxV11.ts           # Mermaid v11 syntaks
+│   │   │   └── professionalVisualization.ts  # Visualisering
+│   │   └── index.ts                          # Stabil eksportflate
+│   ├── routing/                              # Intelligent model routing
+│   │   ├── decision.ts                       # Routing-beslutningsmotor
+│   │   ├── index.ts                          # Eksportør
+│   │   ├── mapping.ts                        # Modell-til-oppgave mapping
+│   │   └── types.ts                          # Routing-types
+│   ├── sourceAuthorityRegistry.ts            # Trusted-source registry for authority metadata
+│   ├── sourceAuthoritySignals.ts             # Delte authority-signaler og klassifisering
+│   ├── sourceHtmlAccessGuards.ts             # HTML/source access-guards
+│   ├── storyUnitLimits.ts                    # Delte grenser for story units/sections
 │   ├── suggestSettings/                      # Delt suggest-settings logikk
 │   │   ├── heuristics.ts                     # Regex/guard heuristikker og fast-path regler
 │   │   └── normalization.ts                  # Normalisering av suggest-resultater og defaults
-│   └── prompts/                              # Prompt source-of-truth (core generation flows)
-│       ├── builders/                         # Prompt-builders for Edge flows
-│       │   ├── coverImagePrompt.ts           # ai-image / cover-art prompt-bygging
-│       │   ├── sectionPrompt.ts              # ai-generate-section
-│       │   ├── planPrompt.ts                 # ai-plan
-│       │   ├── suggestPrompt.ts              # ai-suggest-prompt
-│       │   ├── suggestSettingsPrompt.ts      # ai-suggest-settings
-│       │   ├── translateMarkdownPrompt.ts    # ai-translate-markdown
-│       │   ├── translatePlanPrompt.ts        # ai-translate-plan
-│       │   └── mermaidFixPrompt.ts           # ai-mermaid-fix
-│       ├── fragments/                        # Delte prompt-fragmenter
-│       │   ├── humanNuance.ts                # Human-nuance stilmodi og skrivestyring
-│       │   ├── markdownRules.ts              # Markdown-regler
-│       │   ├── mermaidRules.ts               # Mermaid-regler
-│       │   ├── mermaidSyntaxV11.ts           # Mermaid v11 syntaks
-│       │   └── professionalVisualization.ts  # Visualisering
-│       └── index.ts                          # Stabil eksportflate
+│   └── ttsModelCatalog.ts                    # Delt TTS-modellkatalog
+├── state/                                    # Frontend state reducers
+│   └── generationReducer.ts                  # Reducer for genereringsstatus og workflow-state
 ├── supabase/                                 # SUPABASE BACKEND (Edge Functions + DB)
-│   ├── config.toml                           # Supabase lokal konfigurasjon
+│   ├── config.toml                           # Supabase lokal konfigurasjon og function auth
 │   ├── deno.json                             # Deno konfigurasjon for Edge Functions
 │   ├── functions/
 │   │   ├── _shared/                          # Delt logikk for alle Edge Functions
-│   │   │   ├── utils.ts                      # Auth, allowlist, kvote/credit-håndtering
+│   │   │   ├── genreOptions.ts               # Delt sub-option data
+│   │   │   ├── genres.ts                     # Delt sjangerdata
 │   │   │   ├── imageReferences.ts            # Validering og klargjøring av opplastede referansebilder
 │   │   │   ├── openai.ts                     # OpenAI Responses API helper (server-side)
+│   │   │   ├── paidOperationGate.ts          # Operation-gate/idempotency før betalte provider-kall
 │   │   │   ├── pricing.ts                    # Pris- og kredittkonvertering (server-side)
 │   │   │   ├── rateLimit.ts                  # Upstash Redis rate limiting
-│   │   │   ├── genres.ts                     # Delt sjangerdata
-│   │   │   ├── genreOptions.ts               # Delt sub-option data
+│   │   │   ├── ttsDuration.ts                # Server-side TTS-varighetsberegning
 │   │   │   ├── types.ts                      # Delte Edge Function-typer
+│   │   │   ├── utils.ts                      # Auth, allowlist, kvote/credit-håndtering
 │   │   │   ├── vertexAuth.ts                 # Vertex AI autentisering (service account JWT)
 │   │   │   └── vertexGemini.ts               # Vertex AI Gemini API-klient
 │   │   ├── ai-admin-adjust-credits/          # Admin: kredittjustering (+/-)
@@ -1153,44 +1318,68 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-admin-user-activity/           # Admin: aktivitet/ledger for valgt bruker
 │   │   ├── ai-admin-user-projects/           # Admin: paginert prosjektoversikt, review health og project rows per bruker
 │   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal + high-stakes media guard)
+│   │   ├── ai-export-safety/                 # Server-side export-safety preflight
 │   │   ├── ai-final-review/                  # Final Revision + QA Memo (whole-document)
 │   │   ├── ai-final-revision-billing/        # Reservasjon/commit/refund for Final Revision-kreditter
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
-│   │   ├── ai-image/                         # Bildegenerering (GPT Image 2 / Gemini Image / Imagen Ultra)
+│   │   ├── ai-image/                         # Bildegenerering (GPT Image 2 / Gemini Image / Imagen)
 │   │   ├── ai-mermaid-fix/                   # Mermaid-fiksing med AI
 │   │   ├── ai-model-registry-config/         # Admin: draft/publish/rollback for modellregister
 │   │   ├── ai-plan/                          # Planleggings-agent med Google Search, fact-lock og verified sources
 │   │   │   ├── access.ts                     # Auth, allowlist, rate-limit og kredittflyt for ai-plan
 │   │   │   ├── coverImageRuntime.ts          # Edge-budsjett, deferral og recovery-logikk for cover-bilder
 │   │   │   ├── index.ts                      # Hovedfunksjon for grounding, source harvest, fact-lock, source visuals og planrespons
+│   │   │   ├── jsonParsing.test.ts           # Tester for JSON parsing
 │   │   │   ├── jsonParsing.ts                # Stripper fences, finner JSON-objekt og normaliserer kandidattekst
 │   │   │   ├── modelRouting.ts               # Velger Vertex vs Generative Language for plan-tekst og fallback-meta
 │   │   │   ├── promptAssembly.ts             # Bygger planprompt og avleder premise anchor for fiction
+│   │   │   ├── request.test.ts               # Tester for request-normalisering
 │   │   │   ├── request.ts                    # Normaliserer request-shape, tuning-budsjetter og vedlagte dokumenter
+│   │   │   ├── responseNormalization.test.ts # Tester for plan response-normalisering
 │   │   │   ├── responseNormalization.ts      # Normaliserer plan JSON til stabil chapters/citations/story-bible-shape
 │   │   │   ├── responses.ts                  # HTTP-responshelpers for success, timeout og parse-/AI-feil
 │   │   │   ├── runtimeTypes.ts               # Runtime-typer for plan, citations, verifiedCitations og imageFactLock-status
+│   │   │   ├── sourceAuthoritySignals.test.ts # Tester for source authority-signaler
+│   │   │   ├── sourceFactLockConflicts.test.ts # Tester for fact-lock konflikter
 │   │   │   ├── sourceFactLockConflicts.ts    # Oppdager kollisjon mellom exactFacts og avoidFacts
+│   │   │   ├── sourceFactLockMatching.test.ts # Tester for fact matching
 │   │   │   ├── sourceFactLockMatching.ts     # Tekst-/URL-matching, aliaser og variant-sensitive token-hjelpere
+│   │   │   ├── sourceFactLockParsing.test.ts # Tester for fact-lock parsing
 │   │   │   ├── sourceFactLockParsing.ts      # Parser og renser fact-lock JSON, citations og HTML-fragmenter
+│   │   │   ├── sourceFactLockPdf.test.ts     # Tester for PDF fact-lock
 │   │   │   ├── sourceFactLockPdf.ts          # Lettvekts PDF-tekstuttrekk for source-backed fact-lock
+│   │   │   ├── sourceFactLockPlan.test.ts    # Tester for plan fact-lock
 │   │   │   ├── sourceFactLockPlan.ts         # Påfører source-backed exactFacts/avoidFacts på summary og chapters
+│   │   │   ├── sourceFactLockSnippets.test.ts # Tester for snippet extraction
 │   │   │   ├── sourceFactLockSnippets.ts     # Ekstraherer relevante snippets til fact-lock-prompts
+│   │   │   ├── sourceFactLockSourcePool.test.ts # Tester for source pool
 │   │   │   ├── sourceFactLockSourcePool.ts   # Slår sammen citations, user URLs og dokumenter til ranked source pool
+│   │   │   ├── sourceFactLockSources.test.ts # Tester for source scoring/classification
 │   │   │   ├── sourceFactLockSources.ts      # Klassifiserer og scorer kilder, kuraterer citations og finner direkte spec-kilder
+│   │   │   ├── sourceFactLockStructuredFacts.test.ts # Tester for structured facts
 │   │   │   ├── sourceFactLockStructuredFacts.ts # Utleder navngitte, atomiske facts fra HTML og snippets
+│   │   │   ├── sourceFactLockValues.test.ts  # Tester for value canonicalization
 │   │   │   ├── sourceFactLockValues.ts       # Kanoniserer fact values, kategorier og evidence windows
+│   │   │   ├── sourceHarvestHints.test.ts    # Tester for harvest hints
 │   │   │   ├── sourceHarvestHints.ts         # Bygger grounding-/harvest-hints og formatterer grounded sources for prompt
+│   │   │   ├── sourceUrlUtils.test.ts        # Tester for URL hygiene
 │   │   │   ├── sourceUrlUtils.ts             # URL-normalisering, redirect-cleaning og bruker-URL-ekstraksjon
+│   │   │   ├── sourceVerification.test.ts    # Tester for source verification
 │   │   │   ├── sourceVerification.ts         # Safe-fetch, bounded reads, redirect-resolve og kildeverifisering
+│   │   │   ├── sourceVisualCandidates.test.ts # Tester for visual candidates
 │   │   │   ├── sourceVisualCandidates.ts     # Ekstraherer og rangerer visuelle kandidater fra HTML-kilder
 │   │   │   ├── sourceVisualPersistence.ts    # Validerer, laster ned og persisterer source visuals til storage
+│   │   │   ├── sourceVisualPlanPersistence.test.ts # Tester for visual plan persistence
 │   │   │   ├── sourceVisualPlanPersistence.ts # Fester innsamlede source visuals til plan innen edge-budsjett
+│   │   │   ├── sourceVisualReferences.test.ts # Tester for source visual orchestration
 │   │   │   ├── sourceVisualReferences.ts     # Orkestrerer sidefetch, kandidatranking og persistence av source visuals
+│   │   │   ├── sourceVisualSourcePages.test.ts # Tester for valg av source visual pages
 │   │   │   ├── sourceVisualSourcePages.ts    # Velger hvilke kilde-sider som skal inspiseres for visuelle referanser
 │   │   │   ├── sourceVisualTypes.ts          # URL-sikkerhet, candidate kinds og low-value filtre for source visuals
+│   │   │   ├── usageLogging.test.ts          # Tester for usage/fact-lock logging
 │   │   │   ├── usageLogging.ts               # finalizeUsage-logging for suksess, feil og fact-lock-runtime metadata
 │   │   │   ├── usageOperations.ts            # Bygger usage ledger-operasjoner for plan-generering og cover image
+│   │   │   ├── variantPrecisionGate.test.ts  # Tester for variant precision guard
 │   │   │   └── variantPrecisionGate.ts       # Guard for variant-sensitive requests og stripping av ubekreftede presise specs
 │   │   ├── ai-quota-sync/                    # Google Cloud kvote-synkronisering
 │   │   │   ├── alerts.ts                     # Bygger quota health-alerts og sender webhook-varsler
@@ -1203,6 +1392,10 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   │   ├── textCanarySummary.ts          # Oppsummerer ai-plan/ai-generate-section canary health, fallback og latency
 │   │   │   └── types.ts                      # Typer for quota cards, alerts, canaries og Model & Pricing-respons
 │   │   ├── ai-script-convert/                # Konvertering til filmmanus
+│   │   ├── ai-source-repair/                 # Målrettet kilde-repair før revisjon
+│   │   │   ├── index.ts
+│   │   │   ├── sourceRepairCoveragePolicy.test.ts
+│   │   │   └── sourceRepairCoveragePolicy.ts
 │   │   ├── ai-stripe-checkout/               # Oppretter Stripe Checkout for kredittkjøp
 │   │   ├── ai-stripe-portal/                 # Stripe Customer Portal (abonnement)
 │   │   ├── ai-stripe-subscription-checkout/  # Oppretter Stripe Checkout for abonnement
@@ -1217,9 +1410,9 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── cleanup-project-visual-references/ # Rydder midlertidige visuelle referanser for prosjekt
 │   │   ├── qr-login/                         # QR login (create/authorize/exchange)
 │   │   ├── url-analyze/                      # Analyse av nettsider (Scraping)
+│   │   ├── deno.d.ts                         # Supplerende module declarations
 │   │   ├── deno.json                         # Deno config for functions workspace
-│   │   ├── deno.lock                         # Låste Deno-avhengigheter
-│   │   └── deno.d.ts                         # Supplerende module declarations
+│   │   └── deno.lock                         # Låste Deno-avhengigheter
 │   └── migrations/                           # Database-migrasjoner
 │       ├── 20260120000000_quota_system.sql                    # Kvote-system, entitlements, usage events og grunn-RPC-er
 │       ├── 20260129000000_add_credits_columns.sql             # Legger til manglende credits-kolonner på entitlements/usage events
@@ -1247,10 +1440,16 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       ├── 20260523020000_harden_security_definer_rpc_execute.sql # Revoke EXECUTE på sensitive SECURITY DEFINER RPC-er
 │       ├── 20260528120000_create_model_registry_config_tables.sql # Modellregister releases og audit-logg
 │       ├── 20260528153000_create_paid_operation_runs.sql      # Operation-gate-tabell for replay/idempotency før provider-kall
-│       └── 20260529103000_add_adjusted_credit_reservation_commit.sql # Tillater justert commit av reserverte credits
+│       ├── 20260529103000_add_adjusted_credit_reservation_commit.sql # Tillater justert commit av reserverte credits
+│       ├── 20260603120000_add_projects_user_activity_index.sql # Indeks for admin user activity/projects
+│       ├── 20260604120000_create_admin_quality_cases.sql      # Admin Quality Queue cases
+│       └── 20260604173000_add_admin_quality_fixture_export_audit.sql # Fixture export audit for admin quality
+├── types/                                    # Lokale type declarations
+│   └── lamejs.d.ts                           # Declaration for lamejs
 └── utils/                                    # Generelle hjelpefunksjoner
     ├── audio.ts                              # PCM/WAV-hjelpere (lavnivå)
     ├── dom.ts                                # DOM-manipulasjon
+    ├── dynamicImport.ts                      # Lazy/dynamisk import helper
     └── fileParser.ts                         # Parsing av opplastede filer (.txt gjenoppretting)
 ```
 ### Nøkkelkomponenter forklart
