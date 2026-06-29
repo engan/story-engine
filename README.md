@@ -71,6 +71,8 @@
 
 *   💬 **Kontekstuelle hjelpetekster**: Startskjermen viser korte hjelpetekster for `Upload Files`, `Final Quality Pass` og kredittestimat/balanse i både Simple og Custom, inkludert kostnads-/kvalitetsavveiing og sikkerhetsforbehold for opplastet media.
 
+*   ❓ **Offentlig FAQ**: `/faq` er en public route med samme visuelle uttrykk som landingssiden. FAQ-innholdet ligger strukturert i `components/landing/faqContent.ts`, brukes både av FAQ-siden og landingssidens preview, og kan åpnes fra landingssiden og app-headeren.
+
 *   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Routing-logikken lever i `shared/routing/` og brukes av alle Edge Functions.
 
 *   📊 **Monitoring**: Sanntids-dashboard for Google Cloud API-kvoter, Vertex/Gemini-helse, runtime-flagg, readiness, operative risikoer, Model & Pricing-status og en read-only Quality Queue V1 for admin-triage av prosjekter med høy kvalitetsrisiko.
@@ -90,6 +92,9 @@
 ### 🧪 Prøv Appen (Beta)
 Story Engine kan nå testes på midlertidig server her:
 👉 **[https://story.neoweb.no](https://story.neoweb.no)** 
+
+FAQ for nye brukere ligger her:
+👉 **[https://story.neoweb.no/faq](https://story.neoweb.no/faq)**
 
 ### 🌐 Live demoer
 - **Mesterhus Form 1.0 demo (landing/index.html):**
@@ -340,8 +345,12 @@ Dette diagrammet dekker input, analyse, planlegging og innholdsgenerering fram t
 ```mermaid
 graph TD
     Entry((("🚀 App Start")))
-    Entry --> LandingPage["🏠 Landing Page<br/><i>LandingPage.tsx</i>"]
+    Entry --> PublicRoute{"🌐 Public route?"}
+    PublicRoute -->|"/"| LandingPage["🏠 Landing Page<br/><i>LandingPage.tsx</i>"]
+    PublicRoute -->|"/faq"| FaqPage["❓ FAQ Page<br/><i>FaqPage.tsx + faqContent.ts</i>"]
     LandingPage --> UserStart((("👤 Bruker")))
+    FaqPage -.-> LandingPage
+    FaqPage --> UserStart
 
     subgraph InputSources ["📥 INPUT KILDER"]
         direction TB
@@ -402,7 +411,7 @@ graph TD
         GeminiPlan["🤖 Gemini API<br/><i>3 Flash / 3.1 Pro (via Vertex/Dev)</i>"]
         SearchDecision{"🔎 Google Search?"}
         SearchAPI["🌍 Grounding + Citations"]
-        PlanCoverAttempt["🖼️ ai-plan cover attempt<br/><i>GPT Image 2 / Gemini Image / Imagen Ultra</i>"]
+        PlanCoverAttempt["🖼️ ai-plan cover attempt<br/><i>GPT Image 2 / Gemini 3.1 Flash Image</i>"]
     end
 
     UI --> PlanningLogic
@@ -423,7 +432,7 @@ graph TD
         direction TB
         CoverDecision{"🖼️ Cover fra ai-plan?"}
         EdgeImageCover["⚙️ ai-image (cover fallback)"]
-        ImageGen["🎨 Image models<br/><i>GPT Image 2 / Gemini Image / Imagen Ultra</i>"]
+        ImageGen["🎨 Image models<br/><i>GPT Image 2 / Gemini 3.1 Flash Image</i>"]
         PlanWithCover["📖 Plan + coverImageUrl"]
         ChapterGen["📚 generateChapterBatch()"]
         PromptService3["📋 Request assembly<br/><i>chapters.ts</i>"]
@@ -494,12 +503,12 @@ graph TD
     classDef sanitizerNode fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#075985
 
     class Entry,UserStart userNode
-    class LandingPage landingNode
+    class LandingPage,FaqPage landingNode
     class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix apiNode
     class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor processNode
     class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,ModelRouter,RoutingSection serviceNode
     class CoreIdea,ReferenceEvidence,PlanReady,PlanWithCover,FinalChapter,GenerationPayload,UI stateNode
-    class PlanningLogic,SearchDecision,CoverDecision,MermaidDecision decisionNode
+    class PublicRoute,PlanningLogic,SearchDecision,CoverDecision,MermaidDecision decisionNode
     class RawMD,Fix1,Fix2,CleanMD sanitizerNode
 ```
 </details>
@@ -722,7 +731,7 @@ sequenceDiagram
         participant Gemini as ⚡ Gemini API
         participant OpenAI as 🧠 OpenAI Responses (GPT-5.5 review / GPT-5.4 revise)
         participant Search as 🔍 Google Search
-        participant Imagen as 🎨 Image Models (GPT Image 2/Gemini Image/Imagen Ultra)
+        participant Imagen as 🎨 Image Models (GPT Image 2/Gemini 3.1 Flash Image)
     end
 
     Note over User,Imagen: 🎯 FASE 1: Input & AI-anbefalinger
@@ -757,7 +766,7 @@ sequenceDiagram
     Edge->>+Gemini: Generer plan JSON
     Gemini-->>-Edge: NovelPlan + citations
     opt ai-plan forsøker cover
-        Edge->>Imagen: Generer cover (GPT Image 2/Gemini Image/Imagen Ultra)
+        Edge->>Imagen: Generer cover (GPT Image 2/Gemini 3.1 Flash Image)
         Imagen-->>Edge: Base64 bilde eller feil
     end
     Edge-->>-FE: Plan-respons (+ optional coverImageUrl/status)
@@ -853,7 +862,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 .
 ├── .gitignore                                # Git ignore-regler for lokale artefakter og build-output
 ├── .nvmrc                                    # Node-versjon for lokal utvikling/CI
-├── App.tsx                                   # Global state, view-ruting og kostnadssporing
+├── App.tsx                                   # Global state, public-route-switch, view-ruting og kostnadssporing
 ├── README.md                                 # Dokumentasjon
 ├── AGENTS.md                                 # Agent-/Codex-regler for sikkerhet, deploy, billing og repo-hygiene
 ├── CHANGELOG.md                              # Endringslogg
@@ -871,6 +880,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── package.json                              # Scripts, avhengigheter og app-metadata
 ├── package-lock.json                         # Låste npm-avhengigheter
 ├── vite.config.ts                            # Vite bygg/dev-konfigurasjon
+├── vercel.json                               # SPA-rewrite slik at direkte public routes som /faq fungerer på Vercel
 ├── tailwind.config.js                        # Tailwind tema og scanning
 ├── postcss.config.js                         # PostCSS pipeline
 ├── tsconfig.json                             # TypeScript-konfigurasjon
@@ -896,8 +906,10 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── ParserTest.tsx                        # Test-komponent for parser
 │   ├── auth/                                 # Login/QR-auth UI
 │   │   └── QrLogin.tsx                       # QR-login flyt for mobil autorisering
-│   ├── landing/                              # Landingsside komponenter
-│   │   └── LandingPage.tsx                   # Hovedinngang / Hero-seksjon
+│   ├── landing/                              # Public landing/FAQ-komponenter
+│   │   ├── FaqPage.tsx                       # Offentlig /faq-side med landing-visuelt design
+│   │   ├── LandingPage.tsx                   # Hovedinngang / Hero-seksjon med FAQ-preview
+│   │   └── faqContent.ts                     # Strukturert FAQ-innhold delt mellom landing og /faq
 │   ├── ui/                                   # Gjenbrukbare UI-komponenter
 │   │   ├── AppMessage.tsx                    # Inline meldingsbanner med tone-/alert-varianter
 │   │   ├── AppUiNoticeToast.tsx              # Flytende UI-toast for korte notices og feil
@@ -1648,6 +1660,13 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
     npm run deploy:functions
     ```
     Scriptet kjører auth/security/function checks først og bruker deretter delt deploy: beskyttede funksjoner deployes med `verify_jwt = true`, mens de eksplisitte public-unntakene (`cleanup-project-visual-references`, `qr-login`, `ai-stripe-webhook`) deployes med `--no-verify-jwt`.
+
+### 🌐 Frontend-routing og Vercel
+
+`App.tsx` håndterer foreløpig public routes med en enkel `window.location.pathname`-switch før innlogget app-shell rendres. `/` viser `LandingPage.tsx`, mens `/faq` viser `FaqPage.tsx`. Hvis flere public sider som `/privacy` og `/terms` skal inn samtidig, bør dette vurderes på nytt mot en liten React Router-konfigurasjon.
+
+`vercel.json` rewrites `/(.*)` til `/index.html`, slik at direkte besøk til SPA-ruter som `https://story.neoweb.no/faq` fungerer etter deploy.
+
 ---
 
 ## 📝 Endringslogg
@@ -1656,6 +1675,7 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 
 ### Siste endringer (April-Juni 2026)
 - 🧭 **Simple / Custom startmodus**: Startsiden har nå en enklere `Simple`-modus for førstegenerering, der avanserte kontroller skjules og `Suggest Settings` kjøres automatisk ved `Create Project`. `Custom` beholder full kontrollflate.
+- ❓ **Offentlig FAQ-side**: `/faq` er lagt til som public route med samme designlinje som landingssiden, delt FAQ-innhold i `components/landing/faqContent.ts`, FAQ-preview på landing og lenke fra innlogget app-header.
 - 💬 **Startskjerm-hjelpetekster**: `Upload Files`, `Final Quality Pass` og kreditt-preflight har kortere, mer lesbare hjelpetekster i Simple og Custom, med tydeligere kostnads-/kvalitetsforklaring og safety-forbehold for opplastet media.
 - 🛡️ **Opplastet media-sikkerhet**: `ai-analyze-file` legger nå inn en generell high-stakes media guard for bilde/lyd/video slik at analyser beskriver observerbare trekk, markerer usikkerhet og anbefaler kvalifisert verifisering i risikobærende temaer. Transcript/SRT-analyse holdes uendret.
 - 🎙️ **3.1 Flash TTS som standard**: Standard Text-to-Speech-modell er nå `gemini-3.1-flash-tts-preview`, mens 2.5 Flash og 2.5 Pro fortsatt kan velges manuelt.
@@ -1664,7 +1684,7 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 - 🛡️ **Evidence safety i preview og eksport**: Utkast med ulukket kildestatus kan nå vise samme lokaliserte kildestatus-varsel i workspace preview og eksporterte formater. Export warning-tekstene er flyttet til delt i18n-lag slik at nye språk følger samme kontrakt.
 - 🔧 **Source Repair flyt**: `Repair Sources` kan forsøke å finne sterkere kilder for QA-gap før revisjon. Gap coverage regnes per mål, source-repair-blokkeringen bæres inn i revisjonsflyten, og ulukkede gap skal kildebelegges, kvalifiseres som unresolved/requires-user-source eller prunes før review kjøres på nytt.
 - 🧾 **Fact candidates og debug**: Story Engine-filen eksporterer nå kildepool, faktakandidater, primary facts, rejected/conflict facts og source-backed status i frontmatter når fact-lock er aktiv.
-- 🖼️ **GPT Image 2 som standard bildevalg**: Bildekatalogen bruker nå `gpt-image-2` og `gpt-image-2-hd` som hovedvalg, med Gemini 3.1 Flash Image og Imagen 4 Ultra som eksplisitte alternativer. Pensjonert Imagen 4 Standard er fjernet fra aktiv modellkatalog.
+- 🖼️ **GPT Image 2 som standard bildevalg**: Bildekatalogen bruker nå `gpt-image-2` og `gpt-image-2-hd` som hovedvalg, med `gemini-3.1-flash-image` som aktivt Google-alternativ. Imagen 4-IDer beholdes bare som kompatibilitetsaliaser for gamle prosjekter.
 - 🖼️ **Kildehøstede visuelle referanser**: Offisielle kildesider kan bidra med `source_visual_references` til cover og seksjonsbilder, med visual-kind, primary identity anchor og mer konservativ bruk av faktalåste labels.
 - 🌐 **Oppgradert nettside-eksport**: `websiteTemplate` og `landing/index.html` støtter en mer presentabel mikrosidepakke med mørkt tema som standard, lys/mørk toggle, media, kilder, lyd og nedlastbare formater. Website-zipen pakker nå lokale Mermaid- og KaTeX-assets med stabile filnavn og lisensnotis.
 - 🎧 **Medie-only Variant**: Audio-varianter kan oppdatere samme prosjekt uten å regenerere eller miste eksisterende seksjonsbilder når `Illustrations` ikke er valgt.
