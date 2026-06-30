@@ -71,8 +71,6 @@
 
 *   💬 **Kontekstuelle hjelpetekster**: Startskjermen viser korte hjelpetekster for `Upload Files`, `Final Quality Pass` og kredittestimat/balanse i både Simple og Custom, inkludert kostnads-/kvalitetsavveiing og sikkerhetsforbehold for opplastet media.
 
-*   ❓ **Offentlig FAQ**: `/faq` er en public route med samme visuelle uttrykk som landingssiden. FAQ-innholdet ligger strukturert i `components/landing/faqContent.ts`, brukes både av FAQ-siden og landingssidens preview, og kan åpnes fra landingssiden og app-headeren.
-
 *   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Routing-logikken lever i `shared/routing/` og brukes av alle Edge Functions.
 
 *   📊 **Monitoring**: Sanntids-dashboard for Google Cloud API-kvoter, Vertex/Gemini-helse, runtime-flagg, readiness, operative risikoer, Model & Pricing-status og en read-only Quality Queue V1 for admin-triage av prosjekter med høy kvalitetsrisiko.
@@ -93,8 +91,9 @@
 Story Engine kan nå testes på midlertidig server her:
 👉 **[https://story.neoweb.no](https://story.neoweb.no)** 
 
-FAQ for nye brukere ligger her:
-👉 **[https://story.neoweb.no/faq](https://story.neoweb.no/faq)**
+Personvern og vilkår ligger her:
+👉 **[https://story.neoweb.no/privacy](https://story.neoweb.no/privacy)**<br/>
+👉 **[https://story.neoweb.no/terms](https://story.neoweb.no/terms)**
 
 ### 🌐 Live demoer
 - **Mesterhus Form 1.0 demo (landing/index.html):**
@@ -348,9 +347,12 @@ graph TD
     Entry --> PublicRoute{"🌐 Public route?"}
     PublicRoute -->|"/"| LandingPage["🏠 Landing Page<br/><i>LandingPage.tsx</i>"]
     PublicRoute -->|"/faq"| FaqPage["❓ FAQ Page<br/><i>FaqPage.tsx + faqContent.ts</i>"]
+    PublicRoute -->|"/privacy, /terms"| LegalPage["⚖️ Legal Pages<br/><i>LegalPage.tsx + legalContent.ts</i>"]
     LandingPage --> UserStart((("👤 Bruker")))
     FaqPage -.-> LandingPage
     FaqPage --> UserStart
+    LegalPage -.-> LandingPage
+    LegalPage --> UserStart
 
     subgraph InputSources ["📥 INPUT KILDER"]
         direction TB
@@ -503,7 +505,7 @@ graph TD
     classDef sanitizerNode fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#075985
 
     class Entry,UserStart userNode
-    class LandingPage,FaqPage landingNode
+    class LandingPage,FaqPage,LegalPage landingNode
     class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix apiNode
     class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor processNode
     class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,ModelRouter,RoutingSection serviceNode
@@ -880,7 +882,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── package.json                              # Scripts, avhengigheter og app-metadata
 ├── package-lock.json                         # Låste npm-avhengigheter
 ├── vite.config.ts                            # Vite bygg/dev-konfigurasjon
-├── vercel.json                               # SPA-rewrite slik at direkte public routes som /faq fungerer på Vercel
+├── vercel.json                               # SPA-rewrite slik at direkte public routes som /faq, /privacy og /terms fungerer på Vercel
 ├── tailwind.config.js                        # Tailwind tema og scanning
 ├── postcss.config.js                         # PostCSS pipeline
 ├── tsconfig.json                             # TypeScript-konfigurasjon
@@ -908,8 +910,10 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   └── QrLogin.tsx                       # QR-login flyt for mobil autorisering
 │   ├── landing/                              # Public landing/FAQ-komponenter
 │   │   ├── FaqPage.tsx                       # Offentlig /faq-side med landing-visuelt design
+│   │   ├── LegalPage.tsx                     # Offentlige /privacy- og /terms-sider med landing-visuelt design
 │   │   ├── LandingPage.tsx                   # Hovedinngang / Hero-seksjon med FAQ-preview
-│   │   └── faqContent.ts                     # Strukturert FAQ-innhold delt mellom landing og /faq
+│   │   ├── faqContent.ts                     # Strukturert FAQ-innhold delt mellom landing og /faq
+│   │   └── legalContent.ts                   # Engelske privacy/terms-utkast med regulatoriske referanser
 │   ├── ui/                                   # Gjenbrukbare UI-komponenter
 │   │   ├── AppMessage.tsx                    # Inline meldingsbanner med tone-/alert-varianter
 │   │   ├── AppUiNoticeToast.tsx              # Flytende UI-toast for korte notices og feil
@@ -1663,9 +1667,9 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
 
 ### 🌐 Frontend-routing og Vercel
 
-`App.tsx` håndterer foreløpig public routes med en enkel `window.location.pathname`-switch før innlogget app-shell rendres. `/` viser `LandingPage.tsx`, mens `/faq` viser `FaqPage.tsx`. Hvis flere public sider som `/privacy` og `/terms` skal inn samtidig, bør dette vurderes på nytt mot en liten React Router-konfigurasjon.
+`App.tsx` håndterer foreløpig public routes med en enkel `window.location.pathname`-switch før innlogget app-shell rendres. `/` viser `LandingPage.tsx`, `/faq` viser `FaqPage.tsx`, og `/privacy`/`/terms` viser `LegalPage.tsx`. Hvis flere public sider som `/pricing`, `/cookies` eller support skal inn samtidig, bør dette vurderes på nytt mot en liten React Router-konfigurasjon.
 
-`vercel.json` rewrites `/(.*)` til `/index.html`, slik at direkte besøk til SPA-ruter som `https://story.neoweb.no/faq` fungerer etter deploy.
+`vercel.json` rewrites `/(.*)` til `/index.html`, slik at direkte besøk til SPA-ruter som `https://story.neoweb.no/faq`, `https://story.neoweb.no/privacy` og `https://story.neoweb.no/terms` fungerer etter deploy.
 
 ---
 
@@ -1675,7 +1679,7 @@ Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i Git
 
 ### Siste endringer (April-Juni 2026)
 - 🧭 **Simple / Custom startmodus**: Startsiden har nå en enklere `Simple`-modus for førstegenerering, der avanserte kontroller skjules og `Suggest Settings` kjøres automatisk ved `Create Project`. `Custom` beholder full kontrollflate.
-- ❓ **Offentlig FAQ-side**: `/faq` er lagt til som public route med samme designlinje som landingssiden, delt FAQ-innhold i `components/landing/faqContent.ts`, FAQ-preview på landing og lenke fra innlogget app-header.
+- ⚖️ **Privacy og Terms**: `/privacy` og `/terms` er lagt til som public routes med samme designlinje som landingssiden. Sidene bruker engelske beta-utkast, regulatoriske referanselenker og lenkes fra public footer og login-flyten.
 - 💬 **Startskjerm-hjelpetekster**: `Upload Files`, `Final Quality Pass` og kreditt-preflight har kortere, mer lesbare hjelpetekster i Simple og Custom, med tydeligere kostnads-/kvalitetsforklaring og safety-forbehold for opplastet media.
 - 🛡️ **Opplastet media-sikkerhet**: `ai-analyze-file` legger nå inn en generell high-stakes media guard for bilde/lyd/video slik at analyser beskriver observerbare trekk, markerer usikkerhet og anbefaler kvalifisert verifisering i risikobærende temaer. Transcript/SRT-analyse holdes uendret.
 - 🎙️ **3.1 Flash TTS som standard**: Standard Text-to-Speech-modell er nå `gemini-3.1-flash-tts-preview`, mens 2.5 Flash og 2.5 Pro fortsatt kan velges manuelt.
