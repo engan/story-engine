@@ -91,10 +91,6 @@
 Story Engine kan nå testes på midlertidig server her:
 👉 **[https://story.neoweb.no](https://story.neoweb.no)** 
 
-Personvern og vilkår ligger her:
-👉 **[https://story.neoweb.no/privacy](https://story.neoweb.no/privacy)**<br/>
-👉 **[https://story.neoweb.no/terms](https://story.neoweb.no/terms)**
-
 ### 🌐 Live demoer
 - **Mesterhus Form 1.0 demo (landing/index.html):**
   [https://neoweb.no/mesterhus/index.html](https://neoweb.no/mesterhus/index.html)
