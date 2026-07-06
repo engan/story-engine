@@ -12,7 +12,9 @@ releasehistorikk der semantisk versjonering ikke er praktisk.
 
 ## [Unreleased]
 
-- Ingen åpne release-notes er samlet her ennå.
+### Changed
+- Arkiverte Gemini 3.1 Flash TTS-planen etter produksjons-smoke av 2.5 Pro TTS,
+  tidligere 3.1 Flash TTS-variantbruk, preview-lyd og Dashboard usage metrics.
 
 ---
 
