@@ -9,6 +9,8 @@
 ![OpenAI GPT-5.5](https://img.shields.io/badge/OpenAI_GPT--5.5-10A37F?style=for-the-badge&logo=openai&logoColor=white)
 ![Language Agnostic](https://img.shields.io/badge/Language_Agnostic-0F766E?style=for-the-badge&logo=translate&logoColor=white)
 ![Object Agnostic](https://img.shields.io/badge/Object_Agnostic-1D4ED8?style=for-the-badge&logo=semanticweb&logoColor=white)
+![Evidence Guarded](https://img.shields.io/badge/Evidence_Guarded-0369A1?style=for-the-badge&logo=shield&logoColor=white)
+![Multimodal Outputs](https://img.shields.io/badge/Multimodal_Outputs-7C3AED?style=for-the-badge&logo=files&logoColor=white)
 
 ![Story Engine Infographic](public/infographic.png)
 
@@ -1721,7 +1723,7 @@ bilder, audio, Mermaid og eksport er testet.
 
 ## 📝 Endringslogg
 
-Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
+Kortversjon av siste endringer. Kurert endringshistorikk finnes i `CHANGELOG.md` (og i GitHub Releases).
 
 ### Siste endringer April 2026
 - 🔁 **Revise som hovedflyt**: `Revise` ble samlet som primær vei for tekstforbedring, med støtte for å oppdatere samme prosjekt eller lagre en revisjonsgren. Lagret QA-memo og prioriterte tiltak kan prefylles i arbeidsflaten.
