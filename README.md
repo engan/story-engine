@@ -7,7 +7,8 @@
 ![Gemini 3.1 Pro](https://img.shields.io/badge/Gemini_3.1_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 ![Vertex AI](https://img.shields.io/badge/Vertex_AI-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
 ![OpenAI GPT-5.5](https://img.shields.io/badge/OpenAI_GPT--5.5-10A37F?style=for-the-badge&logo=openai&logoColor=white)
-![Norway](https://img.shields.io/badge/Norway-A63A3A?style=for-the-badge&logo=flag-icon&logoColor=white)
+![Language Agnostic](https://img.shields.io/badge/Language_Agnostic-0F766E?style=for-the-badge&logo=translate&logoColor=white)
+![Object Agnostic](https://img.shields.io/badge/Object_Agnostic-1D4ED8?style=for-the-badge&logo=semanticweb&logoColor=white)
 
 ![Story Engine Infographic](public/infographic.png)
 
@@ -23,7 +24,7 @@
 
 *   🧭 **Simple / Custom startmodus**: Nye prosjekter starter i en ryddig `Simple`-modus der avanserte valg skjules, `Final Quality Pass` er aktivert, og `Suggest Settings` kjøres automatisk når prosjektet opprettes. `Custom` beholder hele kontrollflaten for brukere som vil styre kategori, format, kreativitet, diagrammer, språk, research og add-ons selv.
 
-*   📄 **Native dokument- og medieeksport**: Skaper PDF, DOCX, PPTX, EPUB, MP3/WAV, MP4 og interaktive website-zipper direkte i nettleseren uten eksterne konverteringstjenester.
+*   📄 **Native dokument- og medieeksport**: Skaper PDF, DOCX, PPTX, EPUB, MP3/WAV, MP4 og interaktive website-zipper direkte i nettleseren uten eksterne konverteringstjenester. PDF/DOCX-eksport renderer Mermaid-diagrammer til PNG med dokumenttilpasset kontrastnormalisering, slik at lyse og mørke noder forblir lesbare i trykte dokumenter.
 
 *   🌐 **Interaktiv nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med oppgradert design, mørkt tema som standard, lys/mørk toggle, innholdsfortegnelse, integrert lyd/bilde-avspilling og egne nedlastingskort. Website-eksporten pakker nå lokale Mermaid- og KaTeX-assets, inkludert KaTeX-fontene, slik at eksporten er mer deterministisk og offline-vennlig.
 
@@ -57,7 +58,7 @@
 
 *   🔧 **Repair Sources / kildeforbedring**: Når QA finner kildegap kan Story Engine forsøke målrettet kildeforbedring før revisjon. Flyten mapper kilder til konkrete gap, bærer ulukkede gap inn i revision-briefen og stopper uten videre source-repair-belastning når sterke nok kilder ikke finnes.
 
-*   🎛️ **Variant / Regenerate Outputs**: `Variant` gjenbruker samme prosjektprofil for illustrasjoner, audio og språkbytte. Medie-only-varianter kan oppdatere samme prosjekt og bevare eksisterende bilder når bare audio regenereres, mens språkbytte opprettes som nytt prosjekt.
+*   🎛️ **Variant / Regenerate Outputs**: `Variant` gjenbruker samme prosjektprofil for illustrasjoner, audio og språkbytte. Medie-only-varianter kan oppdatere samme prosjekt og bevare eksisterende bilder når bare audio regenereres, mens språkbytte opprettes som nytt prosjekt. Språkvarianter kan arve sterk/baseline-lagret review-status når kildegrunnlag og evidenskontrakt bevares, og add-on preflight skiller hard minimum fra anbefalt buffer for media-kostnader.
 
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 
@@ -79,7 +80,7 @@
 
 *   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Aktive tier-nivåer er `pilot`, `pro` og `elite` med ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg. Eldre `enterprise`-verdier normaliseres til `elite`. Konfigurert i `shared/billing/`.
 
-*   📈 **Production Report og runtime ledger**: Eksportert Story Engine-fil viser kundevendt faktisk server-side kredittbruk når ledger-data er fanget. Admin kan i tillegg eksportere intern rapport med klientbasert provider-estimat, modell-/tokenkostnader, bildeoperasjoner, TTS-varighetsmetadata, operation-gate status og quality-chain metadata når automatisk kvalitetskjede er brukt.
+*   📈 **Production Report og runtime ledger**: Eksportert Story Engine-fil viser kundevendt faktisk server-side kredittbruk når ledger-data er fanget. Dashboardets Recent Activity grupperer server-side usage events og henter et dypere råvindu slik at tette media-batcher ikke skjuler eldre, relevante kredittbevegelser. Admin kan i tillegg eksportere intern rapport med klientbasert provider-estimat, modell-/tokenkostnader, bildeoperasjoner, TTS-varighetsmetadata, operation-gate status og quality-chain metadata når automatisk kvalitetskjede er brukt.
 
 *   👥 **Admin Users med prosjektinnsikt**: Admin-flaten viser nå ikke bare tier, kreditter og aktivitet, men også en paginert `Projects`-fane per bruker med prosjektantall, review health, revision branches og siste prosjektaktivitet.
 
@@ -88,8 +89,8 @@
 ## 🚀 Se Story Engine i aksjon
 
 ### 🧪 Prøv Appen (Beta)
-Story Engine kan nå testes på midlertidig server her:
-👉 **[https://story.neoweb.no](https://story.neoweb.no)** 
+Story Engine kan testes på domenet som er satt i deploy-miljøets
+`VITE_PUBLIC_APP_ORIGIN`.
 
 ### 🌐 Live demoer
 - **Mesterhus Form 1.0 demo (landing/index.html):**
@@ -257,7 +258,7 @@ Når et prosjekt åpnes, får brukeren tilgang til cover, struktur, review-statu
 <summary><strong>Klikk for å se Projects: Variant og regenererte outputs</strong></summary>
 
 ### Projects / Variant
-`Variant` lar brukeren gjenbruke samme prosjektprofil for nye illustrasjoner, audio-output eller språkvarianter. Medievarianter kan oppdatere samme prosjekt videre, mens språkvarianter opprettes som et nytt prosjekt med samme grunnprofil, slik skjermbildet viser. Det gjør det mulig å videreføre samme grunnprosjekt til nye leveranser uten å miste historikk eller prosjektkontekst, samtidig som språkversjoner holdes adskilt som egne prosjekter.
+`Variant` lar brukeren gjenbruke samme prosjektprofil for nye illustrasjoner, audio-output eller språkvarianter. Medievarianter kan oppdatere samme prosjekt videre, mens språkvarianter opprettes som et nytt prosjekt med samme grunnprofil, slik skjermbildet viser. Språkvarianter som bevarer kildegrunnlag og evidenskontrakt kan videreføre sterk/baseline-lagret review-status til det nye prosjektet, slik at oversettelsen ikke feilklassifiseres som et uverifisert utkast bare fordi tekstspråket er endret. Det gjør det mulig å videreføre samme grunnprosjekt til nye leveranser uten å miste historikk eller prosjektkontekst, samtidig som språkversjoner holdes adskilt som egne prosjekter.
 
 ![Projects Variant](public/projects-variant.png)
 </details>
@@ -266,7 +267,7 @@ Når et prosjekt åpnes, får brukeren tilgang til cover, struktur, review-statu
 <summary><strong>Klikk for å se Dashboard</strong></summary>
 
 ### Dashboard
-Dashboardet gir et raskt overblikk over konto, aktivitet og status. Det er her brukeren ser hva som nylig er generert, hvilke funksjoner som er brukt, og hvordan prosjektarbeidet utvikler seg over tid.
+Dashboardet gir et raskt overblikk over konto, aktivitet og status. Det er her brukeren ser hva som nylig er generert, hvilke funksjoner som er brukt, og hvordan prosjektarbeidet utvikler seg over tid. `Recent Activity` viser grupperte ledger-rader fra et dypere råvindu, slik at mange TTS- eller bildehendelser i samme kjøring ikke får historikken til å se tom eller tilfeldig avkortet ut.
 
 ![Dashboard](public/dashboard.png)
 </details>
@@ -1040,6 +1041,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── smoke-final-review-decision.ts        # Smoke-test av final-review decision helpers
 │   ├── smoke-final-review-prompt-contract.ts # Smoke-test av final-review prompt-kontrakt
 │   ├── smoke-focused-quality-scenarios.ts    # Focused quality scenario-røykprøver
+│   ├── smoke-generation-credit-estimates.ts  # Smoke-test av add-on/TTS kredittestimater
 │   ├── smoke-human-nuance-default-matrix.ts  # Default-matrise for human-nuance
 │   ├── smoke-human-nuance-modes.ts           # Test av human-nuance prompt-modi
 │   ├── smoke-language-detection.ts           # Smoke-test av språkdeteksjon
@@ -1473,8 +1475,10 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `AGENTS.md`: Root-regler for Codex/agentarbeid, inkludert SECURITY DEFINER/RPC, Edge Function-auth, billing/credits, lokal persistence, build-hygiene og valideringskommandoer.
 * `services/export/website.ts`: Genererer en komplett HTML/CSS/JS-pakke som lar brukeren navigere i historien interaktivt, med oppgradert template, tema-toggle, media, kilder, nedlastingsflater og lokale, pinnede Mermaid- og KaTeX-assets i eksportpakken.
 * `services/export/katexAssets.ts`: Henter appens bundlete KaTeX CSS/JS/font-manifest fra `vendor/katex/` og skriver stabile assetnavn, fontfiler og lisensnotis inn i website-zipen.
+* `services/export/mermaidRenderToPng.ts` og `services/mermaid/svgLayout.ts`: Deler Mermaid-rendering, title wrapping og SVG-kontrastnormalisering for dokument- og web-eksport. Dokumenteksport bruker node-/label-overlapp for å velge lesbar tekstfarge per node før SVG konverteres til PNG.
 * `services/sanitize/mermaidFixer.ts`: Intelligent "selvhelbredende" modul som oppdager syntaksfeil i Mermaid-diagrammer og fikser dem automatisk.
 * `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering, brukerflagg og en paginert `Projects`-fane med per-bruker prosjektinnsikt.
+* `components/views/DashboardView.tsx`: Brukerens konto- og aktivitetsflate. Recent Activity grupperer ledger-hendelser, viser filter for generation/review/routing/billing/admin/errors og henter et større råvindu før de siste gruppene vises.
 * `components/views/QuotaHealthView.tsx`: Dedikert Monitoring-dashboard for quota health, Quality Queue V1, runtime/config, Model & Pricing, Phase 2 Readiness og Operational Risks.
 * `components/ui/AppMessage.tsx` og `components/ui/AppUiNoticeToast.tsx`: Delte meldingsflater for inline alerts, statusbannere og flytende notices slik at review-, billing- og workflow-feil presenteres konsekvent.
 * `components/ui/ResearchSourcesBox.tsx`: Viser forskningskilder i tiers (`FACT_EVIDENCE`, `VERIFIED_RELEVANT`, `REACHABLE_ONLY` og debug/avvist), med trygg fallback til gammel citation-liste når rik metadata mangler.
@@ -1492,11 +1496,12 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
 * `shared/modelRegistry.ts` og `supabase/functions/ai-model-registry-config/`: Modellregister og admin-kontroll for draft/publish/rollback av server-side modellkonfigurasjon.
 * `shared/billing/*`: Produktpolicy og tier-presets (`productPolicy.ts`, `tierPresets.ts`) som definerer kredittregler, utløpspolicyer og tier-grenser.
+* `services/generationCredits.ts`: Klientestimat for core generation og eksisterende-draft add-ons. TTS add-on-estimat skiller hard minimum basert på eksisterende script-linjer fra anbefalt buffer for lange linjer og retry/splitting.
 * `services/pricing/*`: Skiller provider-kostnad, customer billing policy, modellnormalisering og modellvisning slik at Production Report/audit ikke blander intern provider-estimat med kundevendt kredittbruk.
 * `services/localStorageService.ts` og `hooks/useAutosave.ts`: Bevarer full lokal session i IndexedDB, inkludert chapter images, cover images og audio, med 5 sekunders debounce, størrelsesestimat og tydelig varsel ved lagringskvote-feil.
 * `services/modelPricing.ts`: Lokal prisestimatkonfigurasjon for Production Report, inkludert `gpt-5.5` review, `gpt-5.4` revision og long-context terskler der provider-prisingen skiller mellom normal og lang kontekst.
 * `scripts/check-prompt-drift.mjs`: Drift-guard som stopper innføring av nye inline core-prompts i Edge Functions.
-* `scripts/check-supabase-function-auth.mjs`, `check-security-definer-grants.mjs`, `check-paid-ai-billing.mjs`, `check-model-registry.ts`, `check-app-shell-preloads.mjs`, `check-svg-sanitizer.ts`, `check-build-observability.mjs`, `check-local-persistence-hardening.ts`, `check-staged-auto-quality-readiness.ts`, `check-quality-autopilot-ui.ts`, `smoke-export-evidence-safety.ts`, `smoke-source-repair-flow.ts`, `smoke-source-verification-policy.ts`, `smoke-source-authority-registry-phase-d.ts`, `smoke-media-quality-pass-policy.ts`, `smoke-media-lineage.ts` og `smoke-website-export-katex.mjs`: Guard-skript for Edge Function auth, RPC EXECUTE-herding, billing-integritet, modell/pricing-katalog, app-shell preloads, SVG/Mermaid XSS-regresjoner, evidence-safety/export-varsel, source-repair, source authority, staged quality, media lineage, build-observability, lokal persistence og offline website-export assets.
+* `scripts/check-supabase-function-auth.mjs`, `check-security-definer-grants.mjs`, `check-paid-ai-billing.mjs`, `check-model-registry.ts`, `check-app-shell-preloads.mjs`, `check-svg-sanitizer.ts`, `check-build-observability.mjs`, `check-local-persistence-hardening.ts`, `check-staged-auto-quality-readiness.ts`, `check-quality-autopilot-ui.ts`, `smoke-generation-credit-estimates.ts`, `smoke-export-evidence-safety.ts`, `smoke-source-repair-flow.ts`, `smoke-source-verification-policy.ts`, `smoke-source-authority-registry-phase-d.ts`, `smoke-media-quality-pass-policy.ts`, `smoke-media-lineage.ts` og `smoke-website-export-katex.mjs`: Guard-skript for Edge Function auth, RPC EXECUTE-herding, billing-integritet, add-on kredittestimater, modell/pricing-katalog, app-shell preloads, SVG/Mermaid XSS-regresjoner, evidence-safety/export-varsel, source-repair, source authority, staged quality, media lineage, build-observability, lokal persistence og offline website-export assets.
 * `supabase/functions/_shared/utils.ts`: Delt logikk for Edge Functions inkludert auth, allowlist, admin checks, kvote-reservering og brukslogging.
 * `supabase/functions/_shared/imageReferences.ts`: Delt validering og normalisering av referansebilder. Core Idea kan analysere opptil 7 visuelle referanser, mens seksjonsbilder fortsatt får et begrenset utvalg.
 * `supabase/functions/_shared/vertexAuth.ts`: Vertex AI autentisering via service account JWT for direkte Google Cloud API-tilgang.
@@ -1513,7 +1518,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/ai-final-review/`: OpenAI Responses-basert kvalitetstrinn for review-first `Final Quality Pass` og manuelt Final Review QA Memo. Standard runtime er `gpt-5.5` for review og `gpt-5.4` for revision.
 * `supabase/functions/ai-admin-quality-control/`: Admin-endepunkt for read-only Quality Queue V1. `fetch_queue` returnerer bounded, paginerte prosjektkandidater med deterministisk `risk_score`, forklaringsfelt og observability uten brede `projects.data`-reads i tabellradene.
 * `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en paginert lettvekts prosjektoversikt for valgt bruker.
-* `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering.
+* `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering. Planoversetteren parser flere JSON-kandidater/parts og retryer streng JSON før frontend faller tilbake til feltvis oversettelse.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
 * `supabase/functions/ai-quota-sync/quotaStorage.ts`, `quotaMetrics.ts` og `helpers.ts`: Datagrunnlaget bak Quota Health. De leser usage events og snapshot-tabeller, normaliserer rå leverandørdata og regner ut limits, remaining, burn og health cards som dashboardet viser.
 * `supabase/functions/ai-quota-sync/modelPricingControl.ts`: Motoren bak `Model & Pricing > Monitoring`. Den samler configured/effective model paths, siste observerte runtime-modeller, kundeprisregler, provider-estimater og mismatch-funn i ett admin-snapshot.
@@ -1564,11 +1569,22 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
 3.  **Sett opp miljøvariabler**
     Lag en `.env.local` fil i rotmappen og legg inn Supabase-oppsett:
     ```env
+    VITE_PUBLIC_APP_ORIGIN=https://your-domain.example
+    VITE_PUBLIC_MARKETING_ORIGIN=https://your-domain.example
     VITE_SUPABASE_URL=https://<project-ref>.supabase.co
     VITE_SUPABASE_ANON_KEY=<anon-key>
     # Optional: show tiered verified source metadata in ResearchSourcesBox
     # VITE_ENABLE_VERIFIED_SOURCES_V2_PRIMARY_DISPLAY=true
     ```
+    `.env.local` er riktig for lokale verdier og skal ikke committes. Ikke legg ekte
+    secrets i en committet `.env`; bruk `.env.example` som mal og sett produksjonsverdier
+    hos hosting-/deploy-leverandøren.
+
+    `VITE_PUBLIC_APP_ORIGIN` brukes til app-retur-URLer, QR-login og klientbygget
+    metadata. `VITE_PUBLIC_MARKETING_ORIGIN` kan settes separat hvis public
+    landingssider/canonical-lenker skal ligge på et annet origin; hvis den utelates,
+    brukes app-origin.
+
     For enkelte lokale Node-/eval-skript kan du i tillegg trenge server-style miljøvariabler i shell/session
     (uten `VITE_`-prefix):
     ```env
@@ -1581,6 +1597,9 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
     (ikke kun i `.env.local`). Gemini/Vertex brukes til planlegging, seksjonsgenerering, analyse,
     Mermaid-fiks, TTS og enkelte verktøyflyter:
     ```bash
+    supabase secrets set PUBLIC_APP_ORIGIN=https://your-domain.example
+    supabase secrets set PUBLIC_MARKETING_ORIGIN=https://your-domain.example
+    supabase secrets set CORS_ALLOWED_ORIGINS=https://your-domain.example,https://www.your-domain.example
     supabase secrets set GEMINI_API_KEY=...
     # optional Vertex AI routing:
     # supabase secrets set USE_VERTEX_PLAN=true
@@ -1596,6 +1615,27 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
     # optional source verification rollout telemetry:
     # supabase secrets set ENABLE_VERIFIED_SOURCES_V2_SHADOW=true
     ```
+
+    Stripe bruker egne Supabase secrets for checkout, abonnement, portal og webhook.
+    Test/sandbox kan fortsatt bruke testnøkler. Før ekte betaling skal live-gaten slås på
+    eksplisitt, slik at funksjonene nekter testnøkler og test-webhook-events:
+    ```bash
+    supabase secrets set STRIPE_REQUIRE_LIVE_MODE=true
+    supabase secrets set STRIPE_SECRET_KEY=sk_live_...
+    supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
+    supabase secrets set STRIPE_PRICE_STARTER_MONTHLY=price_...
+    supabase secrets set STRIPE_PRICE_STARTER_YEARLY=price_...
+    supabase secrets set STRIPE_PRICE_PRO_MONTHLY=price_...
+    supabase secrets set STRIPE_PRICE_PRO_YEARLY=price_...
+    supabase secrets set STRIPE_PRICE_ENTERPRISE_MONTHLY=price_...
+    supabase secrets set STRIPE_PRICE_ENTERPRISE_YEARLY=price_...
+    STRIPE_REQUIRE_LIVE_MODE=true npm run check:stripe-live-readiness
+    ```
+    Sjekk i Stripe Dashboard at live webhook-endepunktet peker på den deployede
+    `ai-stripe-webhook`-funksjonen og lytter på `checkout.session.completed`,
+    `invoice.paid`, `invoice.payment_succeeded` og `customer.subscription.*`.
+    One-off top-up-priser i `billing_credit_packages` må også være live Stripe-priser
+    før live-gaten aktiveres.
 
     Whole-document Final Revision og Final Review bruker OpenAI Responses API. Hvis `FINAL_REVIEW_MODEL`,
     `FINAL_REVISION_MODEL` og `FINAL_REVIEW_REASONING_EFFORT` ikke settes som secrets, bruker koden
@@ -1665,7 +1705,17 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
 
 `App.tsx` håndterer foreløpig public routes med en enkel `window.location.pathname`-switch før innlogget app-shell rendres. `/` viser `LandingPage.tsx`, `/faq` viser `FaqPage.tsx`, og `/privacy`/`/terms` viser `LegalPage.tsx`. Hvis flere public sider som `/pricing`, `/cookies` eller support skal inn samtidig, bør dette vurderes på nytt mot en liten React Router-konfigurasjon.
 
-`vercel.json` rewrites `/(.*)` til `/index.html`, slik at direkte besøk til SPA-ruter som `https://story.neoweb.no/faq`, `https://story.neoweb.no/privacy` og `https://story.neoweb.no/terms` fungerer etter deploy.
+`vercel.json` rewrites `/(.*)` til `/index.html`, slik at direkte besøk til SPA-ruter
+som `/faq`, `/privacy` og `/terms` fungerer etter deploy på konfigurert domene.
+
+`vercel.json` setter også produksjonsheaders for Vercel-hostet frontend. HSTS,
+`nosniff`, referrer policy, permissions policy og frame-deny håndheves direkte.
+CSP ligger foreløpig som `Content-Security-Policy-Report-Only` fordi Story Engine
+bruker Supabase, Google Fonts, `blob:`/`data:` media og eksport-/diagramflyter som
+må observeres før policyen håndheves. Før permanent lansering bør CSP-brudd sjekkes
+i browser console eller via en egen report endpoint, og policyen kan deretter flyttes
+til `Content-Security-Policy` når login, QR-login, billing, prosjektåpning/-lagring,
+bilder, audio, Mermaid og eksport er testet.
 
 ---
 
@@ -1673,7 +1723,11 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
 
 Kortversjon av siste endringer. Full historikk finnes i `CHANGELOG.md` (og i GitHub Releases).
 
-### Siste endringer (April-Juni 2026)
+### Siste endringer (April-Juli 2026)
+- 📄 **PDF/DOCX Mermaid-lesbarhet**: Dokumenteksport normaliserer Mermaid SVG-tekst per node før PNG-rendering, slik at diagrammer med blandede lyse og mørke noder forblir lesbare i PDF og DOCX.
+- 🎛️ **Språkvariant review-inheritance**: Språkvarianter som bevarer kildegrunnlag og evidenskontrakt kan arve `strong`/baseline-lagret Final Review-status fra kildeprosjektet og lagres som publiseringsklare egne prosjekter.
+- 💳 **Variant add-on preflight og Dashboard ledger**: Audio add-on-estimat skiller nå script-line hard minimum fra anbefalt buffer, og Dashboard Recent Activity grupperer hendelser fra et dypere usage-vindu slik at tette media-batcher ikke skjuler historikken.
+- 🌐 **Robust planoversettelse**: `ai-translate-plan` parser flere JSON-kandidater/response-parts, tåler vanlige JSON-artefakter og retryer streng JSON før feltvis oversettelsesfallback brukes.
 - 🧭 **Simple / Custom startmodus**: Startsiden har nå en enklere `Simple`-modus for førstegenerering, der avanserte kontroller skjules og `Suggest Settings` kjøres automatisk ved `Create Project`. `Custom` beholder full kontrollflate.
 - 💳 **Public Pricing og FAQ**: `/pricing` er lagt til som public route med samme designlinje som landingssiden og bruker de samme planprisene som innlogget `Billing & Pricing`, inkludert tydeligere merknad om at Final Quality Pass kan bruke credits raskere enn ren core generation. `/faq` beholdes som public infoside, mens den innloggede Billing-siden fortsatt er brukerspesifikk for aktivt abonnement, kredittsaldo, top-ups, fakturaer og Stripe Portal.
 - 🍪 **Cookies og lokal lagring**: `/cookies` er lagt til som public infoside med samme designlinje som landingssiden. Siden forklarer nødvendig browser-lagring for innlogging, autosave, prosjektgjenoppretting og innstillinger, og presiserer at analytics-/annonse-/markedsføringssporing ikke er aktivert nå.
