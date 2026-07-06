@@ -253,20 +253,6 @@ dialog/narrator, musikk/ambience beds og enkel miksing med ducking.
 - Hold lydregi i egen pass etter tekst/script, ikke i fiction-prompten.
 - La brukeren regenerere lydlag uten å regenerere tekst.
 
-### TTS provider smoke og modelloperasjon
-
-**Status:** implementert i produkt, provider-smoke gjenstår
-**Plan:** `docs/plans/active/gemini-3-1-flash-tts-third-model-plan.md`
-
-**Hvorfor:** Tredje TTS-modell er lagt til, men planstatus viser at reelle
-provider-smokes og metrics/eksport-bekreftelse fortsatt er grunn til å beholde
-arbeidet synlig.
-
-**Neste steg:**
-
-- Verifiser reelle smoke-runs for premium/preview TTS-modeller.
-- Arkiver planen når provider-, billing-, export- og metrics-spor er bekreftet.
-
 ### Persistent media storage
 
 **Status:** planned / later-track
@@ -336,7 +322,6 @@ operasjonell verifikasjon eller nær oppfølging.
 
 Nærliggende cleanup:
 
-- Arkiver TTS 3.1-planen når provider-smoke og export/metrics er verifisert.
 - Oppdater active master checklist slik den ikke peker på planer som allerede
   ligger i `docs/plans/archived/`.
 - Flytt nye untracked planfiler inn i riktig status når de skal versjoneres:
