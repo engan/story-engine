@@ -12,9 +12,122 @@ releasehistorikk der semantisk versjonering ikke er praktisk.
 
 ## [Unreleased]
 
+### Documentation
+- README og den kuraterte releasehistorikken er ajourført gjennom juli 2026,
+  med en egen seksjon for produksjonsendringene som ble committet 1. august.
+
+---
+
+## [2026-08-01] - Produksjonsruter, Radio Play og lokal v2-aktivering
+
+### Added
+- Radio Play fikk en delt, språkagnostisk narrator-kontrakt som normaliserer
+  vanlige fortelleraliaser uten å slå sammen eksplisitt navngitte karakterer.
+- Casting og voice preview fikk tydeligere kanonisk forteller, rolleveiledning og
+  smoke-dekning for alias-dedupe, navngitte turer og TTS-stemmefordeling.
+- En aktiv implementeringsplan ble lagt til for å gjøre Final Quality Pass helt
+  profil-uavhengig før media, med quality gate, lineage og billing-recovery uten
+  å endre video-/website-tekstmarkering.
+
 ### Changed
-- Arkiverte Gemini 3.1 Flash TTS-planen etter produksjons-smoke av 2.5 Pro TTS,
-  tidligere 3.1 Flash TTS-variantbruk, preview-lyd og Dashboard usage metrics.
+- Gemini 3.1 Flash TTS-planen ble arkivert etter produksjons-smoke av 2.5 Pro
+  TTS, tidligere 3.1 Flash TTS-variantbruk, preview-lyd og Dashboard-metrikk.
+- Planlegging, source harvest og støtteoperasjoner bruker Gemini 3.6 Flash;
+  Gemini 3 Flash er fjernet fra aktive produksjonsruter etter utvidet evaluering.
+- Final Review bruker GPT-5.6 Terra/`high` og Final Revision GPT-5.6 Luna/`xhigh`.
+  Flag-off recovery holder seg i GPT-5.6-familien, mens GPT-5.4 og GPT-5.5 er
+  deaktivert som runtime-, fallback- og rollback-ruter.
+- Kvalifiserte førstegenereringer med illustrasjoner eller lyd kan utsette media
+  til den review-first text-first-kjeden er ferdig, slik at media bygges fra den
+  ferdigstilte teksten. Profil-/serverkrav gjelder fortsatt.
+- Local Persistence V2 ble aktivert som standard på `localhost` og
+  `story.neoweb.no` etter juli-hardening og produksjonsreadback.
+- Modellpromotering krever nå dokumentert incumbent/candidate-evaluering,
+  kvalitet/source/contract-gater, kost/latens/billing-kontroll og testet recovery.
+
+### Fixed
+- Local media attention ble gjort mindre påtrengende og mer handlingsrettet;
+  brukbare medier vises grønt, mens manglende, ufullstendige og stale medier
+  forklares i detaljpanelet fremfor gjentatte globale varsler.
+- Legacy lokale utkast forblir synlige i read-only recovery etter New Project og
+  refresh til brukeren laster ned backup eller rydder dem eksplisitt.
+- Production Report summerer logiske TTS-jobber fra den autoritative parent-raden
+  uten å dobbelttelle de underliggende provider-segmentene.
+
+---
+
+## [2026-07-31] - Modellreadiness, persistence-verktøy og prisgrunnlag
+
+### Added
+- Local Persistence V2 fikk prosjektindikatorer, trygg lokal backup/restore,
+  eksplisitt cleanup av media og hele prosjektdata samt IndexedDB-transaksjonstester.
+- Gemini 3.6- og GPT-5.6-canarymetadata ble bevart gjennom navigasjon og gjort
+  fail-closed ved arm-/readback-mismatch.
+- Gjentakende karakterer fikk sterkere visuelle identity anchors på tvers av
+  cover- og seksjonsbilder.
+
+### Changed
+- GPT-5.6 provider-priser, Final Review/Revision-kreditter og OpenAI image-priser
+  ble oppdatert for korrekt margin- og Production Report-grunnlag.
+- Source harvest fikk rikere evidence-metadata og tydeligere dekning/readback før
+  videre Gemini 3.6-evaluering.
+- Prosjekt- og dokumentflater fikk jevnere framing, spacing, sideikoner og
+  tydeligere tomtilstand når et kvalitetspass ikke finnes.
+
+### Fixed
+- Final Revision fikk strengere synlig ordgrense, bedre omission detection,
+  bevaring av diagrammer/kilder og kontrollert Luna `xhigh -> high` recovery
+  etter bekreftet timeout.
+- Lav kredittsaldo stopper planlegging før nye betalte provider-kall og forklarer
+  hvordan en bevart pause kan gjenopptas.
+
+---
+
+## [2026-07-23] - Local-first fundament, GPT-5.6 canary og billing recovery
+
+### Added
+- Local Persistence V2 etablerte owner/project-scoped IndexedDB-records,
+  separate Blob-medier, content hashes, writer lease, atomiske checkpoints,
+  safe resume, storage health og read-only legacy recovery bak rollout-gaten.
+- GPT-5.6 Terra/Luna fikk separate eval-/canary-armer, observability,
+  sikkerhetsidentifikatorer og eksplisitte globale promotion-gates.
+- Billing reconciliation fikk kø, pending-varsel og atomisk resolution for
+  providerutfall som ikke kan bekreftes sikkert i samme forespørsel.
+
+### Changed
+- Den uvirksomme `Registry Publish Control`-flaten, API-et, Edge Function-en og
+  tabellene ble fjernet. Modellkatalogen er fortsatt beskrivende pris-/statusdata,
+  men kan ikke fremstilles som en produksjonsbryter.
+- Annual subscriptions fikk månedlig refill av inkluderte credits, mens kjøpte
+  credits bevares når et abonnement avsluttes.
+
+### Fixed
+- Final quality output-kontrakter, aktiv reasoning effort og timeout-recovery ble
+  strammet inn uten å svekke structured outputs eller kildebevaring.
+
+---
+
+## [2026-07-17] - Logiske TTS-jobber og evidence-hardening
+
+### Added
+- TTS fikk én idempotent reserve/finalize-livssyklus per logisk jobb, separate
+  child-segmenter, observerte varigheter, tegnproxy og usage-/rapport-scope.
+- TTS-batching fikk en eksplisitt plan for providergrenser, Radio Play-turer,
+  segmentering, retry og kredittestimat.
+- Bildegenerering fikk målrettet Image Fact QA med validering, korrigering og
+  inkludert sluttpass uten ekstra kundekreditter.
+
+### Changed
+- Deep research/source harvest fikk strengere provenance, coverage, source
+  boundaries, non-fiction-metode og kildeanskaffelse før final quality.
+- Prosjektets TTS-usage bevares og forsones i rapporter på tvers av save/load.
+
+### Fixed
+- Grounded seksjonsgenerering fikk bounded timeout under Supabase-grensen og
+  tydelig pause når providerutfallet er ukjent, fremfor automatisk å duplisere
+  et mulig betalt kall.
+- Svake eller utdaterte image/source-fallback-kontrakter feiler lukket, mens
+  explainer-kvalitet og gyldige eksisterende medier bevares.
 
 ---
 
@@ -53,7 +166,7 @@ releasehistorikk der semantisk versjonering ikke er praktisk.
 - Export warning-tekstene ble flyttet til delt i18n-lag.
 - `Repair Sources` kan forsøke å finne sterkere kilder for QA-gap før revisjon, bære ulukkede gap inn i revisjonsflyten og kvalifisere dem før ny review.
 - Quality Autopilot ble hardnet med `strong_stop`, scoped revise, staged long-document execution, guarded broad fallback, post-review, `qualityChain`-metadata og eksplisitte stop reasons.
-- Audio/radio-prosjekter kjører initial Final Quality Pass før TTS/radio-medier bygges.
+- Kvalifiserte audio/radio-førstegenereringer kan kjøre initial Final Quality Pass før TTS/radio-medier bygges.
 - Imagen 4-IDer ble migrert til Gemini image-kompatibilitetsaliaser for gamle prosjekter.
 - Prosjektbadges, stale publication warnings, source display titles, URL-labels og high-assurance source repair ble kalibrert uten emne- eller domenespesifikk hardkoding.
 
