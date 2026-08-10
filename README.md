@@ -64,9 +64,11 @@
 
 *   ⚙️ **Automatisk struktur**: La AI-en bestemme det optimale antallet seksjoner for historien din basert på kompleksitet og tema, eller velg antall seksjoner selv.
 
-*   🎙️ **Velg din stemmekvalitet**: Bytt mellom flere Text-to-Speech modeller for lydbøker – Gemini 2.5 Flash (rask og effektiv), Gemini 2.5 Pro (maksimal kvalitet) eller Gemini 3.1 Flash TTS Preview. Gemini 3.1 Flash TTS Preview er standardvalg for nye lydgenereringer. Hver logiske TTS-jobb reserveres og sluttføres én gang selv om teksten deles i mange provider-segmenter; billing bruker server-observert varighet når format/metadata er trygt verifisert eller konservativ tegnproxy ellers.
+*   🎙️ **Velg din stemmekvalitet**: Bytt mellom flere Text-to-Speech-modeller for vanlig lydopplesning – Gemini 2.5 Flash, Gemini 2.5 Pro eller Gemini 3.1 Flash TTS Preview. Nye Radio Play-providerkall bruker derimot alltid Gemini 3.1 Flash TTS Preview, også ved resume, reparasjon, variant og oversettelse; eksisterende ferdige 2.5-lydblobber kan fortsatt spilles, men utløser ikke nye 2.5-kall eller fallback. Hver logiske TTS-jobb reserveres og sluttføres én gang selv om teksten deles i mange provider-segmenter; billing bruker server-observert varighet når format/metadata er trygt verifisert eller konservativ tegnproxy ellers.
 
-*   📻 **Radio Play**: Radio Play påvirker både tekst og lyd. Plan- og seksjonsprompter får format-, rolle-, dialog- og fortellerkontrakt, casting viser én kanonisk forteller, og vanlige narrator-aliaser normaliseres slik at de ikke blir en ekstra rolle. TTS bevarer navngitte turer og valgt stemmefordeling. Avanserte lydeffekter og bakgrunnsmusikk står fortsatt på veikartet.
+*   📻 **Radio Play + Enhanced Audio**: Radio Play påvirker både tekst og lyd. Plan- og seksjonsprompter får format-, rolle-, dialog- og fortellerkontrakt, casting viser én kanonisk forteller, og narrator-aliaser normaliseres uten å slå sammen eksplisitt navngitte roller. Et separat Enhanced Audio-valg tilbyr `Off`, `Subtle` og `Cinematic`: Audio Director planlegger scener og stemmeregi, faktisk TTS-varighet forankrer den deterministiske tidslinjen, Lyria 3 leverer musikk, og lisensiert/prosedural ambience og SFX mikses med ducking. Valgt take, stems, miks, kvalitet og lineage bevares gjennom Local Persistence V2 og brukes konsistent i avspilling, website og Video Audiobook.
+
+*   🎚️ **Sikker lydorkestrering og selektiv regenerering**: `MediaAuthorization` for den eksakte godkjente tekstversjonen må være akseptert før nye lydproviderkall kan starte. Serveren eier kostramme, operation keys, reserve/commit/cancel og provider-replay; refresh eller resume kan derfor gjenbruke ferdige lag og regenerere bare valgt scenemusikk uten å betale for uendrede lag på nytt. Ved manglende eller usikker Enhanced Audio-state faller eksport og avspilling trygt tilbake til tilgjengelig dialogue-only-lyd uten automatisk provider-replay.
 
 *   🤖 **Multi-Agent System**: Orkestrerer planlegging, skriving og faktasjekk gjennom spesialiserte AI-agenter som samarbeider.
 
@@ -1773,6 +1775,15 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
     npm run smoke:media-quality-pass-policy
     npm run smoke:media-lineage
     npm run smoke:radio-play-narrator
+    npm run smoke:radio-audio-contract
+    npm run smoke:radio-audio-orchestration-v2
+    npm run smoke:radio-audio-performance-tts
+    npm run smoke:radio-play-timeline-compiler
+    npm run smoke:lyria-provider-contract
+    npm run smoke:radio-audio-lyria-orchestration
+    npm run smoke:radio-audio-mixer
+    npm run smoke:radio-audio-quality-pass
+    npm run smoke:export-media-lineage
     npm run smoke:tts-logical-job
     npm run smoke:usage-metrics
     npm run smoke:website-export-katex
@@ -1870,13 +1881,17 @@ Kortversjon av siste endringer. Kurert endringshistorikk finnes i `CHANGELOG.md`
 - 🖼️ **Visuell karakterkontinuitet**: Gjentakende karakterer fikk sterkere identity anchors og kontinuitetsinstruksjoner på tvers av cover og seksjonsbilder.
 - 📚 **README og releasehistorikk**: README fikk språk-/objektagnostiske badges, variant-/eksportstatus, roadmap-status og månedlig changelog. Den tekniske juli-historikken er nå også etterført i `CHANGELOG.md`.
 
-### Siste endringer August 2026 (per 1. august)
+### Siste endringer August 2026 (per 7. august)
 - 🤖 **Gemini 3.6 i produksjon**: Planlegging, source harvest og støtteoperasjoner bruker Gemini 3.6 Flash. Gemini 3 Flash er fjernet fra aktive ruter etter utvidet kvalitets-, kilde-, kost-, latency- og billing-evaluering.
 - 🧠 **GPT-5.6 fullført modellbytte**: Final Review bruker GPT-5.6 Terra/`high`, Final Revision bruker GPT-5.6 Luna/`xhigh`, og flag-off recovery holder seg i GPT-5.6-familien. GPT-5.4 og GPT-5.5 er deaktivert som runtime-, fallback- og rollback-ruter.
 - 📻 **Radio Play-hardening**: Suggest Settings kan velge Radio Drama uavhengig av Radio Play-checkboxen, seksjonsprompten håndhever rolle-/dialogkontrakten, og narrator-aliaser dedupliseres til én kanonisk forteller i casting og TTS.
-- 🎧 **Text-first mediarekkefølge**: Kvalifiserte førstegenereringer kan kjøre Final Quality Pass etter skriving og før illustrasjoner/TTS. Medier bygges fra den ferdigstilte teksten; den videre planen skal gjøre FQP-valget helt profil-uavhengig uten å endre tekstmarkering eller video-/website-synkronisering.
-- 💾 **Local Persistence V2 aktivert som standard**: Etter juli-hardening og produksjonsverifisering er owner/project-scoped v2 aktiv på `localhost` og `story.neoweb.no`. Statuspanelet skiller brukbare, manglende, ufullstendige og stale medier, og legacy-utkast forblir synlige i read-only recovery til brukeren rydder dem eksplisitt.
+- 🎧 **Text-first mediarekkefølge**: Final Quality Pass og den deterministiske Radio Play-kontrakten fullfører den kanoniske teksten før lydproduksjon. `MediaAuthorization`, text hash/version og serverautoritativ orkestrering feiler lukket ved stale review, lineage-avvik eller ukjent provider-/billingstatus.
+- 💾 **Local Persistence V2 aktivert som standard**: Etter juli-hardening og produksjonsverifisering er owner/project-scoped v2 aktiv på `localhost` og `story.neoweb.no`. Det responsive lagringspanelet forklarer lokal add-on-media, backup/restore, cleanup-risiko og avanserte lagringsdetaljer, mens prosjektstatus skiller brukbare, manglende, ufullstendige og stale medier.
 - 🧾 **Korrekte logiske TTS-totaler**: Production Report bruker nå parent-jobben som autoritativ kreditt-/varighetssum og dobbeltteller ikke de underliggende segmenthendelsene.
+- 🎚️ **Enhanced Radio Play Audio**: `Off`, `Subtle` og `Cinematic` styrer en separat lydprofil med todelt Audio Director, performance-directed Gemini 3.1 Flash TTS, Lyria 3-musikk, ambience/SFX, deterministisk timeline compiler, ducking, real-time playback og offline mixdown.
+- 🎼 **Lyria-takes og enkel pilotprising**: Musikkgenerering bruker serverautoriserte Clip-/Pro-kontrakter, versjonerte kostsnapshots, idempotent billing og eksplisitt take selection. Kundens Radio Play-pris komponeres av baseline-TTS én gang og et låst Enhanced Audio-delta; Audio Director og lokal behandling gir ingen separat kundebelastning i piloten.
+- 💾 **Flerlags lyd gjennom resume og eksport**: Direction manifest, musikk-takes, stems, mix manifest, kvalitetsstatus og lineage bevares lokalt og i nødvendig cloud-metadata. Website, Video Audiobook og lydnedlasting bruker den valgte aktuelle miksen, mens manglende lokale blobs gir en tydelig dialogue-only-fallback uten skjult regenerering.
+- 🔒 **Radio Play TTS-policy**: Nye Radio Play-kall bruker bare Gemini 3.1 Flash TTS Preview. Ferdige legacy-blobber fra Gemini 2.5 kan spilles, men 2.5 kan ikke velges eller startes som ny Radio Play-rute.
 
 > Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
@@ -1893,7 +1908,6 @@ Vi bygger fremtidens publiseringsverktøy. Her er aktuelle oppfølgingsområder 
 ### Fremtidige visjoner
 *   📰 **Integrasjon mot Retriever/Mediearkivet**: For dypere faktasjekk mot norske kilder.
 *   🗣️ **Multi-LLM Konsensus-debatt**: La flere AI-modeller diskutere en sak før konklusjon trekkes.
-*   📻 **Advanced Audio (Radio Play)**: Lydeffekter og bakgrunnsmusikk mikset med fortellerstemmen.
 *   🗞️ **Pilotprosjekt med lokalavis**: Test av "Breaking News"-agent (f.eks journalist, etter avtale).
 *   📱 **PWA-støtte**: Full offline-støtte for journalister i felt (etter avtale).
 

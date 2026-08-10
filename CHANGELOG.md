@@ -12,9 +12,70 @@ releasehistorikk der semantisk versjonering ikke er praktisk.
 
 ## [Unreleased]
 
+### Changed
+- Final Quality Pass-flyten viser ikke lenger overflødige forklaringer om den
+  etablerte text-first-medieordenen, og Enhanced Radio Play-kost-/statusflater
+  bruker igjen appens engelske standardspråk uavhengig av dokumentspråket.
+
+### Fixed
+- Frittstående, bracketede Radio Play-produksjonsmarkører blir ikke lenger
+  feiltolket som ulabelede replikker av den deterministiske medieporten. De
+  beholdes i manus og eksport, men utelates fra TTS-turns; ordinær ulabelet tekst
+  og ukjente talerroller forblir blokkert før providerstart.
+- En autorisasjonsblokkert medieflyt viser nå én `Recheck media readiness`-
+  handling i stedet for overlappende review- og media-retry-knapper, og forklarer
+  tydelig at kontrollen ikke starter en ny Review-runde eller audiobelastning.
+- Den obligatoriske title-only-introen i Radio Play bruker nå en avgrenset
+  title-card-regi som beholder nøyaktig prosjekttittel som eneste uttaletekst.
+  Hvis introen likevel avvises definitivt, stoppes resten av TTS-jobben før
+  dialogue-only-lyd kan bli presentert som et ferdig Enhanced-resultat.
+- En slik introfeil kan ikke lenger fanges og glemmes ved kapittelgrensen:
+  hele den sekvensielle mediejobben pauses før senere kapitler starter, mens
+  ferdig tekst og retrybar media-orchestration bevares.
+
 ### Documentation
-- README og den kuraterte releasehistorikken er ajourført gjennom juli 2026,
-  med en egen seksjon for produksjonsendringene som ble committet 1. august.
+- README og den kuraterte releasehistorikken er ajourført gjennom 7. august
+  2026, inkludert den fullførte Lyria-/Enhanced Radio Play-integrasjonen.
+
+---
+
+## [2026-08-07] - Enhanced Radio Play Audio med Lyria 3
+
+### Added
+- Et separat `Enhanced Radio Play Audio`-valg med profilene `Off`, `Subtle` og
+  `Cinematic`, synlig kostramme og anbefalt Subtle-profil.
+- Todelt Audio Director: scene-/performance-retning før TTS og en
+  deterministisk timeline compiler etter at faktiske TTS-varigheter er kjent.
+- Lyria 3 Clip/Pro-musikk, lisensiert/prosedural ambience og SFX, transitions,
+  ducking, Web Audio-avspilling og deterministisk offline mixdown.
+- Selektiv regenerering og eksplisitt valg av scenemusikk-take uten å regenerere
+  uendrede stemmer eller lydlag.
+- Beskyttede Edge Functions `ai-audio-director` og
+  `ai-radio-audio-generate`, med JWT-verifisering, auth-/billing-kontroller og
+  nye databaserader for direction manifests, music runtime og take selection.
+
+### Changed
+- Nye Radio Play-providerkall bruker bare `gemini-3.1-flash-tts-preview`, også
+  ved reparasjon, resume, variant og oversettelse. Ferdige Gemini 2.5-blobber
+  kan fortsatt spilles, men gir ikke tillatelse til nye 2.5-kall eller fallback.
+- Text-first-kjeden krever akseptert `MediaAuthorization` for eksakt
+  text version/hash før nye lydproviderkall, og cues forankres i observerte
+  TTS-varigheter fremfor estimerte replikkgrenser.
+- Pilotprisingen komponerer serverautoritativ baseline-TTS én gang med et
+  profilavgrenset Lyria-delta. Audio Director, procedural ambience/SFX, lokal
+  miks og deterministisk kvalitetskontroll gir ingen separat kundebelastning.
+- Local Persistence V2 bevarer direction manifest, takes, stems, mix manifest,
+  kvalitetsstatus og lineage. Website, Video Audiobook og lydnedlasting bruker
+  valgt current mix når den er komplett og lineage-validert.
+
+### Fixed
+- Lange TTS-turer deles deterministisk før providerkall, mens logisk jobb,
+  casting, performance-retning og idempotent settlement bevares på tvers av
+  segmenter og retry/recovery.
+- Manglende eller stale lokale Enhanced Audio-blobber gir tydelig
+  dialogue-only-fallback uten automatisk provider-replay eller ny belastning.
+- Read-along-tekst og frame-normalisering er felles for website og video, og
+  Node ESM-importene som brukes av media-consumer-CI er eksplisitte.
 
 ---
 
