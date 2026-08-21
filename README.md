@@ -4,7 +4,7 @@
 ![React](https://img.shields.io/badge/React-00599C?style=for-the-badge&logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![Gemini 3.6 + 3.1 Pro](https://img.shields.io/badge/Gemini_3.6_%2B_3.1_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![Gemini 3.6 + 3.7 + 3.1 Pro](https://img.shields.io/badge/Gemini_3.6_%2B_3.7_%2B_3.1_Pro-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 ![Vertex AI](https://img.shields.io/badge/Vertex_AI-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
 ![OpenAI GPT-5.6](https://img.shields.io/badge/OpenAI_GPT--5.6-10A37F?style=for-the-badge&logo=openai&logoColor=white)
 ![Language Agnostic](https://img.shields.io/badge/Language_Agnostic-0F766E?style=for-the-badge&logo=translate&logoColor=white)
@@ -58,7 +58,7 @@
 
 *   🔁 **Samlet Revise-flyt**: `Revise` bruker lagret QA-memo når det finnes, prefiller revisjonsmål inn i arbeidsflaten, og lar deg enten oppdatere samme prosjekt eller lagre en ny revisjonsgren fra samme arbeidsflate.
 
-*   🔧 **Repair Sources / kildeforbedring**: Når QA finner kildegap kan Story Engine forsøke målrettet kildeforbedring før revisjon. Flyten mapper kilder til konkrete gap, bærer ulukkede gap inn i revision-briefen og stopper uten videre source-repair-belastning når sterke nok kilder ikke finnes.
+*   🔧 **Repair Sources / kildeforbedring**: Når QA finner kildegap kan Story Engine forsøke målrettet kildeforbedring før revisjon. Flyten mapper kilder til konkrete gap, bærer ulukkede gap inn i revision-briefen og stopper uten videre source-repair-belastning når sterke nok kilder ikke finnes. Source Harvest og Source Repair bruker Gemini 3.7 Flash bak separate, reversible serverflagg; Gemini 3.6 Flash er testet rollback for begge operasjonene.
 
 *   🎛️ **Variant / Regenerate Outputs**: `Variant` gjenbruker samme prosjektprofil for illustrasjoner, audio og språkbytte. Medie-only-varianter kan oppdatere samme prosjekt og bevare eksisterende bilder når bare audio regenereres, mens språkbytte opprettes som nytt prosjekt. Språkvarianter kan arve sterk/baseline-lagret review-status når kildegrunnlag og evidenskontrakt bevares, og add-on preflight skiller hard minimum fra anbefalt buffer for media-kostnader.
 
@@ -78,7 +78,7 @@
 
 *   💬 **Kontekstuelle hjelpetekster**: Startskjermen viser korte hjelpetekster for `Upload Files`, `Final Quality Pass` og kredittestimat/balanse i både Simple og Custom, inkludert kostnads-/kvalitetsavveiing og sikkerhetsforbehold for opplastet media.
 
-*   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Produksjonsstandardene er Gemini 3.6 Flash for planlegging, source harvest og støtteoperasjoner, Gemini 3.1 Pro Preview for seksjonsgenerering, GPT-5.6 Terra for Final Review og GPT-5.6 Luna for Final Revision. Routing-logikken lever i delte server-side kontrakter; modellkatalogen i Monitoring er beskrivende og kan ikke alene bytte en betalt produksjonsrute.
+*   🧭 **Intelligent Model Routing**: Automatisk valg av optimal AI-modell basert på prosjektets `category`, `genre`, `creativity`-nivå, og om det er fiction eller non-fiction. Produksjonsstandardene er Gemini 3.6 Flash for planlegging og generelle støtteoperasjoner, Gemini 3.7 Flash for Source Harvest og Source Repair, Gemini 3.1 Pro Preview for seksjonsgenerering, GPT-5.6 Terra for Final Review og GPT-5.6 Luna for Final Revision. 3.7-rutene er operasjonsspesifikke, serverstyrte og kan rulles tilbake uavhengig til Gemini 3.6. Routing-logikken lever i delte server-side kontrakter; modellkatalogen i Monitoring er beskrivende og kan ikke alene bytte en betalt produksjonsrute.
 
 *   💾 **Local-first persistence v2**: Prosjekttekst og media lagres i eier- og prosjektavgrensede IndexedDB-records med Blob-baserte medieposter, content hashes, writer lease, atomiske checkpoints og sikker resume. Brukeren kan inspisere lokal status, ta backup, gjenopprette som en ny lokal kopi, rydde media eller prosjektdata eksplisitt og åpne legacy-utkast i read-only recovery uten automatisk å tilordne uverifisert eierskap.
 
@@ -205,23 +205,27 @@ Den samme startsiden er også tilpasset mobil, slik at brukeren kan starte et pr
 <summary><strong>Klikk for å se Workspace: genereringen i sanntid</strong></summary>
 
 ### Generation Progress
-Noen trinn før genereringen, her foregår researchingen.
+Før seksjonene skrives, analyserer Story Engine prosjektet og henter inn relevant research. I `Drafting`-fasen utvikles tittel, sammendrag og eventuell karakterstruktur, mens fremdriftsindikatoren viser hvilke forberedende trinn som er fullført og hva som gjenstår.
 
 ![Generation Progress](public/processing.png)
 
-Hvor magien skjer. Her ser brukeren innholdet bli skapt i sanntid, med levende oppdateringer.
+Når `Writing` starter, samles prosjektets tittel, sammendrag og forskningskilder i arbeidsflaten. Brukeren ser den samlede fremdriften, hvilke seksjoner som gjenstår, og en forhåndsvisning av seksjonsplanen mens teksten blir skrevet.
 
 ![Generation Progress](public/generation-progress.png)
 
-Her kan man følge skrivingen seksjon for seksjon etter hvert som den skrives.
+Etter hvert markeres ferdige seksjoner tydelig, fremdriftslinjen oppdateres, og innholdet kan leses direkte i arbeidsflaten. Eksemplet viser fire av fem ferdige seksjoner og at arbeidet fortsetter fra den siste som gjenstår.
 
 ![Generation Progress](public/generation-progress-2.png)
 
-Når førsteutkastet er skrevet ferdig, går flyten videre til `Final Quality Pass`. Her kan Story Engine først kjøre et QA Review, stoppe direkte hvis utkastet allerede er sterkt nok, eller gjøre en målrettet revisjon før en ny sluttkontroll. Brukeren ser dermed at systemet ikke bare produserer tekst, men også jobber videre med kvalitetssikring før prosjektet avsluttes.
+Når førsteutkastet er ferdig, starter `Final Quality Pass` med et QA Review av den genererte teksten. Faseindikatoren viser at prosjektet er i `Review`, og at ferdig tekst og eksisterende mediesjekkpunkter bevares mens vurderingen pågår.
+
+![Processing Review](public/processing-review.png)
+
+Hvis reviewet finner forhold som bør forbedres, går kvalitetspasset videre til `Revision`. I eksemplet reparerer Story Engine kildedekningen før kontraktskontroll og eventuell medieproduksjon. Også her bevares fullført tekst og mediesjekkpunkter, mens avbryt-knappen bare stopper arbeidet som gjenstår.
 
 ![Processing Revise](public/processing-revise.png)
 
-Til slutt havner prosjektet i ferdigvisningen. Her er genereringen fullført, og brukeren kan gå videre til eksport, åpning av prosjektet, nye varianter eller senere revisjon.
+Når hele flyten er fullført, viser ferdigvisningen både resultatet og kvalitetsstatusen. Her kan brukeren se lagret baseline, review-forløp, sammendrag og neste anbefalte tiltak, åpne kvalitetsdetaljene eller dokumentforhåndsvisningen, og velge `Run Review Again`, `Variant` eller `Revise`. Prosjektet kan også lastes ned, eller brukeren kan starte et nytt prosjekt.
 
 ![Generation Complete](public/generation-complete.png)
 </details>
@@ -1055,7 +1059,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── smoke-final-review-prompt-contract.ts # Smoke-test av final-review prompt-kontrakt
 │   ├── smoke-focused-quality-scenarios.ts    # Focused quality scenario-røykprøver
 │   ├── smoke-generation-credit-estimates.ts  # Smoke-test av add-on/TTS kredittestimater
-│   ├── smoke-gemini36-model-evaluation-canary.ts # Guard for avgrensede Gemini 3.6 eval-armer
+│   ├── smoke-gemini36-model-evaluation-canary.ts # Guard for avgrensede Gemini 3.6/3.7 eval- og promotion-armer
 │   ├── smoke-gpt56-migration-foundation.ts   # Guard for GPT-5.6 produksjons- og recovery-ruter
 │   ├── smoke-human-nuance-default-matrix.ts  # Default-matrise for human-nuance
 │   ├── smoke-human-nuance-modes.ts           # Test av human-nuance prompt-modi
@@ -1535,7 +1539,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `shared/suggestSettings/*`: Felles heuristikker og normalisering for `Suggest Settings`, slik at frontend og edge holder samme tolkningsregler.
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
 * `shared/modelRegistry.ts`: Statisk, beskrivende modellkatalog for provider, pris, status og kontrollsjekker. Katalogoppføringer aktiverer aldri en betalt runtime-rute alene; modellbytter krever evalueringsplan, eksplisitt server-side aktivering og testet rollback.
-* `shared/paidFlowModelDefaults.ts`: Kanonisk oversikt over aktive betalte produksjonsruter. Plan/source/support bruker Gemini 3.6 Flash, seksjoner bruker Gemini 3.1 Pro Preview, Final Review/Revision bruker GPT-5.6 Terra/Luna, og flag-off recovery kan ikke reaktivere pensjonerte GPT-5.4/GPT-5.5-ruter.
+* `shared/paidFlowModelDefaults.ts` og `shared/geminiTextModels.ts`: Kanoniske modell-ID-er, produksjonsbaselines og resolver-kontrakter. Planlegging og support bruker Gemini 3.6 Flash, de separat flaggstyrte Source Harvest/Repair-rutene bruker Gemini 3.7 Flash med 3.6 som rollback, seksjoner bruker Gemini 3.1 Pro Preview, og Final Review/Revision bruker GPT-5.6 Terra/Luna. Flag-off recovery kan ikke reaktivere pensjonerte GPT-5.4/GPT-5.5-ruter.
 * `shared/radioPlayNarrator.ts`: Normaliserer språkvarianter og generiske narrator-aliaser til én kanonisk forteller uten å slå sammen en eksplisitt navngitt karakter ved en feil.
 * `shared/billing/*`: Produktpolicy og tier-presets (`productPolicy.ts`, `tierPresets.ts`) som definerer kredittregler, utløpspolicyer og tier-grenser.
 * `services/generationCredits.ts`: Klientestimat for core generation og eksisterende-draft add-ons. TTS add-on-estimat skiller hard minimum basert på eksisterende script-linjer fra anbefalt buffer for lange linjer og retry/splitting.
@@ -1658,7 +1662,15 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
     # supabase secrets set GOOGLE_SERVICE_ACCOUNT_JSON='<service-account-json>'
     # optional source verification rollout telemetry:
     # supabase secrets set ENABLE_VERIFIED_SOURCES_V2_SHADOW=true
+    # evaluated, independently reversible Gemini 3.7 source routes:
+    # supabase secrets set SOURCE_HARVEST_GEMINI37_GLOBAL_ENABLED=true
+    # supabase secrets set SOURCE_REPAIR_GEMINI37_GLOBAL_ENABLED=true
     ```
+
+    Source-flaggene aktiverer bare den navngitte operasjonen. Plan Generation og
+    generelle support-ruter forblir på Gemini 3.6 Flash, og `false` ruller den
+    aktuelle source-ruten tilbake til den testede 3.6-baselinen. Gemini 3.7
+    normaliserer arvet `minimal` thinking til laveste støttede nivå, `low`.
 
     Stripe bruker egne Supabase secrets for checkout, abonnement, portal og webhook.
     Test/sandbox kan fortsatt bruke testnøkler. Før ekte betaling skal live-gaten slås på
@@ -1881,8 +1893,12 @@ Kortversjon av siste endringer. Kurert endringshistorikk finnes i `CHANGELOG.md`
 - 🖼️ **Visuell karakterkontinuitet**: Gjentakende karakterer fikk sterkere identity anchors og kontinuitetsinstruksjoner på tvers av cover og seksjonsbilder.
 - 📚 **README og releasehistorikk**: README fikk språk-/objektagnostiske badges, variant-/eksportstatus, roadmap-status og månedlig changelog. Den tekniske juli-historikken er nå også etterført i `CHANGELOG.md`.
 
-### Siste endringer August 2026 (per 7. august)
-- 🤖 **Gemini 3.6 i produksjon**: Planlegging, source harvest og støtteoperasjoner bruker Gemini 3.6 Flash. Gemini 3 Flash er fjernet fra aktive ruter etter utvidet kvalitets-, kilde-, kost-, latency- og billing-evaluering.
+### Siste endringer August 2026 (per 21. august)
+- 🤖 **Operasjonsspesifikk Gemini 3.7-promotering**: Source Harvest og Source Repair bruker Gemini 3.7 Flash bak uavhengige serverflagg etter frosne holdouts, produksjonscanary, latency-/kostmåling, billing-kontroll og verifisert flagg-av-rollback. Plan Generation og generelle support-ruter forblir på Gemini 3.6 Flash; seksjonsgenerering forblir på Gemini 3.1 Pro Preview. Hele beslutningsgrunnlaget finnes i den [arkiverte evalueringsplanen](docs/plans/archived/gemini-3-7-flash-evaluation-plan-2026-08-17.md).
+- 🔎 **Strengere kilde- og evidenskontrakter**: Source harvest/repair skalerer mål etter dokumentlengde, bevarer verifisert lineage, mapper kilder til konkrete seksjoner og skiller synlige kilder fra skjult operativ metadata. RFC-er og tilsvarende autoritative publikasjoner klassifiseres korrekt uten domenespesifikk hardkoding.
+- 🧩 **Korte og selvstendige dokumenter**: Planlegging, generering og Final Review skiller nå mellom `no-web`, selvstendig/illustrativ veiledning og lukket brukerlevert evidens. Manglende eksternt kildemateriale skal ikke fylle guider, matriser eller diagrammer med gjentatte `[Uavklart]`-plassholdere når oppgaven tillater pedagogiske eksempler.
+- 🛠️ **Revisjonsgjenoppretting for lange dokumenter**: Mixed-scope, localized patch-only og issue-complete recovery bevarer urørte seksjoner, isolerer strenge kildekontrakter og kan eskalere avgrensede strukturelle leveranser uten å gjøre samme brede revisjon om igjen. Uttømte eller flat/regresserte forsøk stoppes fail-closed med draft, QA-baseline og reservasjoner bevart.
+- 🧼 **Semantisk Mermaid-reparasjon**: Automatisk diagramreparasjon beholder nå meningsbærende relasjoner og avviser syntaktisk gyldige, men semantisk degraderte erstatninger; bekreftede eval-fixtures fryser forventet resultat.
 - 🧠 **GPT-5.6 fullført modellbytte**: Final Review bruker GPT-5.6 Terra/`high`, Final Revision bruker GPT-5.6 Luna/`xhigh`, og flag-off recovery holder seg i GPT-5.6-familien. GPT-5.4 og GPT-5.5 er deaktivert som runtime-, fallback- og rollback-ruter.
 - 📻 **Radio Play-hardening**: Suggest Settings kan velge Radio Drama uavhengig av Radio Play-checkboxen, seksjonsprompten håndhever rolle-/dialogkontrakten, og narrator-aliaser dedupliseres til én kanonisk forteller i casting og TTS.
 - 🎧 **Text-first mediarekkefølge**: Final Quality Pass og den deterministiske Radio Play-kontrakten fullfører den kanoniske teksten før lydproduksjon. `MediaAuthorization`, text hash/version og serverautoritativ orkestrering feiler lukket ved stale review, lineage-avvik eller ukjent provider-/billingstatus.

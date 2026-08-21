@@ -12,12 +12,52 @@ releasehistorikk der semantisk versjonering ikke er praktisk.
 
 ## [Unreleased]
 
+### Added
+- Separate, server-side produksjonsflagg for Gemini 3.7 Flash i Source Harvest
+  og Source Repair, med operasjonsspesifikk telemetri, allowlistede eval-armer
+  og Gemini 3.6 Flash som eksplisitt rollback.
+- Frosne og uavhengige Gemini 3.7-evalueringsfixtures for Plan Generation,
+  Source Harvest, Source Repair og support-ruter, inkludert kost/latens,
+  providerfeil, billing/idempotens og manuell kontraktskontroll.
+- Typed, issue-complete og localized patch-only recovery for revisjoner som har
+  stoppet på flat/regressert QA eller seksjoner utenfor lengdekontrakten.
+
 ### Changed
+- Gemini 3.7 Flash er aktivert bare for Source Harvest og Source Repair etter
+  dokumenterte holdouts og produksjonscanary. Plan Generation og generelle
+  support-ruter forblir på Gemini 3.6 Flash, og seksjonsgenerering forblir på
+  Gemini 3.1 Pro Preview.
+- Kildekrav og dekningsmål skaleres etter dokumentlengde og eksplisitt scope.
+  Verifisert source lineage og seksjonstilknytning bevares gjennom harvest,
+  repair, Review, Revision og eksport uten å gjøre skjult metadata lesersynlig.
+- Final Review og Final Revision skiller tydeligere mellom ordinære editoriske
+  mangler, grounding-problemer, lukkede brukerpremisser og selvstendige
+  illustrative dokumenter før repair-strategi og rewrite-styrke velges.
 - Final Quality Pass-flyten viser ikke lenger overflødige forklaringer om den
   etablerte text-first-medieordenen, og Enhanced Radio Play-kost-/statusflater
   bruker igjen appens engelske standardspråk uavhengig av dokumentspråket.
 
 ### Fixed
+- Korte, selvstendige guider og andre `no-web`-dokumenter fylles ikke lenger med
+  gjentatte `[Uavklart]`-plassholdere bare fordi prompten ikke inneholder et
+  eksternt kildedatasett. Pedagogiske eksempler og valg kan brukes når den
+  avledede dokumentkontrakten tillater det, mens faktiske kildepåstander fortsatt
+  må følge evidence-policyen.
+- Lange strukturelle leveranser kan utvide eksplisitte profil-/matriseseksjoner
+  innen avgrensede kontrakter, mens strenge grounding-seksjoner beholder egne
+  no-growth-/source-regler og unrelated seksjoner forblir frosset.
+- Source Repair kan fortsette etter oppdatert source-policy, bevarer annonsert
+  recovery-scope og stopper korrekt ved provider-/workerfeil uten belastning
+  eller skjult fallback. Kortformede prosjekter arver ikke lenger kildeantall
+  eller seksjonsdekning beregnet for lange dokumenter.
+- Verifiserte forskningskilder, kildeautoritet og URL-er bevares gjennom Review
+  og Revision, samtidig som leserforbud mot rå eller skjulte source-instrukser
+  håndheves i tekst og eksport. Autoritative RFC-publikasjoner klassifiseres som
+  sterke kilder etter generelle metadata- og publikasjonssignaler.
+- Gemini 3.7 arver ikke det ugyldige thinking-nivået `minimal`; serveren
+  normaliserer det til modellens laveste støttede nivå, `low`.
+- Mermaid-reparasjon avviser semantisk degraderte kandidater selv når syntaksen
+  er gyldig, og bevarer meningsbærende noder, kanter og modalitet.
 - Frittstående, bracketede Radio Play-produksjonsmarkører blir ikke lenger
   feiltolket som ulabelede replikker av den deterministiske medieporten. De
   beholdes i manus og eksport, men utelates fra TTS-turns; ordinær ulabelet tekst
@@ -34,8 +74,10 @@ releasehistorikk der semantisk versjonering ikke er praktisk.
   ferdig tekst og retrybar media-orchestration bevares.
 
 ### Documentation
-- README og den kuraterte releasehistorikken er ajourført gjennom 7. august
-  2026, inkludert den fullførte Lyria-/Enhanced Radio Play-integrasjonen.
+- README og den kuraterte releasehistorikken er ajourført gjennom 21. august
+  2026. [Gemini 3.7-evalueringsplanen](docs/plans/archived/gemini-3-7-flash-evaluation-plan-2026-08-17.md)
+  er arkivert med beslutningsgrunnlag, produksjonsaktivering og testet rollback
+  for begge source-operasjonene.
 
 ---
 
