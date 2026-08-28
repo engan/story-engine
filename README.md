@@ -16,6 +16,8 @@
 
 > **Story Engine effektiviserer produksjonen av innhold og sikrer fakta ved hjelp av avanserte AI-agenter. Fra én idé til ferdig dokument, lydbok og video – kvalitetssikret.**
 
+**Hurtignavigasjon:** [Nøkkelfunksjoner](#-nøkkelfunksjoner) · [Live app og demoer](#-se-story-engine-i-aksjon) · [Visuell omvisning](#️-visuell-omvisning-app) · [Teknisk arkitektur](#️-teknisk-arkitektur) · [Filstruktur](#-filstruktur--modul-analyse) · [Installasjon](#-tilgang--installasjon) · [Endringslogg](#-endringslogg) · [Veikart](#️-veikart)
+
 ---
 
 ## 🚀 Nøkkelfunksjoner
@@ -86,7 +88,7 @@
 
 *   🧾 **Model & Pricing**: Monitoring-fanen sammenholder den statiske modellkatalogen, provider-katalog, customer billing policy, credit value, runtime evidence og mismatch findings for tekst-, bilde- og TTS-flyt. Dette gjør modell- og prisdrift synlig uten å endre live routing eller billing.
 
-*   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Aktive tier-nivåer er `pilot`, `pro` og `elite` med ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg. Eldre `enterprise`-verdier normaliseres til `elite`. Konfigurert i `shared/billing/`.
+*   💳 **Billing & Tier-system**: Komplett abonnement- og kredittløsning med Stripe-integrasjon. Interne tier-ID-er er `pilot`, `pro` og `elite`; kundevendte planlabels er `Starter`, `Pro` og `Enterprise`. De har ulike månedlige inkluderte kreditter, generasjonsgrenser og feature-flagg, og eldre `enterprise`-tierverdier normaliseres til `elite`. Konfigurert i `shared/billing/`.
 
 *   📈 **Production Report og runtime ledger**: Eksportert Story Engine-fil viser kundevendt faktisk server-side kredittbruk når ledger-data er fanget. Logiske TTS-jobber summeres fra den autoritative parent-jobben uten å dobbelttelle provider-segmenter. Dashboardets Recent Activity grupperer server-side usage events og henter et dypere råvindu slik at tette media-batcher ikke skjuler eldre, relevante kredittbevegelser. Admin kan i tillegg eksportere intern rapport med klientbasert provider-estimat, modell-/tokenkostnader, bildeoperasjoner, TTS-varighetsmetadata, operation-gate status og quality-chain metadata når automatisk kvalitetskjede er brukt.
 
@@ -97,8 +99,9 @@
 ## 🚀 Se Story Engine i aksjon
 
 ### 🧪 Prøv Appen (Beta)
-Story Engine kan testes på domenet som er satt i deploy-miljøets
-`VITE_PUBLIC_APP_ORIGIN`.
+Story Engine kan testes på [https://story.neoweb.no/](https://story.neoweb.no/). Innlogging og tilgang styres av den aktive beta-/allowlist-konfigurasjonen. Deploy-miljøets kanoniske origin settes med `VITE_PUBLIC_APP_ORIGIN`.
+
+Den offentlige [prissiden](https://story.neoweb.no/pricing) forklarer planer og kreditter på et overordnet nivå. Etter innlogging er `Billing` fortsatt kilden til sannhet for aktivt abonnement, saldo, top-ups, Stripe Portal og kontospesifikke detaljer.
 
 ### 🌐 Live demoer
 - **Mesterhus Form 1.0 demo (landing/index.html):**
@@ -294,37 +297,69 @@ Billing-siden samler abonnement, kredittsaldo, top-ups og betalingsstatus i ett 
 </details>
 
 <details>
-<summary><strong>Klikk for å se Monitoring</strong></summary>
+<summary><strong>Klikk for å se offentlig Pricing</strong></summary>
 
-### Quota Health
-Monitoring viser levende status for AI-kvoter, forbruk og operasjonell helse. Dette er admin-flaten som gjør det mulig å oppdage kapasitetsproblemer, lese runtime-flagg og vurdere neste rollout-steg før noe faktisk går galt.
+### Public Pricing
+Den offentlige prissiden gir en enkel sammenligning av måneds- og årsplaner, inkluderte kreditter og hvilke typer produksjon som trekker fra samme saldo. Konto-, betalings- og fakturadetaljer blir værende i den innloggede Billing-flaten.
 
-![Quota Health](public/monitoring-quota-health.png)
+[![Public Pricing](public/public-pricing.png)](https://story.neoweb.no/pricing)
+</details>
 
-### Runtime & Config
-Her vises hvilke runtime-flagg og fallback-mekanismer som faktisk er aktive. Det gjør overvåkningen konkret, og kobler konfigurasjon direkte til hvordan systemet oppfører seg i produksjon.
+<details>
+<summary><strong>Klikk for å se Local browser storage</strong></summary>
 
-![Runtime & Config](public/monitoring-runtime.png)
+### Local Persistence V2
+Lagringspanelet forklarer om en verifisert recovery-kopi finnes på enheten, hvor mye som er lagret lokalt, og hvilke handlinger som er trygge først. Backup lastes ned som en portabel kopi, restore inspiseres før den opprettes som et nytt lokalt prosjekt, og protected-storage-forespørselen reduserer bare nettleserens automatiske cleanup-risiko — den erstatter ikke backup.
 
-### Model & Pricing
-Model & Pricing-fanen viser provider-katalog, statisk modellkatalog, credit value, runtime match, pricing simulator, mismatch findings og flow-matrise. Dette er hovedflaten for å oppdage modell-/prisdrift, pensjonerte modeller og manglende runtime evidence uten å endre billing eller routing. Produksjonsbytter skjer først etter en egen evalueringsplan og kontrollert server-side aktivering med testet rollback.
+![Local browser storage](public/local-browser-storage.png)
+</details>
 
-> Skjermbildet av denne fanen mangler foreløpig i README og bør legges til når den nye Monitoring-runden med oppdaterte bilder tas.
+<details>
+<summary><strong>Klikk for å se Monitoring — 6 klikkbare faner</strong></summary>
 
-### Quality Queue
-Quality Queue V1 er en admin-only, read-only triageflate for prosjekter som kan trenge kvalitetssjekk. Den bruker et deterministisk `risk_score`, bounded vindu, sidebasert lasting og lette `projects.stats`-signaler slik at admin kan finne aktuelle kandidater uten å skanne tunge prosjektdata i tabellvisningen.
+### Monitoring
+Monitoring er en admin-only, read-only driftsflate. Bildene under er miniatyrer; klikk på et bilde for å åpne den større versjonen uten at README blir én lang bildestrøm.
 
-> Skjermbildet av denne fanen mangler foreløpig i README og bør legges til når den nye Monitoring-runden med oppdaterte bilder tas.
+<table>
+  <tr>
+    <td width="50%">
+      <strong>Quota Health</strong><br/>
+      Live-/snapshot-status for provider-eksponerte grenser, 24-timers bruk og kvotevarsler.<br/><br/>
+      <a href="public/monitoring-quota-health.png"><img src="public/monitoring-quota-health.png" width="430" alt="Monitoring Quota Health"/></a>
+    </td>
+    <td width="50%">
+      <strong>Quality Queue</strong><br/>
+      Deterministisk risikotriage med bounded vindu, paginering og metadata-baserte QA-kandidater.<br/><br/>
+      <a href="public/monitoring-quality-queue.png"><img src="public/monitoring-quality-queue.png" width="430" alt="Monitoring Quality Queue"/></a>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Runtime &amp; Config</strong><br/>
+      Faktisk flagg-, fallback- og canary-state for serverstyrte tekstoperasjoner.<br/><br/>
+      <a href="public/monitoring-runtime.png"><img src="public/monitoring-runtime.png" width="430" alt="Monitoring Runtime and Config"/></a>
+    </td>
+    <td width="50%">
+      <strong>Model &amp; Pricing</strong><br/>
+      Katalogversjoner, credit value og runtime match uten noen publish- eller rutingkontroll.<br/><br/>
+      <a href="public/monitoring-model-pricing.png"><img src="public/monitoring-model-pricing.png" width="430" alt="Monitoring Model and Pricing"/></a>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Phase 2 Readiness</strong><br/>
+      Readiness- og rollback-signaler før en ny Vertex-bølge kan vurderes.<br/><br/>
+      <a href="public/monitoring-phase2.png"><img src="public/monitoring-phase2.png" width="430" alt="Monitoring Phase 2 Readiness"/></a>
+    </td>
+    <td width="50%">
+      <strong>Operational Risks</strong><br/>
+      Prioriterte driftsrisikoer med konkrete mitigations og live varsler.<br/><br/>
+      <a href="public/monitoring-operational-risks.png"><img src="public/monitoring-operational-risks.png" width="430" alt="Monitoring Operational Risks"/></a>
+    </td>
+  </tr>
+</table>
 
-### Phase 2 Readiness
-Readiness-visningen samler signalene som trengs før neste Vertex-bølge kan vurderes. Den gjør canary-beslutninger mer synlige og mindre avhengige av manuell tolkning på tvers av flere paneler.
-
-![Phase 2 Readiness](public/monitoring-phase2.png)
-
-### Operational Risks
-Dette panelet løfter frem de viktigste operative risikopunktene i et format som er lett å bruke i hverdagen. Målet er å gjøre oppfølging konkret, ikke bare informativ.
-
-![Operational Risks](public/monitoring-operational-risks.png)
+> **Personvern i dokumentasjonen:** Quality Queue-bildet stopper før prosjektradene, siden radene kan inneholde e-post og prosjektnavn. Model & Pricing-bildet stopper før kontospesifikke margin- og usage-detaljer. E-post er maskert i Dashboard-, Billing- og Users-bildene, og aktivt prosjektnavn er maskert i Local browser storage-bildet.
 </details>
 
 <details>
@@ -335,6 +370,16 @@ Admin-brukerlisten gir full oversikt over brukere, tier, kreditter og abonnement
 
 ![Users](public/admin-users.png)
 </details>
+
+#### Screenshot-policy for offentlig dokumentasjon
+
+Før nye UI-bilder legges i `public/` skal de gjennom en enkel publiseringssjekk:
+
+- Masker alle e-postadresser, andre personnavn enn en eksplisitt godkjent demo-eier, profilbilder av andre, kunde-/bruker-ID-er og Stripe-/betalingsidentifikatorer.
+- Masker private prosjekttitler, dokumentinnhold, kildeprompter, lokale device/install-ID-er, operation keys, signerte URL-er, tokens og rå logger. Bruk heller et syntetisk eller eksplisitt offentlig demo-prosjekt når innholdet er viktig for bildet.
+- Beskjær adminbilder før tabellrader når poenget kan vises med filtre, totalsummer og kolonneoverskrifter. Eksakte saldoer, kontospesifikke marginer og levende usage-/risikodetaljer skal bare vises når de bevisst er godkjent som offentlige.
+- Aggregerte helsesignaler, modellnavn, read-only katalogversjoner og ikke-hemmelige runtime-flagg kan vises når de ikke avslører credentials eller en persons aktivitet.
+- Bruk irreversibel maskering eller heldekkende felt, ikke svak blur alene, og kontroller den ferdige PNG-filen i faktisk oppløsning før den refereres fra README.
 
 ---
 
@@ -356,10 +401,13 @@ graph TD
     Entry --> PublicRoute{"🌐 Public route?"}
     PublicRoute -->|"/"| LandingPage["🏠 Landing Page<br/><i>LandingPage.tsx</i>"]
     PublicRoute -->|"/faq"| FaqPage["❓ FAQ Page<br/><i>FaqPage.tsx + faqContent.ts</i>"]
-    PublicRoute -->|"/privacy, /terms"| LegalPage["⚖️ Legal Pages<br/><i>LegalPage.tsx + legalContent.ts</i>"]
+    PublicRoute -->|"/pricing"| PricingPage["💳 Pricing Page<br/><i>PricingPage.tsx</i>"]
+    PublicRoute -->|"/cookies, /privacy, /terms"| LegalPage["⚖️ Legal Pages<br/><i>LegalPage.tsx + legalContent.ts</i>"]
     LandingPage --> UserStart((("👤 Bruker")))
     FaqPage -.-> LandingPage
     FaqPage --> UserStart
+    PricingPage -.-> LandingPage
+    PricingPage --> UserStart
     LegalPage -.-> LandingPage
     LegalPage --> UserStart
 
@@ -517,7 +565,7 @@ graph TD
     classDef sanitizerNode fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#075985
 
     class Entry,UserStart userNode
-    class LandingPage,FaqPage,LegalPage landingNode
+    class LandingPage,FaqPage,PricingPage,LegalPage landingNode
     class GeminiAnalyze,GeminiPlan,SearchAPI,ImageGen,GeminiSection,GeminiFix apiNode
     class SuggestPrompt,AIRecommend,PlanGenerator,ChapterGen,StreamHandler,AddOnProcessor processNode
     class PromptService3,FileAnalyzer,URLAnalyzer,FileParser,EdgeSuggestPrompt,EdgeSuggestSettings,EdgeAnalyzeFile,EdgeUrlAnalyze,EdgePlan,SharedPromptSuggest,SharedPromptPlan,SharedPromptSection,EdgeSection,EdgeImageCover,EdgeImageChapter,EdgeMermaidFix,SharedPromptFix,EdgeScript,EdgeTTS,ModelRouter,RoutingSection serviceNode
@@ -863,6 +911,60 @@ sequenceDiagram
 ```
 </details>
 
+### Sikker kvalitets- og medieorkestrering
+
+Dette fokuserte diagrammet viser kontrakten som ikke kommer tydelig fram i den brede dataflyten: kanonisk tekst ferdigstilles før kostbar media, provider- og billingstatus avstemmes server-side, og usikre utfall stopper uten skjult replay.
+
+<details>
+<summary><strong>Klikk for å se quality/media authorization, resume og eksport</strong></summary>
+
+```mermaid
+flowchart TD
+    Draft["Ferdig tekstutkast"] --> QualityChoice{"Final Quality Pass?"}
+    QualityChoice -->|Nei / ikke kvalifisert| Canonical["Kanonisk tekst + document hash"]
+    QualityChoice -->|Ja| Review["GPT-5.6 Terra Final Review"]
+    Review --> Verdict{"Strong eller reelle issues?"}
+    Verdict -->|Strong| Canonical
+    Verdict -->|Issues| Repair["Målrettet source repair / revision brief"]
+    Repair --> Revision["GPT-5.6 Luna scoped revision"]
+    Revision --> FreshQA["Fresh QA + patch/integrity preflight"]
+    FreshQA -->|Akseptert| Canonical
+    FreshQA -->|Ikke bevist| Preserve["Bevar draft og stopp fail-closed"]
+
+    Canonical --> Intent["Ønsket media + låst TTS-/audio-profil"]
+    Intent --> Authorization["MediaAuthorization\ntext hash + kostramme + operation keys"]
+    Authorization --> Snapshot["Serverautoritativ orchestration snapshot"]
+
+    Snapshot --> BaselineTTS["Gemini 3.1 Flash TTS\nbaseline dialogue"]
+    Snapshot --> Enhanced{"Enhanced Audio?"}
+    Enhanced -->|Off| CurrentAudio["Dialogue-only current audio"]
+    Enhanced -->|Subtle / Cinematic| Director["Audio Director\nscener + performance direction"]
+    Director --> Layers["Lyria music + ambience + SFX"]
+    BaselineTTS --> Mix["Deterministisk timeline + ducking + mixdown"]
+    Layers --> Mix
+    Mix --> CurrentAudio
+
+    Snapshot --> Resume{"Refresh, resume eller uklart transportutfall?"}
+    Resume --> Reconcile["Reconcile provider + reservation + ledger"]
+    Reconcile -->|Ferdig| Reuse["Gjenbruk ferdige lag uten ny belastning"]
+    Reconcile -->|Ukjent / konflikt| Pause["Pause uten nytt provider-kall"]
+    Reuse --> CurrentAudio
+
+    CurrentAudio --> Local["Local Persistence V2\nBlob-media + lineage + checkpoint"]
+    CurrentAudio --> Export["Player, website, lyd og Video Audiobook"]
+    Local --> Export
+
+    classDef safe fill:#dcfce7,stroke:#16a34a,color:#166534
+    classDef gate fill:#fff7ed,stroke:#ea580c,color:#9a3412
+    classDef stop fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    classDef provider fill:#dbeafe,stroke:#2563eb,color:#1e40af
+    class Canonical,Authorization,Snapshot,CurrentAudio,Local,Export,Reuse safe
+    class QualityChoice,Verdict,Enhanced,Resume,FreshQA,Reconcile gate
+    class Preserve,Pause stop
+    class Review,Revision,BaselineTTS,Director,Layers,Mix provider
+```
+</details>
+
 ---
 
 ## 📂 Filstruktur & Modul-analyse
@@ -894,7 +996,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 ├── package.json                              # Scripts, avhengigheter og app-metadata
 ├── package-lock.json                         # Låste npm-avhengigheter
 ├── vite.config.ts                            # Vite bygg/dev-konfigurasjon
-├── vercel.json                               # SPA-rewrite slik at direkte public routes som /faq, /privacy og /terms fungerer på Vercel
+├── vercel.json                               # SPA-rewrite for /pricing, /faq, /cookies, /privacy og /terms på Vercel
 ├── tailwind.config.js                        # Tailwind tema og scanning
 ├── postcss.config.js                         # PostCSS pipeline
 ├── tsconfig.json                             # TypeScript-konfigurasjon
@@ -915,7 +1017,9 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── AppHeader.tsx                         # Toppnavigasjon for workspace, prosjekter, dashboard, billing og admin
 │   ├── AppWorkspaceBranding.tsx              # Branding-/hero-blokk for workspace-layouten
 │   ├── Icons.tsx                             # Ikoner (SVG)
+│   ├── LocalPersistenceAttentionBanner.tsx   # Varsel når lokal tekst eller media krever oppfølging
 │   ├── LocalPersistenceStatusPanel.tsx       # Lokal status, backup/restore, legacy recovery og eksplisitt cleanup
+│   ├── LocalProjectMediaIndicator.tsx        # Prosjektstatus for usable/missing/incomplete/stale media
 │   ├── MermaidDebugPage.tsx                  # Debug side for Mermaid
 │   ├── OnboardingModal.tsx                   # Førstegangs onboarding
 │   ├── ParserTest.tsx                        # Test-komponent for parser
@@ -925,8 +1029,15 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── FaqPage.tsx                       # Offentlig /faq-side med landing-visuelt design
 │   │   ├── LegalPage.tsx                     # Offentlige /privacy- og /terms-sider med landing-visuelt design
 │   │   ├── LandingPage.tsx                   # Hovedinngang / Hero-seksjon med FAQ-preview
+│   │   ├── PricingPage.tsx                    # Offentlig /pricing-side med enkel plan-/kredittforklaring
 │   │   ├── faqContent.ts                     # Strukturert FAQ-innhold delt mellom landing og /faq
 │   │   └── legalContent.ts                   # Engelske privacy/terms-utkast med regulatoriske referanser
+│   ├── local-persistence/                    # Delpaneler for backup, restore, helse og cleanup
+│   │   ├── LocalBackupRestorePreview.tsx     # Inspiserer backup før restore som ny lokal kopi
+│   │   ├── LocalPersistenceAdvancedDetails.tsx # Teknisk status, checkpoints og lagringsdetaljer
+│   │   ├── LocalPersistenceDangerZone.tsx    # Eksplisitte og avgrensede cleanup-handlinger
+│   │   ├── LocalPersistenceHealthSummary.tsx # Brukervennlig recovery- og mediahelse
+│   │   └── LocalPersistencePrimaryActions.tsx # Download backup, restore og protected-storage
 │   ├── ui/                                   # Gjenbrukbare UI-komponenter
 │   │   ├── AppMessage.tsx                    # Inline meldingsbanner med tone-/alert-varianter
 │   │   ├── AppUiNoticeToast.tsx              # Flytende UI-toast for korte notices og feil
@@ -941,18 +1052,21 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── PlanningStepper.tsx               # Visuell fremdriftsindikator
 │   │   ├── ResearchSourcesBox.tsx            # Tier-aware visning av forskningskilder + debuglogg
 │   │   ├── SettingsModal.tsx                 # Avanserte innstillinger (Logger, Terskelverdier)
-│   │   └── SourceReadinessPromptModal.tsx    # Modal for kilde-readiness før kvalitet/revisjon
+│   │   ├── SourceReadinessPromptModal.tsx    # Modal for kilde-readiness før kvalitet/revisjon
+│   │   └── storyDesignSystem.ts               # Delte tokens og stilkontrakter for appflater
 │   └── views/                                # Hovedvisninger (States)
 │       ├── AdminUsersView.tsx                # Egen admin-visning for brukerstyring + projects/credits/activity tabs
 │       ├── BillingView.tsx                   # Abonnement, kreditter og Stripe-portal
 │       ├── CastingView.tsx                   # Karakter- og stemmeoppsett for prosjektets roller
 │       ├── CompleteView.tsx                  # Ferdig resultat, Final Review Memo, Revise/Variant-entrypoints
+│       ├── PlanningCreditPauseView.tsx       # Sikker pause når planen er klar, men saldoen ikke dekker resten
 │       ├── complete/                         # Paneler, helpers og hooks for ferdigvisningen
 │       │   ├── AdvancedReviewToggle.tsx      # Toggle for å vise/skjule quality details
 │       │   ├── CompletionHero.tsx            # Hero-område med Download / Start New Project
 │       │   ├── ConfirmResetModal.tsx         # Modal som bekrefter reset/start-new fra CompleteView
 │       │   ├── DocumentPreviewPanel.tsx      # Full dokumentpreview med kapitler, cover, audio og kilder
 │       │   ├── DocumentPreviewToggle.tsx     # Toggle for å åpne/lukke dokumentpreview
+│       │   ├── EnhancedRadioAudioStatusPanel.tsx # Status, kvalitet og lineage for Enhanced Radio Play-miks
 │       │   ├── FinalReviewAdvancedOverview.tsx # Operatørflate for memo-type, same-draft variance og saved-state-kontekst
 │       │   ├── finalReviewComparison.ts      # Sammenligner review-runder og beregner issue-delta
 │       │   ├── finalReviewDecision.ts        # Avleder enkel review-status og neste anbefalte handling
@@ -968,6 +1082,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       │   ├── ProjectStateDetailsPanel.tsx  # Routing-, review- og saved-state-kontekst for prosjektet
 │       │   ├── QualityDetailsSection.tsx     # Gjenbrukbar kollapsbar seksjon for quality details
 │       │   ├── QualityGateSummaryPanel.tsx   # Oppsummerer quality-chain, revision scope og integrity check
+│       │   ├── RadioAudioMusicTakesPanel.tsx # Valg og selektiv regenerering av Lyria-musikktakes
+│       │   ├── RadioPlayProductionMapPanel.tsx # Scene-/turnkart for musikk, ambience og SFX-cues
 │       │   ├── RawMemoIssuesPanel.tsx        # Full strukturert liste over QA-issues og anbefalte fixes
 │       │   ├── resetConfirmation.ts          # Bygger forklarende reset-tekst ut fra lagret prosjekt/media-state
 │       │   ├── RevisionRunSummaryPanel.tsx   # Oppsummerer siste revise-run, save target og rewrite strength
@@ -983,6 +1099,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │       │   ├── CoreIdeaAttachmentTray.tsx    # Kompakt tray for vedlagte dokument- og bilde-referanser
 │       │   ├── CoreIdeaInputPanel.tsx        # Hovedfelt for idé, enhance, suggest settings og vedleggsopplasting
 │       │   ├── CreationModeControl.tsx       # Simple / Custom-modusbryter
+│       │   ├── EnhancedRadioAudioPanel.tsx   # Off/Subtle/Cinematic og kostnads-/kvalitetsforklaring
 │       │   ├── GenreSelectionPanel.tsx       # Category, genre og sub-option-velgere
 │       │   ├── ImageGenerationModelsPanel.tsx # Valg av modeller for cover- og seksjonsillustrasjoner
 │       │   ├── InputSourceSelector.tsx       # Velger start fra idé, referanse eller Story Engine-fil
@@ -1105,12 +1222,14 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── auth.ts                               # Autentiseringslogikk og session-hjelpere
 │   ├── cloudSave.read.ts                     # Lesing/hydrering av cloud projects med evidence-policy normalisering
 │   ├── cloudSave.ts                          # Prosjektpersistens, save/delete, metadata og lineage
+│   ├── cloudSaveMediaPolicy.ts               # Bevarer lokale media og markerer manglende/stale cloud-lineage
 │   ├── coreIdeaAttachmentContext.ts          # Bygger samlet kontekst fra Core Idea-vedlegg
 │   ├── coreIdeaAttachmentLimits.ts           # Grenser og policy for Core Idea-filer/bilder
 │   ├── coreIdeaAttachmentRecords.ts          # Normaliserer Core Idea-vedlegg for prosjektlagring/eksport
 │   ├── coreIdeaAttachments.ts                # Klientflyt for Core Idea fil- og bildereferanser
 │   ├── coverImageRecovery.ts                 # Recovery/fallback for cover-bildegenerering
 │   ├── documentStyles.ts                     # Fasade for styles/index.ts
+│   ├── dashboardUsageScopes.ts               # Grupperer logiske usage-operasjoner uten dobbelttelling
 │   ├── downloadService.ts                    # Fasade for export/index.ts
 │   ├── evidenceExportWarning.ts              # UI-logikk for evidence/export-advarsler
 │   ├── evidenceGuardConfig.ts                # Feature flags og konfig for evidence guards
@@ -1118,6 +1237,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── formatConstants.ts                    # Konstanter for overskriftsformater
 │   ├── geminiService.ts                      # Fasade for ai/index.ts
 │   ├── generationCredits.ts                  # Estimat av kredittbehov før generering
+│   ├── generationResumeAction.ts             # Avleder trygg resume-handling fra checkpoint og providerstatus
 │   ├── genreSubOptions.ts                    # Sjangeravhengige sub-option defaults og helpers
 │   ├── localChapterMedia.ts                  # Lokal chapter media-lagring og restore-hjelpere
 │   ├── localMediaAvailability.ts             # Prosjektindikatorer for tilgjengelig, manglende og stale lokale medier
@@ -1134,17 +1254,20 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── localPersistenceUiState.ts            # Stabil status/attention-state på tvers av views
 │   ├── localPersistenceV2.ts                 # Owner/project-scoped IndexedDB records, lease og commit
 │   ├── localPersistenceV2Schema.ts           # V2-database, records, feature gate og schema-kontrakt
+│   ├── localRadioAudioPersistence.ts         # Persist av direction, takes, stems, mix og audio-lineage
 │   ├── localStorageService.ts                # Legacy full-session record beholdt for read-only recovery
 │   ├── modelPricing.ts                       # Lokale provider-estimater for Production Report
 │   ├── planCitations.ts                      # Normalisering og visning av plan-/source-citations
 │   ├── prompts.ts                            # Stabil offentlig entrypoint for lokale prompt-moduler
 │   ├── qualityStrategySelector.ts            # Velger quality/revision-strategi fra evidence og review-state
+│   ├── projectUsageReconciliation.ts         # Avstemmer prosjekt-, job- og ledger-scope ved resume
 │   ├── referenceAnalysisUi.ts                # UI-presentasjon av referanseanalyse og readiness
 │   ├── referenceEvidence.ts                  # Bygger evidenspakke for visuelle Core Idea-referanser
 │   ├── sourceDisplay.ts                      # Formatering av source/citation-visning
 │   ├── sourceEvidenceMetadata.ts             # Source-backed metadata, gaps og unsupported-claim signaler
 │   ├── sourcePromptPersistence.ts            # Lagrer og gjenbruker source prompt-kontekst
 │   ├── sourceReadiness.ts                    # Readiness-policy og autopilot-beslutninger for kilder
+│   ├── radioPlayStartGuard.ts                # Stopper Radio Play når speaker-/manuskontrakten ikke er trygg
 │   ├── suggestSettingsCoachMark.ts           # Lokal state for suggest-settings coach mark
 │   ├── supabaseApi.ts                        # Legacy/aggregert klient for Supabase Edge Functions
 │   ├── supabaseClient.ts                     # Supabase autentisering og oppsett
@@ -1153,13 +1276,22 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   ├── workflowDrafts.ts                     # Midlertidige workflow drafts og restore-state
 │   ├── ai/                                   # AI-orkestrering via Supabase, Google, OpenAI og image providers
 │   │   ├── audioHelpers.ts                   # PCM/Base64 hjelpere
+│   │   ├── audioDirectorShadow.ts            # Shadow-/eval-klient for todelt Audio Director
 │   │   ├── chapters.ts                       # Hovedorkestrering for seksjonsgenerering og add-ons
+│   │   ├── completeEnhancedRadioAudio.ts     # Fullfører autorisert Enhanced Audio etter kanonisk tekst
 │   │   ├── config.ts                         # Konfigurasjon, tokens og sikkerhetsgrenser
+│   │   ├── enhancedRadioAudioDirectionForTts.ts # Validerer performance direction før TTS
+│   │   ├── enhancedRadioAudioRuntimePreflight.ts # Fail-closed runtime-/provider-readiness
 │   │   ├── fileExtract.ts                    # Filanalyse (DOCX, PDF, code og bilder)
 │   │   ├── imageGenerator.ts                 # Bildegenerering via Supabase/API-lag
 │   │   ├── imagen.ts                         # Legacy client-fasade for image generation
 │   │   ├── index.ts                          # Eksportør
 │   │   ├── mediaLineage.ts                   # Media lineage og variant-/remake-sporing
+│   │   ├── mediaOrchestration.ts             # MediaAuthorization, operation keys og orchestration snapshot
+│   │   ├── mediaOrchestrationReconciliation.ts # Serverautoritativ resume/reconciliation
+│   │   ├── radioPlayMixer.ts                 # Timeline, ducking, stems og offline mixdown
+│   │   ├── radioPlayProductionMap.ts         # Scene-/turnkart for direction og cues
+│   │   ├── radioPlayTimelineCompiler.ts      # Deterministisk tidslinje fra faktisk TTS-varighet
 │   │   ├── retry.ts                          # Feilhåndtering og retry-logikk
 │   │   ├── schemas.ts                        # JSON schemas for AI output
 │   │   ├── summarize.ts                      # AI-oppsummering for PPTX bullet points
@@ -1168,11 +1300,13 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   └── chapters/                         # Delmoduler for seksjonsgenerering og media add-ons
 │   │       ├── addOns.ts                     # Orkestrerer bilde-/lyd-add-ons per seksjon
 │   │       ├── audioAddOns.ts                # TTS/audio add-on-flyt for kapitler
+│   │       ├── audioReuseIntegrity.ts        # Integritetsguard før eksisterende lyd kan gjenbrukes
 │   │       ├── callbacks.ts                  # Progress-, logging- og usage-callback typer
 │   │       ├── imageAddOns.ts                # Kapittelbildegenerering, retries og referansebilder
 │   │       ├── sectionGeneration.ts          # Selve seksjons-/chapter-genereringen
 │   │       ├── sourceBackedFacts.ts          # Source-backed fact lock-kontekst inn i kapittelprompt
 │   │       ├── ttsCacheKey.ts                # Cache keys for TTS-generering
+│   │       ├── ttsBatchingPlan.ts            # Stabil batching-identitet for lange logiske TTS-jobber
 │   │       ├── ttsRecovery.ts                # Chunking/recovery for TTS og video frames
 │   │       └── visualReferences.ts           # Utvalg og formattering av visuelle referanser
 │   ├── api/                                  # Tynne Edge Function-klienter
@@ -1193,11 +1327,13 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── markdown.ts                       # Markdown-generering
 │   │   ├── markdownDownload.ts               # Markdown-nedlasting og filnavn
 │   │   ├── mermaidRenderToPng.ts             # Renderer Mermaid SVG/PNG for eksport
+│   │   ├── mediaLineageValidation.ts          # Avviser stale/feilscopet media før eksport
 │   │   ├── mp3.ts                            # Lyd-sammenstilling (MP3/WAV)
 │   │   ├── pdf.ts                            # PDF-generering med avansert formatering
 │   │   ├── pptx.ts                           # PowerPoint-generering
 │   │   ├── qualityStamp.ts                   # Export quality/evidence-stempel
 │   │   ├── reportCostUtils.ts                # Production Report-kostnad, usage og modellmetadata
+│   │   ├── radioAudioMixdownResolver.ts      # Velger aktuell Enhanced-miks eller trygg dialogue-only fallback
 │   │   ├── textUtils.ts                      # Tekstformattering for eksport
 │   │   ├── utils.ts                          # Delte eksport-hjelpere
 │   │   ├── video.ts                          # Videorendring (MP4 H.264/AAC, 16:9 / 9:16)
@@ -1212,19 +1348,26 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │       └── reader.js                     # Reader JS for navigasjon, tema og interaksjon
 │   ├── finalReview/                          # Whole-document review, revision guidance og rewrite-styrke
 │   │   ├── autoQualityGatePolicy.ts          # Policy for staged/auto quality gate
+│   │   ├── acceptedReviewAuthorization.ts    # Binder media/fullføring til akseptert review og document hash
+│   │   ├── backgroundJobPersistence.ts       # Persist/reconcile av langvarige review-/revision-jobber
 │   │   ├── bookPackageRevision.ts            # Book/package-level revision helpers
 │   │   ├── documentHash.ts                   # Fingerprinting av dokumentutkast for review-sammenligning
 │   │   ├── evidenceGaps.ts                   # Evidence gap extraction, clustering og repair targets
+│   │   ├── issueCompleteRecovery.ts          # Avslutter issue-scopes som allerede er sikkert tilfredsstilt
+│   │   ├── localizedPatchOnlyRecovery.ts     # Bevarer urørte seksjoner ved avgrenset patch-recovery
 │   │   ├── finalRevision.ts                  # Whole-document final revision
 │   │   ├── guidedPatch.ts                    # QA-ledet brief-seeding og patch-kandidater
 │   │   ├── initialRevisionGuidance.ts        # Førstepass-guidance for finale revisjoner
 │   │   ├── logicalRunId.ts                   # Stabile logical run IDs for review/revision
 │   │   ├── manualScopeAutopilot.ts           # Autopilot-anbefalinger for manuell scope
 │   │   ├── mediaQualityPassPolicy.ts         # Media quality-pass og deferred media-regler
+│   │   ├── mediaAuthorization.ts             # Autorisasjonskontrakt før nye betalte media-providerkall
 │   │   ├── repairHistory.ts                  # Historikk og dedupe for repair attempts
 │   │   ├── reviewCache.ts                    # Review cache keys og matching mot dokument/config
 │   │   ├── reviewCanon.ts                    # Normalisering av lagret review-state
 │   │   ├── reviewProgress.ts                 # Review-delta, stagnasjon og progress verdict
+│   │   ├── revisionIssueBatching.ts          # Objektagnostisk issue-scoping for lange revisjoner
+│   │   ├── revisionPatchPreflight.ts         # Strukturell og source-preservation kontroll før patch apply
 │   │   ├── revisionBatchPlanning.ts          # Batch-planlegging for store final revisions
 │   │   ├── revisionProgressCommit.ts         # Persist av post-revision review-progress metadata
 │   │   ├── revisionQaMemo.ts                 # QA memo-kontekst og revision guidance
@@ -1282,6 +1425,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── exportSafetyApi.ts                # Export-safety preflight API-klient
 │   │   ├── finalReviewApi.ts                 # Final review/revision API-klient
 │   │   ├── imageApi.ts                       # ai-image API-klient
+│   │   ├── networkErrors.ts                  # Normaliserer tvetydige transport-/fetch-feil
+│   │   ├── paidOperationReconciliation.ts    # Avstemmer mulig fullført betalt operasjon før retry
 │   │   ├── planApi.ts                        # ai-plan API-klient
 │   │   ├── qrLoginClient.ts                  # QR login create/authorize/exchange klient
 │   │   ├── quotaHealthApi.ts                 # Quota Health API-klient
@@ -1370,12 +1515,16 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   ├── ai-admin-user-activity/           # Admin: aktivitet/ledger for valgt bruker
 │   │   ├── ai-admin-user-projects/           # Admin: paginert prosjektoversikt, review health og project rows per bruker
 │   │   ├── ai-analyze-file/                  # Analyse av opplastede filer (multimodal + high-stakes media guard)
+│   │   ├── ai-audio-director/                # Serverautorisert scene- og performance direction for Radio Play
 │   │   ├── ai-export-safety/                 # Server-side export-safety preflight
 │   │   ├── ai-final-review/                  # Final Revision + QA Memo (whole-document)
 │   │   ├── ai-final-revision-billing/        # Reservasjon/commit/refund for Final Revision-kreditter
 │   │   ├── ai-generate-section/              # Server-side generering (SSE Streaming)
 │   │   ├── ai-image/                         # Bildegenerering (GPT Image 2 / Gemini Image / Imagen)
+│   │   ├── ai-image-quality/                 # Målrettet faktakontroll og korrigerende bildepass
 │   │   ├── ai-mermaid-fix/                   # Mermaid-fiksing med AI
+│   │   ├── ai-model-registry-config/         # Read-only modell-/pricing-katalog for Monitoring
+│   │   ├── ai-openai-webhook/                # OpenAI Standard Webhooks-signatur og bakgrunnsjobbreconcile
 │   │   ├── ai-plan/                          # Planleggings-agent med Google Search, fact-lock og verified sources
 │   │   │   ├── access.ts                     # Auth, allowlist, rate-limit og kredittflyt for ai-plan
 │   │   │   ├── coverImageRuntime.ts          # Edge-budsjett, deferral og recovery-logikk for cover-bilder
@@ -1442,6 +1591,7 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 │   │   │   ├── quotaStorage.ts               # Leser usage events/text canary rows og persisterer quota snapshots
 │   │   │   ├── textCanarySummary.ts          # Oppsummerer ai-plan/ai-generate-section canary health, fallback og latency
 │   │   │   └── types.ts                      # Typer for quota cards, alerts, canaries og Model & Pricing-respons
+│   │   ├── ai-radio-audio-generate/          # Autoriserte Lyria-/ambience-/SFX-operasjoner og billing lifecycle
 │   │   ├── ai-script-convert/                # Konvertering til filmmanus
 │   │   ├── ai-source-repair/                 # Målrettet kilde-repair før revisjon
 │   │   │   ├── index.ts
@@ -1523,8 +1673,11 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `components/views/AdminUsersView.tsx`: Separat admin-view for brukerliste, allowlist-status, tier-endringer, kredittjustering, brukerflagg og en paginert `Projects`-fane med per-bruker prosjektinnsikt.
 * `components/views/DashboardView.tsx`: Brukerens konto- og aktivitetsflate. Recent Activity grupperer ledger-hendelser, viser filter for generation/review/routing/billing/admin/errors og henter et større råvindu før de siste gruppene vises.
 * `components/views/QuotaHealthView.tsx`: Dedikert Monitoring-dashboard for quota health, Quality Queue V1, runtime/config, Model & Pricing, Phase 2 Readiness og Operational Risks.
+* `components/landing/PricingPage.tsx`: Offentlig, enkel `/pricing`-flate som forklarer planene og felles kredittsaldo uten å eksponere kontospesifikk betalingsstate. Signert Billing forblir kilden til sannhet for aktivt abonnement, saldo, portal og fakturaer.
+* `components/views/PlanningCreditPauseView.tsx`: Bevarer en ferdig plan og gir et eksplisitt resume-punkt når tilgjengelige kreditter ikke dekker resten av genereringen; den starter ikke seksjoner eller media i bakgrunnen.
 * `components/ui/AppMessage.tsx` og `components/ui/AppUiNoticeToast.tsx`: Delte meldingsflater for inline alerts, statusbannere og flytende notices slik at review-, billing- og workflow-feil presenteres konsekvent.
 * `components/LocalPersistenceStatusPanel.tsx`: Samler device-/prosjektstatus, siste verifiserte checkpoint, browser quota/protected-storage, backup/restore, legacy read-only recovery og eksplisitte cleanup-handlinger. Headerikonet er grønt for brukbare lokale medier og gult bare når oppfølging faktisk kreves.
+* `components/local-persistence/*`, `LocalPersistenceAttentionBanner.tsx` og `LocalProjectMediaIndicator.tsx`: Deler lagringsflaten i trygg primærhandling, inspeksjon før restore, tekniske detaljer, attention-state og eksplisitt danger zone. Backup/restore overskriver ikke et eksisterende prosjekt automatisk.
 * `components/ui/ResearchSourcesBox.tsx`: Viser forskningskilder i tiers (`FACT_EVIDENCE`, `VERIFIED_RELEVANT`, `REACHABLE_ONLY` og debug/avvist), med trygg fallback til gammel citation-liste når rik metadata mangler.
 * `shared/export/evidenceSafety.ts` og `services/i18n/translations.ts`: Delt evidence-safety-kontrakt og lokaliserte tekster for kildestatus/advarsler i workspace preview, export warning og eksporterte formater.
 * `components/views/ProjectsViewSimple.tsx`: Standard prosjektoversikt med fargekodet status, komprimerte neste-steg-kort og handlingene `Open`, `Variant` og `Revise`.
@@ -1532,9 +1685,12 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `components/views/intro/*`: Deler opp startskjermen i fokuserte paneler for inputkilde, Core Idea, referanseanalyse, add-ons, routing preview, variant-/revise-kontrakt og revisionsbrief. Dette er grunnen til at `IntroView` kan bære både Simple, Custom, Variant og Revise uten å bli én stor fil.
 * `components/views/CompleteView.tsx`: Ferdig-visning med nedlasting, `Final Quality Pass`, Final Review Memo, quality-chain-oppsummering og inngang til `Variant` / `Revise`.
 * `components/views/complete/*`: Modulært lag rundt `CompleteView` som skiller statuspaneler, quality-chain-oppsummering, rå QA-issues, routing snapshot, Mermaid-reparasjon, preview og saved-state/logikk i egne paneler og helpers.
+* `components/views/intro/EnhancedRadioAudioPanel.tsx`, `components/views/complete/EnhancedRadioAudioStatusPanel.tsx`, `RadioAudioMusicTakesPanel.tsx` og `RadioPlayProductionMapPanel.tsx`: UI-kontrakten for `Off`/`Subtle`/`Cinematic`, scene-/turn-cues, Lyria-takes, selektiv regenerering, current mix og dialogue-only fallback.
 * `shared/prompts/*`: Felles prompt source-of-truth for kjerneflytene (`ai-generate-section`, `ai-plan`, `ai-suggest-*`, `ai-mermaid-fix`) slik at frontend og Edge Functions bruker samme instruksjonsgrunnlag. Inneholder også fact-lock- og image-fact-lock-byggere som styrer hvilke fakta tekst og bilder får bruke.
 * `hooks/useAutoQualityGate.ts`: Review-first orkestrering etter førstegenerering med `strong_stop`, scoped revise, staged long-document execution, broad fallback, post-review og quality-chain metadata.
-* `services/finalReview/*`: Logikken for `Final Quality Pass`, targeted/broad Final Revision, staged quality policy, review-progresjon, rewrite-styrke og QA-/source-repair-seedede revision briefs.
+* `services/finalReview/*`: Logikken for `Final Quality Pass`, targeted/broad Final Revision, staged quality policy, review-progresjon, rewrite-styrke og QA-/source-repair-seedede revision briefs. Nyere recovery-moduler isolerer issue-scopes, preflighter patches, bevarer urørte eller source-preserved seksjoner og krever fresh QA når en sikker integrasjon ikke kan bevises direkte.
+* `services/ai/mediaOrchestration*.ts`, `enhancedRadioAudioDirectionForTts.ts`, `radioPlayTimelineCompiler.ts`, `radioPlayMixer.ts` og `services/localRadioAudioPersistence.ts`: Text-first mediaorkestrering med låst document hash/TTS-profil, serverautoritativ resume, faktisk TTS-varighet, deterministisk timeline, ducking/mixdown og persist av direction, takes, stems og lineage.
+* `services/supabase/paidOperationReconciliation.ts` og `services/supabase/networkErrors.ts`: Behandler tvetydige `Failed to fetch`-/transportutfall som mulig fullførte betalte operasjoner. Klienten beholder operation key, avstemmer serverstate og starter ikke et nytt provider-kall før utfallet er kjent.
 * `supabase/functions/ai-source-repair/`: Målrettet kilde-repair før revisjon. Funksjonen søker etter sterkere kilder for QA-gap, registrerer per-gap coverage og kan returnere `no_sufficient_sources` slik at draftet heller bevares uendret eller revideres med tydelig kvalifisering/pruning av ulukkede gap.
 * `shared/suggestSettings/*`: Felles heuristikker og normalisering for `Suggest Settings`, slik at frontend og edge holder samme tolkningsregler.
 * `shared/routing/*`: Intelligent model routing-motor som velger optimal AI-modell basert på oppgavetype, kategori, kreativitet og genre.
@@ -1564,6 +1720,8 @@ Prosjektet har gjennomgått en omfattende refaktorering for å øke vedlikeholdb
 * `supabase/functions/ai-plan/usageOperations.ts`, `usageLogging.ts` og `variantPrecisionGate.ts`: Observability- og guard-laget for planmotoren. Her bygges ledger-operasjoner, runtime/fact-lock-metadata logges og variant-sensitive forespørsler mister presise påstander som ikke er kildestøttet.
 * `supabase/functions/ai-final-review/`: OpenAI Responses-basert kvalitetstrinn for review-first `Final Quality Pass` og manuelt Final Review QA Memo. Standard runtime er `gpt-5.6-terra`/`high` for review og `gpt-5.6-luna`/`xhigh` for revision; kvalitetssikre recovery-ruter bruker samme GPT-5.6-familie.
 * `supabase/functions/ai-admin-quality-control/`: Admin-endepunkt for read-only Quality Queue V1. `fetch_queue` returnerer bounded, paginerte prosjektkandidater med deterministisk `risk_score`, forklaringsfelt og observability uten brede `projects.data`-reads i tabellradene.
+* `supabase/functions/ai-audio-director/` og `ai-radio-audio-generate/`: Server-side kontrakter for Audio Director og betalt generering av musikk/ambience/SFX. De bruker eksplisitt auth, idempotente operation keys og reserve/commit/cancel i stedet for klientstyrte provider-replays.
+* `supabase/functions/ai-openai-webhook/`: Verifiserer OpenAI Standard Webhooks-signaturer og kobler bakgrunnsresultater til eksisterende logiske review-/revision-jobber.
 * `supabase/functions/ai-admin-user-projects/`: Admin-endepunkt som leser lagrede prosjekter via service-role, normaliserer baseline/review health og returnerer en paginert lettvekts prosjektoversikt for valgt bruker.
 * `supabase/functions/ai-translate-plan/` og `ai-translate-markdown/`: Egne edge functions for språkvarianter, slik at plan og ferdig innhold kan oversettes server-side før regenerering. Planoversetteren parser flere JSON-kandidater/parts og retryer streng JSON før frontend faller tilbake til feltvis oversettelse.
 * `supabase/functions/ai-quota-sync/`: Synkroniserer og returnerer normaliserte Google Cloud kvote-snapshots for Quota Health-dashboardet.
@@ -1893,7 +2051,9 @@ Kortversjon av siste endringer. Kurert endringshistorikk finnes i `CHANGELOG.md`
 - 🖼️ **Visuell karakterkontinuitet**: Gjentakende karakterer fikk sterkere identity anchors og kontinuitetsinstruksjoner på tvers av cover og seksjonsbilder.
 - 📚 **README og releasehistorikk**: README fikk språk-/objektagnostiske badges, variant-/eksportstatus, roadmap-status og månedlig changelog. Den tekniske juli-historikken er nå også etterført i `CHANGELOG.md`.
 
-### Siste endringer August 2026 (per 21. august)
+### Siste endringer August 2026 (per 28. august)
+- 🛡️ **Final Revision patch-integration v4**: Patch-preflight krever eksplisitt issue-/seksjonsdisposition (`patch`, `already_satisfied` eller `blocked`), bevarer source-preserved seksjoner og setter `requiresFreshQa` når sikker integrasjon må bekreftes før ny baseline eller commit kan aksepteres.
+- 📚 **README og visuell produktdekning**: README peker nå direkte til live app og offentlig pricing, har hurtignavigasjon, oppdatert quality/media-diagram, utvidet moduloversikt og klikkbare miniatyrer for alle seks Monitoring-faner. Quality Queue og Model & Pricing er bevisst avgrenset før person-/prosjekt- og kontospesifikke driftsdata; e-post og lokalt prosjektnavn er maskert i øvrige relevante screenshots.
 - 🤖 **Operasjonsspesifikk Gemini 3.7-promotering**: Source Harvest og Source Repair bruker Gemini 3.7 Flash bak uavhengige serverflagg etter frosne holdouts, produksjonscanary, latency-/kostmåling, billing-kontroll og verifisert flagg-av-rollback. Plan Generation og generelle support-ruter forblir på Gemini 3.6 Flash; seksjonsgenerering forblir på Gemini 3.1 Pro Preview. Hele beslutningsgrunnlaget finnes i den [arkiverte evalueringsplanen](docs/plans/archived/gemini-3-7-flash-evaluation-plan-2026-08-17.md).
 - 🔎 **Strengere kilde- og evidenskontrakter**: Source harvest/repair skalerer mål etter dokumentlengde, bevarer verifisert lineage, mapper kilder til konkrete seksjoner og skiller synlige kilder fra skjult operativ metadata. RFC-er og tilsvarende autoritative publikasjoner klassifiseres korrekt uten domenespesifikk hardkoding.
 - 🧩 **Korte og selvstendige dokumenter**: Planlegging, generering og Final Review skiller nå mellom `no-web`, selvstendig/illustrativ veiledning og lukket brukerlevert evidens. Manglende eksternt kildemateriale skal ikke fylle guider, matriser eller diagrammer med gjentatte `[Uavklart]`-plassholdere når oppgaven tillater pedagogiske eksempler.
