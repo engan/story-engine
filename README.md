@@ -318,48 +318,48 @@ Lagringspanelet forklarer om en verifisert recovery-kopi finnes på enheten, hvo
 <summary><strong>Klikk for å se Monitoring — 6 klikkbare faner</strong></summary>
 
 ### Monitoring
-Monitoring er en admin-only, read-only driftsflate. Bildene under er miniatyrer; klikk på et bilde for å åpne den større versjonen uten at README blir én lang bildestrøm.
+Monitoring er en admin-only, read-only driftsflate. Bildene under bruker kompakte 1200 px forhåndsvisninger med en fast høyde på 300 px. Klikk på en forhåndsvisning for å åpne hele fullengdebildet uten at README blir én lang bildestrøm.
 
 <table>
   <tr>
     <td width="50%">
       <strong>Quota Health</strong><br/>
       Live-/snapshot-status for provider-eksponerte grenser, 24-timers bruk og kvotevarsler.<br/><br/>
-      <a href="public/monitoring-quota-health.png"><img src="public/monitoring-quota-health.png" width="430" alt="Monitoring Quota Health"/></a>
+      <div align="center"><a href="public/monitoring-quota-health.png"><img src="public/monitoring-quota-health-preview.png" height="300" alt="Monitoring Quota Health"/></a></div>
     </td>
     <td width="50%">
       <strong>Quality Queue</strong><br/>
       Deterministisk risikotriage med bounded vindu, paginering og metadata-baserte QA-kandidater.<br/><br/>
-      <a href="public/monitoring-quality-queue.png"><img src="public/monitoring-quality-queue.png" width="430" alt="Monitoring Quality Queue"/></a>
+      <div align="center"><a href="public/monitoring-quality-queue.png"><img src="public/monitoring-quality-queue-preview.png" height="300" alt="Monitoring Quality Queue"/></a></div>
     </td>
   </tr>
   <tr>
     <td width="50%">
       <strong>Runtime &amp; Config</strong><br/>
       Faktisk flagg-, fallback- og canary-state for serverstyrte tekstoperasjoner.<br/><br/>
-      <a href="public/monitoring-runtime.png"><img src="public/monitoring-runtime.png" width="430" alt="Monitoring Runtime and Config"/></a>
+      <div align="center"><a href="public/monitoring-runtime.png"><img src="public/monitoring-runtime-preview.png" height="300" alt="Monitoring Runtime and Config"/></a></div>
     </td>
     <td width="50%">
       <strong>Model &amp; Pricing</strong><br/>
       Katalogversjoner, credit value og runtime match uten noen publish- eller rutingkontroll.<br/><br/>
-      <a href="public/monitoring-model-pricing.png"><img src="public/monitoring-model-pricing.png" width="430" alt="Monitoring Model and Pricing"/></a>
+      <div align="center"><a href="public/monitoring-model-pricing.png"><img src="public/monitoring-model-pricing-preview.png" height="300" alt="Monitoring Model and Pricing"/></a></div>
     </td>
   </tr>
   <tr>
     <td width="50%">
       <strong>Phase 2 Readiness</strong><br/>
       Readiness- og rollback-signaler før en ny Vertex-bølge kan vurderes.<br/><br/>
-      <a href="public/monitoring-phase2.png"><img src="public/monitoring-phase2.png" width="430" alt="Monitoring Phase 2 Readiness"/></a>
+      <div align="center"><a href="public/monitoring-phase2.png"><img src="public/monitoring-phase2-preview.png" height="300" alt="Monitoring Phase 2 Readiness"/></a></div>
     </td>
     <td width="50%">
       <strong>Operational Risks</strong><br/>
       Prioriterte driftsrisikoer med konkrete mitigations og live varsler.<br/><br/>
-      <a href="public/monitoring-operational-risks.png"><img src="public/monitoring-operational-risks.png" width="430" alt="Monitoring Operational Risks"/></a>
+      <div align="center"><a href="public/monitoring-operational-risks.png"><img src="public/monitoring-operational-risks-preview.png" height="300" alt="Monitoring Operational Risks"/></a></div>
     </td>
   </tr>
 </table>
 
-> **Personvern i dokumentasjonen:** Quality Queue-bildet stopper før prosjektradene, siden radene kan inneholde e-post og prosjektnavn. Model & Pricing-bildet stopper før kontospesifikke margin- og usage-detaljer. E-post er maskert i Dashboard-, Billing- og Users-bildene, og aktivt prosjektnavn er maskert i Local browser storage-bildet.
+> **Personvern i dokumentasjonen:** Quality Queue beholder alle 50 prosjektradene, men hele Owner-kolonnen er heldekkende maskert for å skjule navn og e-post. Model & Pricing beholder full sidehøyde, men kontospesifikke margin- og usage-seksjoner er heldekkende maskert. Runtime & Config skjuler credential-presence-kortet. E-post er maskert i Dashboard-, Billing- og Users-bildene, og aktivt prosjektnavn er maskert i Local browser storage-bildet.
 </details>
 
 <details>
