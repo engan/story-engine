@@ -14,7 +14,16 @@
 
 ![Story Engine Infographic](public/infographic.png)
 
-> **Story Engine effektiviserer produksjonen av innhold og sikrer fakta ved hjelp av avanserte AI-agenter. Fra én idé til ferdig dokument, lydbok og video – kvalitetssikret.**
+> **Story Engine hjelper deg fra idé til dokument, lyd og video med AI-støttet planlegging, produksjon og kilde-/kvalitetskontroller.**
+
+**Status per 29. september 2026:** Appen er i beta. Korte og mellomstore
+prosjekter er mål for neste Core-akseptanse; historisk teknisk baseline er 9/9,
+men representativ kvalitetsmåling står på Core-A 0/4 og Core-B 0/2. Den siste
+eierbundne prøven stoppet før Review-providerstart. En avgrenset CPU-retting er
+deployet og lokalt målt, men hosted Review og vanlig brukerflyt er ikke
+akseptert. R2/direct-source er av, og ingen tekstmodell er byttet. Se
+[produktstatus](docs/operations/product-status.md) for gjeldende porter og
+[veikartet](ROADMAP.md) for videre arbeid.
 
 **Hurtignavigasjon:** [Nøkkelfunksjoner](#-nøkkelfunksjoner) · [Live app og demoer](#-se-story-engine-i-aksjon) · [Visuell omvisning](#️-visuell-omvisning-app) · [Teknisk arkitektur](#️-teknisk-arkitektur) · [Filstruktur](#-filstruktur--modul-analyse) · [Installasjon](#-tilgang--installasjon) · [Endringslogg](#-endringslogg) · [Veikart](#️-veikart)
 
@@ -29,6 +38,8 @@
 *   🧭 **Simple / Custom startmodus**: Nye prosjekter starter i en ryddig `Simple`-modus der avanserte valg skjules, `Final Quality Pass` er aktivert, og `Suggest Settings` kjøres automatisk når prosjektet opprettes. `Custom` beholder hele kontrollflaten for brukere som vil styre kategori, format, kreativitet, diagrammer, språk, research og add-ons selv.
 
 *   📄 **Native dokument- og medieeksport**: Skaper PDF, DOCX, PPTX, EPUB, MP3/WAV, MP4 og interaktive website-zipper direkte i nettleseren uten eksterne konverteringstjenester. PDF/DOCX-eksport renderer Mermaid-diagrammer til PNG med dokumenttilpasset kontrastnormalisering, slik at lyse og mørke noder forblir lesbare i trykte dokumenter.
+
+*   🖼️ **Automatisk cover ved nye prosjekter**: Ordinære nye prosjekter inkluderer cover uten et eget offentlig add-on-valg. Eksplisitt no-cover finnes fortsatt for test og gjenoppretting av eldre planer; seksjonsmedier lagres lokalt.
 
 *   🌐 **Interaktiv nettside**: Eksporter prosjektet ditt som en komplett, responsiv nettside (.zip) med oppgradert design, mørkt tema som standard, lys/mørk toggle, innholdsfortegnelse, integrert lyd/bilde-avspilling og egne nedlastingskort. Website-eksporten pakker nå lokale Mermaid- og KaTeX-assets, inkludert KaTeX-fontene, slik at eksporten er mer deterministisk og offline-vennlig.
 
@@ -68,7 +79,7 @@
 
 *   🎙️ **Velg din stemmekvalitet**: Bytt mellom flere Text-to-Speech-modeller for vanlig lydopplesning – Gemini 2.5 Flash, Gemini 2.5 Pro eller Gemini 3.1 Flash TTS Preview. Nye Radio Play-providerkall bruker derimot alltid Gemini 3.1 Flash TTS Preview, også ved resume, reparasjon, variant og oversettelse; eksisterende ferdige 2.5-lydblobber kan fortsatt spilles, men utløser ikke nye 2.5-kall eller fallback. Hver logiske TTS-jobb reserveres og sluttføres én gang selv om teksten deles i mange provider-segmenter; billing bruker server-observert varighet når format/metadata er trygt verifisert eller konservativ tegnproxy ellers.
 
-*   📻 **Radio Play + Enhanced Audio**: Radio Play påvirker både tekst og lyd. Plan- og seksjonsprompter får format-, rolle-, dialog- og fortellerkontrakt, casting viser én kanonisk forteller, og narrator-aliaser normaliseres uten å slå sammen eksplisitt navngitte roller. Et separat Enhanced Audio-valg tilbyr `Off`, `Subtle` og `Cinematic`: Audio Director planlegger scener og stemmeregi, faktisk TTS-varighet forankrer den deterministiske tidslinjen, Lyria 3 leverer musikk, og lisensiert/prosedural ambience og SFX mikses med ducking. Valgt take, stems, miks, kvalitet og lineage bevares gjennom Local Persistence V2 og brukes konsistent i avspilling, website og Video Audiobook.
+*   📻 **Radio Play + Enhanced Audio**: Radio Play påvirker både tekst og lyd. Plan- og seksjonsprompter får format-, rolle-, dialog- og fortellerkontrakt, casting viser én kanonisk forteller, og narrator-aliaser normaliseres uten å slå sammen eksplisitt navngitte roller. Enhanced Audio har profilene `Off`, `Subtle` og `Cinematic`, med Audio Director, Lyria 3, ambience/SFX, miks og lineage. Produksjonspiloten er pauset mens sluttest og ordinær brukerverifikasjon gjenstår; ordinære brukere får dialogue-only-lyd. Se [produktstatus](docs/operations/product-status.md).
 
 *   🎚️ **Sikker lydorkestrering og selektiv regenerering**: `MediaAuthorization` for den eksakte godkjente tekstversjonen må være akseptert før nye lydproviderkall kan starte. Serveren eier kostramme, operation keys, reserve/commit/cancel og provider-replay; refresh eller resume kan derfor gjenbruke ferdige lag og regenerere bare valgt scenemusikk uten å betale for uendrede lag på nytt. Ved manglende eller usikker Enhanced Audio-state faller eksport og avspilling trygt tilbake til tilgjengelig dialogue-only-lyd uten automatisk provider-replay.
 
@@ -1972,14 +1983,14 @@ Bytt ut siste kommando for andre sjekker, for eksempel `npm run build`, `npm run
     ```bash
     npm run deploy:functions
     ```
-    Scriptet kjører auth/security/function checks først og bruker deretter delt deploy: beskyttede funksjoner deployes med `verify_jwt = true`, mens de eksplisitte public-unntakene (`cleanup-project-visual-references`, `qr-login`, `ai-stripe-webhook`) deployes med `--no-verify-jwt`.
+    Scriptet kjører auth/security/function checks først og bruker deretter delt deploy: beskyttede funksjoner deployes med `verify_jwt = true`, mens de eksplisitte public-unntakene (`cleanup-project-visual-references`, `qr-login`, `ai-stripe-webhook`, `ai-openai-webhook`) deployes med `--no-verify-jwt` og egne kodekontroller for hemmelighet, verifier eller signatur.
 
 ### 🌐 Frontend-routing og Vercel
 
-`App.tsx` håndterer foreløpig public routes med en enkel `window.location.pathname`-switch før innlogget app-shell rendres. `/` viser `LandingPage.tsx`, `/faq` viser `FaqPage.tsx`, og `/privacy`/`/terms` viser `LegalPage.tsx`. Hvis flere public sider som `/pricing`, `/cookies` eller support skal inn samtidig, bør dette vurderes på nytt mot en liten React Router-konfigurasjon.
+`App.tsx` håndterer public routes med en `window.location.pathname`-switch før innlogget app-shell rendres. `/` viser `LandingPage.tsx`, `/faq` viser `FaqPage.tsx`, `/pricing` viser `PricingPage.tsx`, og `/privacy`, `/terms` og `/cookies` viser `LegalPage.tsx`. Flere eller mer sammensatte offentlige ruter kan begrunne en egen router.
 
 `vercel.json` rewrites `/(.*)` til `/index.html`, slik at direkte besøk til SPA-ruter
-som `/faq`, `/privacy` og `/terms` fungerer etter deploy på konfigurert domene.
+som `/faq`, `/pricing`, `/privacy`, `/terms` og `/cookies` fungerer etter deploy på konfigurert domene.
 
 `vercel.json` setter også produksjonsheaders for Vercel-hostet frontend. HSTS,
 `nosniff`, referrer policy, permissions policy og frame-deny håndheves direkte.
@@ -2069,23 +2080,24 @@ Kortversjon av siste endringer. Kurert endringshistorikk finnes i `CHANGELOG.md`
 - 💾 **Flerlags lyd gjennom resume og eksport**: Direction manifest, musikk-takes, stems, mix manifest, kvalitetsstatus og lineage bevares lokalt og i nødvendig cloud-metadata. Website, Video Audiobook og lydnedlasting bruker den valgte aktuelle miksen, mens manglende lokale blobs gir en tydelig dialogue-only-fallback uten skjult regenerering.
 - 🔒 **Radio Play TTS-policy**: Nye Radio Play-kall bruker bare Gemini 3.1 Flash TTS Preview. Ferdige legacy-blobber fra Gemini 2.5 kan spilles, men 2.5 kan ikke velges eller startes som ny Radio Play-rute.
 
+### Siste endringer September 2026 (per 29. september)
+- 🧭 **Core-akseptanse**: Direct-source/FQP-sporet fikk en historisk teknisk baseline på 9/9. Core-A er fortsatt 0/4 og Core-B 0/2 komplette kvalitetsmålinger; ordinær brukerflyt og release-beslutning står åpne. Etter et hosted Review-stopp før providerstart er request-lokal kildegjenbruk deployet og verifisert providerfritt, men hosted CPU og kvalitet må måles på nytt.
+- 🔒 **Oppgjør og gjenoppretting**: Eierbundne prøvekjøringer har fått strengere kilde-, kandidat-, kost- og operasjonsbinding. Stoppede nye forsøk er avstemt uten åpne nye hold; R2/direct-source forblir av.
+- 🖼️ **Cover og eksport**: Ordinære nye prosjekter får automatisk cover. Eksportkandidatens kontrakt mellom klient og `ai-export-safety` er rettet; ZIP, PDF med bilder, DOCX med bilder og EPUB er lastet ned i produksjonskontroll, med draft-/kildeadvarsler bevart. PPTX inngikk ikke i denne kontrollen.
+- 🎨 **Bilde- og nettsidespor**: Sunburst er global bildestandard, men naturlig kvalitets-/kostobservasjon er ufullstendig. Nedlastbar nettside har fått en avgrenset print-/tilgjengelighetsretting; lokal offline-/viewportakseptanse og betalt AI-design står åpne.
+- 🎙️ **Modellkandidater**: Gemini 3.8 TTS, Gemini 3.8 Flash og GPT-6 evalueres i egne spor. Første 3.8-TTS-kontroll stoppet med HTTP 400 uten lydfil; ingen av kandidatene har erstattet produksjonsrutene.
+
 > Tips: Bruk GitHub Releases for "release notes", og hold `CHANGELOG.md` som den tekniske kilden.
 
 ---
 
 ## 🗺️ Veikart
 
-Vi bygger fremtidens publiseringsverktøy. Her er aktuelle oppfølgingsområder og videre planer:
-
-### Videre oppfølging (Q3 2026)
-*   🌐 **Social Media Link Analysis**: Utvidelse av "Analyze Link" til YouTube-transkripter, X/Twitter-poster, Facebook/Instagram (oEmbed) og Gemini-basert videoanalyse. Se `docs/plans/social-media-link-analysis-plan.md`.
-*   ☁️ **Vertex AI / Gemini API hardening**: Planlegging, seksjonsgenerering og TTS har nå service-account/Vertex-ruter i produksjonskonfig. Videre arbeid handler om å rydde bort de siste direkte Gemini API-key-avhengighetene i source-repair, image, suggest/analyze og enkelte grounding-hjelpeflyter.
-
-### Fremtidige visjoner
-*   📰 **Integrasjon mot Retriever/Mediearkivet**: For dypere faktasjekk mot norske kilder.
-*   🗣️ **Multi-LLM Konsensus-debatt**: La flere AI-modeller diskutere en sak før konklusjon trekkes.
-*   🗞️ **Pilotprosjekt med lokalavis**: Test av "Breaking News"-agent (f.eks journalist, etter avtale).
-*   📱 **PWA-støtte**: Full offline-støtte for journalister i felt (etter avtale).
+Gjeldende prioritet er å måle Core-A/B-kvalitet, kontrollere ordinær brukerflyt,
+lukke eksport-/medieakseptanse og deretter vurdere modell- og providerbytter med
+egne evalueringsporter. [ROADMAP.md](ROADMAP.md) skiller aktive porter fra senere
+produktideer; [produktstatus](docs/operations/product-status.md) viser den
+daterte driftsstatusen.
 
 ---
 

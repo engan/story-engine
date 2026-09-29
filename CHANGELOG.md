@@ -10,7 +10,49 @@ releasehistorikk der semantisk versjonering ikke er praktisk.
 > releasehistorikk, ikke en linje-for-linje commit-indeks. Bruk `git log` for
 > komplett teknisk commit-spor.
 
-## [Unreleased]
+## [2026-09-29] - Core-kontroller, eksport og modellforberedelse
+
+### Added
+- Core-release fikk avgrensede akseptanseporter for korte og mellomstore
+  prosjekter. Historisk teknisk baseline er 9/9; Core-A 0/4, Core-B 0/2 og
+  ordinær brukerflyt er fortsatt åpne. Long-form er tilgjengelig, men senere
+  R&D-akseptanse er skilt fra Core-release.
+- Separate evalplaner og providerfrie kontrollpakker for Gemini 3.8 Flash,
+  Gemini 3.8 TTS og GPT-6 Sol/Luna. Ingen av dem er produksjonsrute.
+
+### Changed
+- Ordinære nye prosjekter inkluderer cover automatisk; offentlig cover-add-on
+  er fjernet. Eksplisitt no-cover bevares for test og plan-gjenoppretting.
+- Sunburst er global bildestandard. Naturlig sluttkvalitet og kost per bilde
+  er ennå ikke ferdig klassifisert.
+- Direct-source/FQP-prøvene bruker strengere serverbinding av kildepartisjoner,
+  kandidat, quote, eier og fysisk operasjon. R2/direct-source er fortsatt av;
+  avgrensede prøvekjøringer gir ikke generell kvalitetsakseptanse.
+
+### Fixed
+- `ai-export-safety` og klienten bruker samme eksportkandidatkontrakt.
+  Produksjonskontroll lastet ned ZIP, PDF og DOCX med bilder samt EPUB, med
+  draft-/kildeadvarsler bevart. PPTX var ikke del av kontrollen.
+- Request-lokal gjenbruk fjerner gjentatt kildepreparering og
+  integritetskontroll i Review-discovery. Rettingen er deployet og målt
+  providerfritt; siste betalte Case 1 stoppet før Review-providerstart,
+  og hosted CPU-/kvalitetsakseptanse gjenstår.
+- Nedlastbar nettside fikk en avgrenset print-, fokus- og kontrastretting.
+  Faktisk lokal offline-, print- og viewportakseptanse står åpen.
+
+### Operations
+- Siste eierbundne Core-A Case 1 er terminalt avstemt med 12 kreditter og
+  USD 0,242237 for fem fysiske forsøk, uten nye åpne hold. Ingen Review,
+  Revise eller fersk QA ble fullført; Case 2 er ikke klar.
+- Første Gemini 3.8 TTS-kontroll endte HTTP 400 uten lydfil. Årsak og faktisk
+  fakturakost er ikke fastslått; ny betalt test og TTS-migrering står åpne.
+- Fjern-CI startet ikke teststeg på grunn av kontoens betalings-/forbruksgrense;
+  lokale kontroller og produksjonsreadback er dokumentert i
+  [produktstatus](docs/operations/product-status.md).
+
+---
+
+## [2026-08-28] - Kilde-, revisjons- og mediehardening
 
 ### Added
 - Separate, server-side produksjonsflagg for Gemini 3.7 Flash i Source Harvest
@@ -74,8 +116,8 @@ releasehistorikk der semantisk versjonering ikke er praktisk.
   ferdig tekst og retrybar media-orchestration bevares.
 
 ### Documentation
-- README og den kuraterte releasehistorikken er ajourført gjennom 21. august
-  2026. [Gemini 3.7-evalueringsplanen](docs/plans/archived/gemini-3-7-flash-evaluation-plan-2026-08-17.md)
+- README og den kuraterte releasehistorikken ble oppdatert i august.
+  [Gemini 3.7-evalueringsplanen](docs/plans/archived/gemini-3-7-flash-evaluation-plan-2026-08-17.md)
   er arkivert med beslutningsgrunnlag, produksjonsaktivering og testet rollback
   for begge source-operasjonene.
 

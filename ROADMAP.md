@@ -7,7 +7,9 @@ Roadmapen skal ikke være en liste over alt som allerede er levert. Ferdige
 features, historiske beslutninger og release-notes ligger i `CHANGELOG.md`,
 `README.md` og arkiverte planer under `docs/plans/archived/`.
 
-Sist ryddet: 2026-07-06.
+Sist gjennomgått: 2026-09-29. Daterte produksjonsbevis og åpne unntak står i
+[produktstatus](docs/operations/product-status.md); planene nedenfor eier
+akseptansekriteriene. «Implementert», «deployet» og «akseptert» er ulike porter.
 
 ---
 
@@ -31,14 +33,16 @@ Disse områdene regnes som levert og fjernes derfor fra aktiv roadmap:
 - Simple / Custom startmodus.
 - Project save/load, Projects view, Revise og Variant-grunnflyt.
 - Language variants med review-inheritance når evidenskontrakten bevares.
-- Final Quality Pass / Final Review / targeted Revise som hovedkvalitetsflyt.
+- Final Quality Pass / Final Review / targeted Revise som implementert
+  hovedflyt; representativ Core-kvalitet er fortsatt under akseptanse.
 - Evidence safety, fact-lock, source repair og verified source metadata som
   operative kvalitetsmekanismer.
 - Dashboard, Billing, Monitoring, Model & Pricing og Quality Queue V1 som
   admin-/operatorflater.
 - Public FAQ, pricing, privacy, terms og cookies routes.
 - PDF/DOCX Mermaid-kontrastnormalisering.
-- GPT Image 2 / Gemini image-katalog, TTS-valg og multimodal output-baseline.
+- Bilde- og TTS-valg samt multimodal output-baseline. Sunburst er global
+  bildestandard, med naturlig kvalitets-/kostobservasjon fortsatt åpen.
 
 Se `CHANGELOG.md` for kurert historikk.
 
@@ -46,12 +50,32 @@ Se `CHANGELOG.md` for kurert historikk.
 
 ## Prioritet 1: Launch- og driftsklarhet
 
+### Core-akseptanse for kildebasert Final Quality Pass
+
+**Status:** historisk teknisk baseline 9/9; Core-A 0/4 og Core-B 0/2
+komplette kvalitetsmålinger per 29. september. Core-C ordinær brukerflyt og
+Core-D release-beslutning er åpne. R2/direct-source er av.
+
+**Plan:** `docs/plans/active/final-review-closure-completeness-evidence-semantics-plan-2026-08-31.md`
+
+**Neste steg:**
+
+- Mål hosted Review-discovery etter deployet, providerfritt verifisert
+  CPU-retting i én særskilt godkjent Case-1-kjøring. Siste betalte Case 1
+  stoppet før Review-providerstart og er terminalt avstemt.
+- Fullfør frosne Core-A/B-kvalitetsmålinger, source/evidence-audit,
+  kost/oppgjør, save/reload og ordinær bruker-/rollback-kontroll.
+- Behold 18-seksjoners støtte tilgjengelig; egen long-form-kvalitetstest er
+  senere R&D og blokkerer ikke denne Core-beslutningen.
+
 ### Vertex / Gemini auth-key cleanup
 
-**Status:** aktivt migreringsspor
+**Status:** nøkkelmigrering avsluttet 16. september; Vertex fase 2 er aktiv
+som plan, men ny produksjonscanary er gated.
+
 **Planer:**
 
-- `docs/plans/active/gemini-auth-key-migration-plan-2026-06-19.md`
+- `docs/plans/archived/gemini-auth-key-migration-plan-2026-06-19.md`
 - `docs/plans/active/generativelanguage-to-vertex-phase2.md`
 - `docs/plans/active/vertex-phase2-canary-runbook.md`
 - `docs/plans/active/vertex-phase2-wave1-reentry-checklist.md`
@@ -62,17 +86,16 @@ funksjon.
 
 **Neste steg:**
 
-- Fullfør credential inventory uten å lagre hemmeligheter i repoet.
-- Avklar hvilke gjenstående Gemini Developer API-flows som skal til auth key
-  og hvilke som skal flyttes til Vertex.
-- Hold `GEMINI_API_KEY` fallback aktiv til canary- og smoke-data er gode nok.
-- Ikke aktiver flere Vertex text flags før Monitoring viser stabilitet for
-  forrige bølge.
+- Avklar hvilke gjenstående Gemini Developer API-flows som senere skal flyttes
+  fra den fungerende auth-nøkkelen til Vertex.
+- Frys gjeldende modell, prompt, provider og kost per operasjon før canary.
+  Source Harvest og Source Repair har egne grunnings-/billingporter.
+- Verifiser funksjonsvis rollback og skill providerbytte fra modellbytte.
 
 ### Paid launch margin og kreditt-økonomi
 
 **Status:** aktiv launch-readiness
-**Planstatus:** lokal draftplan finnes, men er ikke versjonert i repoet ennå.
+**Plan:** `docs/plans/active/subscription-included-credit-margin-launch-readiness-plan-2026-07-03.md`
 
 **Hvorfor:** Før bred betalt lansering må inkluderte credits, top-ups,
 providerkost, Stripe-fees, fallback/retry og margin kunne vurderes per tier og
@@ -80,11 +103,11 @@ operasjon.
 
 **Neste steg:**
 
-- Deploy/verify oppdatert `ai-quota-sync` før produksjonsdata forventes i
-  margin-snapshot.
-- Fullfør per-user, billing-cycle og resolved-model drilldown.
-- Definer hard stop/admin-review terskler for providerkost.
-- Avklar årsabonnementenes effektive credit-verdi og tax/VAT-behandling.
+- Fullfør logisk operasjonskost, faktisk providerfaktura og kundekreditt-
+  avstemming før pris- eller marginbeslutning.
+- Definer hard stop/admin-review ved providerkost og avklar årsabonnement,
+  tax/VAT og Stripe live-oppfølging i egne planer.
+- Behandle rapportert margin som observasjon til datagrunnlaget er komplett.
 
 ### Supabase auth custom domain
 
@@ -106,27 +129,11 @@ Supabase project-ref hosten.
 
 ## Prioritet 2: Kvalitet, evidens og modellvalg
 
-### Authoritative-first source repair planning
-
-**Status:** backlog / pending follow-up
-**Planstatus:** lokal draftplan finnes, men er ikke versjonert i repoet ennå.
-
-**Hvorfor:** Source Authority Registry brukes allerede i verifisering og
-ranking. Neste kvalitetsløft er å bruke authority-signaler tidligere i
-source-repair query planning, uten å la registry-medlemskap alene lukke et
-evidence-gap.
-
-**Neste steg:**
-
-- Klassifiser topic/risk/context fra eksisterende metadata.
-- Velg relevante trusted source packs som advisory signal.
-- Generer preferred-domain queries før bred fallback.
-- Legg til tester som beviser at broad fallback fortsatt virker og at
-  topic-spesifikk hardkoding ikke sniker seg inn.
-
 ### Final Quality Pass hardening
 
-**Status:** kontinuerlig hardening / operator-runbook
+**Status:** implementert flyt, men representativ kilde-/kvalitetsakseptanse
+føres i Core-sporet ovenfor. Operatørrutiner og regresjonsvern er løpende.
+
 **Planer:**
 
 - `docs/plans/active/final-review-operator-runbook.md`
@@ -143,20 +150,28 @@ klare operatorrutiner.
   emne- eller landspesifikke patches.
 - Oppdater runbooks når operatorflyten endres.
 
-### GPT-5.6 Sol/Terra/Luna evaluation
+### Gemini 3.8 Flash og GPT-6 Sol/Luna
 
-**Status:** aktiv vurderingsplan, ikke produksjonsbytte
-**Planstatus:** lokal draftplan finnes, men er ikke versjonert i repoet ennå.
+**Status:** kandidatspor under evaluering; ingen produksjonsbytte.
+**Planer:**
 
-**Hvorfor:** Nye OpenAI review/revision-modeller kan bli relevante, men bare
-hvis offisiell API-tilgang, pricing, caching, avtalevilkår, evals og
-marginobservabilitet er verifisert.
+- `docs/plans/active/gemini-3-8-flash-evaluation-migration-and-retirement-plan-2026-09-02.md`
+- `docs/plans/active/gpt-6-sol-luna-review-revision-evaluation-plan-2026-09-23.md`
+- `docs/plans/active/sak4-and-model-transition-review-2026-09-23.md`
+
+**Hvorfor:** Produksjon bruker fortsatt Gemini 3.6/3.7/3.1 per operasjon og
+GPT-5.6 Terra/Luna i Review/Revision. En nyere modell i katalogen er ikke en
+godkjent serverrute.
 
 **Neste steg:**
 
-- Ikke endre defaultmodeller før offisiell tilgang og pricing er bekreftet.
-- Bruk admin-only/offline/shadow eval før eventuell pilot.
-- Krev flaggbasert rollback og ingen svekking av source/evidence-policy.
+- Bekreft API-tilgang, kanonisk ID, pricing/caching og vilkår med Story Engines
+  serveridentitet. Frys incumbent-input og kjør separate, kontrollerte
+  sammenligninger for hver operasjon.
+- Mål kvalitet, kilde-/kontraktssikkerhet, tid, feil, kost, kredittføring og
+  recovery. Core-A baseline må være komplett før produksjonspromotering.
+- Behold dagens ruter som testet rollback til resultat og eierbeslutning er
+  dokumentert.
 
 ---
 
@@ -219,6 +234,20 @@ i praksis, men app-UI er fortsatt stort sett hardkodet på engelsk.
 - Migrer Workspace, Complete, Download, Projects, Review, Revise og Variant før
   dypere adminflater.
 
+### Nedlastbar nettside og AI-design
+
+**Status:** BASE print-/fokus-/kontrastretting deployet; ti historiske ZIP-er
+statisk revalidert. Lokal `file://`-, offline-, print- og viewportakseptanse
+og betalt AI-design er åpne.
+
+**Plan:** `docs/plans/downloadable-website-design-plan-2026-09-01.md`
+
+**Neste steg:**
+
+- Godkjenn faktiske ZIP-er lokalt med tastatur, print og flere viewportbredder.
+- Kjør AI-design bare etter separat kost- og kvalitetsport; bevar fungerende
+  BASE-eksport som rollback.
+
 ### Visitor og product analytics
 
 **Status:** later-track plan
@@ -238,28 +267,45 @@ lettvekts trafikk- og produktfunnel-innsikt.
 
 ## Prioritet 5: Audio, media og nye produksjonsflater
 
-### Radio Play med Lyria/musikk/ambience
+### Enhanced Radio Play Audio
 
-**Status:** konsept / senere produktspor
-**Plan:** `docs/plans/lyria-radio-play-integration.md`
+**Status:** kode og lokal mediekontrakt finnes; produksjonspilot er pauset.
+Pilotbrytere og ordinær dialogue-only-atferd må avklares og verifiseres.
 
-**Hvorfor:** Radio Play kan bli sterkere med egen audio-plan, Gemini-TTS for
-dialog/narrator, musikk/ambience beds og enkel miksing med ducking.
+**Plan:** `docs/plans/active/lyria-radio-play-integration.md`
+
+**Hvorfor:** Lyria, ambience, SFX og miks krever sluttlytting, trygg
+produksjonskobling og korrekt mediegjenoppretting før bred bruk.
 
 **Neste steg:**
 
-- Ikke bind v1 til udokumentert Lyria 3 request-kontrakt.
-- Bruk kapabilitetsadapter for Lyria/alternativ musikkmodell.
-- Hold lydregi i egen pass etter tekst/script, ikke i fiction-prompten.
-- La brukeren regenerere lydlag uten å regenerere tekst.
+- Avklar pilotflagg og miljø mens utviklingen er pauset.
+- Verifiser ordinær brukersti, lydkvalitet, gjenopptakelse, eksport,
+  lineage og kost før ny produksjonsaktivering.
+
+### Gemini 3.8 TTS-migrering
+
+**Status:** forberedelse; ingen produksjonsaktivering. Første kontrollkall
+stoppet med HTTP 400 og ga ingen lydfil; årsak og faktisk fakturakost er åpne.
+
+**Plan:** `docs/plans/active/gemini-3-8-tts-evaluation-migration-and-legacy-retirement-plan-2026-09-24.md`
+
+**Neste steg:**
+
+- Avklar request-/providerfeilen, faktisk pris, API-tilgang og isolert
+  evalidentitet før ny betalt prøve.
+- Sammenlign tale, varighet, språk, single-/multi-speaker, kost, billing,
+  retry og eksport med dagens TTS-rute. Bevar 3.1 som eksplisitt rollback
+  til migreringen er verifisert.
 
 ### Persistent media storage
 
 **Status:** planned / later-track
 **Plan:** `docs/plans/persistent-storage-strategy.md`
 
-**Hvorfor:** Prosjekttekst lagres allerede, men varig media-storage må styres
-av kost, retention, tier-politikk og on-demand lasting.
+**Hvorfor:** Prosjekttekst og cover lagres i skyen, mens seksjonsbilder og lyd
+fortsatt er lokale. Varig cloud-media må styres av kost, retention,
+tier-politikk og on-demand lasting.
 
 **Neste steg:**
 
@@ -324,8 +370,7 @@ Nærliggende cleanup:
 
 - Oppdater active master checklist slik den ikke peker på planer som allerede
   ligger i `docs/plans/archived/`.
-- Flytt nye untracked planfiler inn i riktig status når de skal versjoneres:
-  aktiv, backlog eller arkivert.
+- Versjoner nye planfiler i riktig status: aktiv, backlog eller arkivert.
 - Hold `ROADMAP.md` kortere enn planfilene; detaljer skal ligge i planene.
 
 ---
